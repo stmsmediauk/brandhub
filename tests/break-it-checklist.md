@@ -25,9 +25,15 @@ Run before calling a studio or hub change done. Do it with two very different br
 - [ ] Refreshing the page warns and recovers the current work
 
 ## Login and isolation
-- [ ] Wrong password, empty password, repeated wrong passwords
-- [ ] Logged in as brand A, try brand B's address, files and downloads: all refused
-- [ ] Direct links to another brand's logo and font files are refused
+Run by script: `php tests/server/run.php` (see docs/server.md). It covers every line here except the two marked by hand.
+- [ ] Wrong password, empty password, repeated wrong passwords (slowed down, and the right password is refused during the lock-out)
+- [ ] A brand that does not exist gives the same answer, and takes about the same time, as a wrong password for a real one
+- [ ] Logged in as brand A, try brand B's address, record, files and download log: all refused, exactly as for a brand that does not exist
+- [ ] Direct links to another brand's logo and font files are refused; so are `..`, encoded and doubled `..`, symbolic links, hidden files and non-image files
+- [ ] The app's code, config and storage cannot be fetched from the web
+- [ ] Signing out ends the session for good; changing a brand's password signs everyone out
+- [ ] The session cookie is HttpOnly and SameSite, and Secure everywhere except localhost
+- [ ] By hand on the real server: https works, the cookie shows Secure in the browser's developer tools, and a deliberately wrong database password shows only "Something went wrong"
 
 ## Devices
 - [ ] Current Chrome and Safari on desktop

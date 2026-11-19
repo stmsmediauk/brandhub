@@ -42,3 +42,4 @@ The STMS palette (eight example colours) and the FORMA assets in the designs are
 - Run it. Open the page in a browser and try it, including the failure cases in `tests/break-it-checklist.md`.
 - List the files that changed, ready for upload.
 - Update `docs/` if a decision changed.
+- Update the "Where we are" section of `README.md` (state, how to run, open questions, next step) so the next session can pick up from it.

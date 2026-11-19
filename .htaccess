@@ -1,0 +1,9 @@
+# If the whole project is ever uploaded into the web folder by mistake, keep secrets private.
+<FilesMatch "^(config.*\.php|\.env)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Deny from all
+  </IfModule>
+</FilesMatch>

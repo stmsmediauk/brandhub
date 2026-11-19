@@ -1,9 +1,12 @@
 # secrets and local config
-config.php
+/config.php
+/config.*.php
+!/config.example.php
 .env
 # uploaded brand files and exports stay out of git
 storage/*
 !storage/.gitkeep
+!storage/.htaccess
 # OS and editor noise
 .DS_Store
 Thumbs.db

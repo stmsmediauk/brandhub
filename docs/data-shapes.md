@@ -18,7 +18,7 @@ One record per brand. Its values come from the five admin steps.
 | name, tagline, handle | Display text and the social handle | Basics |
 | password | One shared password for the whole brand, stored only as a hash | Basics |
 | status | draft or live | Studio and publish |
-| palette | A list of 2 to 12 colours, each with name and HEX. The first colour is the accent. CMYK and Pantone overrides per colour, used instead of the calculated values when set | Colours |
+| palette | A list of 2 to 12 colours, each with name and HEX. The first colour is the brand's main accent: it colours buttons and highlights, and it decides whether the hub and studio use a light or a dark page (see Derived). CMYK and Pantone overrides per colour, used instead of the calculated values when set | Colours |
 | fonts | Heading and body: family, source (Google or uploaded files), plus heading weight, case and letter-spacing. Optional `fallback` (`serif` or `sans-serif`, the default) for the moment before a font loads. Uploaded fonts list their files: `files: [{ url, weight, style }]` | Type and look |
 | look | hero (solid, tint or dark photo) and corners (sharp, soft, round or pill) | Type and look |
 | logos | Primary, primary with tagline, secondary and brand mark. One master SVG each | Logos |
@@ -125,9 +125,12 @@ These are the same for every client. A layout may override them in one place if 
 On Steve's StackCP plan, with PHP and MySQL. See `db/schema.sql`.
 
 - **brands:** one row per brand with the password hash, status and current version.
-- **brand_versions:** the full brand record as JSON, one row per saved version.
-- **Files:** logos, fonts and library images in a folder per brand, which only that brand's login can reach.
-- **usage_log:** who exported what, which layout and format, and when. This feeds the Brands screen.
+- **brand_versions:** the full brand record as JSON, one row per saved version. The address (`slug`), `status` and `version` are columns of `brands`, so they are not repeated in the JSON: the site adds them when it sends the record. The record never holds a password.
+- **Files:** logos, fonts and library images in `storage/brands/<slug>/`, outside the web folder. They are only ever sent through PHP, after checking that the visitor is signed in to that brand.
+- **usage_log:** brand, event (login, export, blocked_export) and time. Nothing else: no visitor address, layout, format or file name. This feeds the Brands screen.
+- **login_attempts:** wrong-password tries, only to slow down guessing (5 tries in 15 minutes per visitor per address). It stores the address typed in the URL and a keyed hash of the visitor's address, never the address itself, and rows are removed after a day.
+- **Sessions:** PHP sessions kept in `storage/sessions/`. A session belongs to one brand. Changing a brand's password or removing the brand ends its sessions.
+- **draft and live:** both can sign in for now. What a draft brand means to clients is decided with the admin screen.
 
 ## Decided
 
