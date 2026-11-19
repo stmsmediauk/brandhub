@@ -4,7 +4,7 @@ Run before calling a studio or hub change done. Do it with two very different br
 
 ## Text
 - [ ] Very long headline, very long word, no spaces
-- [ ] Emoji, accented letters, odd symbols (should be stripped with a message)
+- [ ] Accented letters (Café, Zoë, Ñ) are kept; emoji, odd symbols and any letter the brand's font can't draw are stripped with a message
 - [ ] Pasted line breaks and tabs
 - [ ] Text shrinks to 60%, then typing stops with a clear message
 - [ ] Empty fields

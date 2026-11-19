@@ -116,7 +116,7 @@ These are the same for every client. A layout may override them in one place if 
 - **Format sizes:** 1:1 at 1080x1080, 4:5 at 1080x1350, 9:16 at 1080x1920, landscape at 1200x628.
 - **Safe area:** a margin of 7.4% of the width on every side, 4% for landscape. Stories also keep the top 13% and bottom 17.7% clear of the app's own buttons. Movable text, text on a panel and pinned lines all stay inside it.
 - **Photo checks:** a warning above 100% enlargement and a block above 133%. The photo can never leave a gap at the edges.
-- **Text:** shrinks to no less than 60%, then typing is refused (deleting is always allowed). Unsupported characters (emoji, accents and symbols outside the allowed set) are stripped with a message. Line breaks and tabs become spaces.
+- **Text:** shrinks to no less than 60%, then typing is refused (deleting is always allowed). Accented Latin letters are kept. Anything else outside the allowed set (emoji, symbols, other scripts), and any accented letter the brand's font can't draw (checked in the browser against the font itself), is stripped with a message. Line breaks and tabs become spaces.
 - **Export is blocked** when text does not fit, the photo is enlarged beyond 133%, fonts have not loaded, there is no photo, or no allowed text colour reads clearly on the photo.
 
 ## Where it lives

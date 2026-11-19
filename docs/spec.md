@@ -102,7 +102,7 @@ Clients change content only. Fonts, colours, logo and placement are locked.
 
 **Failure cases**
 
-- Very long words, odd characters, emoji and stray line breaks are handled by the text rules, with unsupported characters stripped.
+- Very long words, odd characters, emoji and stray line breaks are handled by the text rules. Accented Latin letters (Café, Zoë, Ñ) are allowed. Only characters the brand's own font can't draw, such as emoji, symbols and other scripts, are stripped, with a message.
 - Export is blocked until fonts are fully loaded, so the preview and the exported file always match.
 - A warning on leaving the page, plus browser-side recovery of the current work after an accidental refresh.
 - Clear messages for oversized files and small screens.

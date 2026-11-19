@@ -15,7 +15,8 @@ public/studio/
     colour.js          contrast maths and the 4.5 / 3 rules
     fonts.js           loads the brand fonts and says when they are ready
     geometry.js        formats, safe areas, clamping and snapping
-    text-fit.js        cleans typed text, applies the brand's case rule
+    text-fit.js        cleans typed text (accented letters allowed), applies the brand's case rule
+    glyphs.js          asks the browser whether the brand font can really draw a letter
     layout-engine.js   layout JSON + brand + typed text -> where everything goes (a "plan")
     renderer.js        draws a plan on a canvas (used for the preview AND the export)
     photo.js           reading photos, pan and zoom limits, resolution check

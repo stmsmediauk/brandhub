@@ -4,6 +4,7 @@
 import * as C from '../../public/studio/js/colour.js';
 import * as G from '../../public/studio/js/geometry.js';
 import { sanitise } from '../../public/studio/js/text-fit.js';
+import { createGlyphChecker, fontDraws } from '../../public/studio/js/glyphs.js';
 import { derive } from '../../public/studio/js/theme.js';
 import { buildPlan, zones } from '../../public/studio/js/layout-engine.js';
 import { placement, resolutionLevel, LIMITS } from '../../public/studio/js/photo.js';
@@ -67,8 +68,16 @@ test('geometry: snaps to the centre line and reports the guide', () => {
 });
 
 // ---------------------------------------------------------------- text
-test('text: emoji, accents and symbols are removed and reported', () => {
-  const r = sanitise('Hé😀llo ★'); eq(r.clean, 'Hllo '); ok(r.changed);
+test('text: accented letters are kept (Café, Zoë, Ñ, Ł), and decomposed accents are joined', () => {
+  const r = sanitise('Café Zoë Ñ Łódź ß'); eq(r.clean, 'Café Zoë Ñ Łódź ß'); ok(!r.changed);
+  eq(sanitise('Cafe\u0301').clean, 'Café');
+});
+test('text: emoji, symbols, other scripts and look-alike signs are removed and reported', () => {
+  const r = sanitise('Hi 😀 ★ 漢 3×4'); eq(r.clean, 'Hi    34'); ok(r.changed);
+});
+test('text: a letter the brand font cannot draw is removed, the rest is kept', () => {
+  const r = sanitise('Café Zoë', c => c !== 'ë'); eq(r.clean, 'Café Zo'); ok(r.changed);
+  eq(sanitise('abc', () => false).clean, 'abc'); // plain letters are never font-checked
 });
 test('text: line breaks and tabs become spaces without a complaint', () => {
   const r = sanitise('a\nb\tc\r\nd'); eq(r.clean, 'a b c d'); ok(!r.changed);
@@ -224,6 +233,19 @@ for (const key of Object.keys(BRANDS)) {
       ok(png.size > 1000 && jpg.size > 1000 && jpg.size < png.size, 'export sizes ' + png.size + '/' + jpg.size);
     }
   });
+  test('real [' + key + ']: the font check keeps accented letters the brand font draws, and removes ones it cannot', async () => {
+    const R = await realBrand(key), h = R.b.fonts.heading;
+    const g = createGlyphChecker([{ family: h.family, weight: h.weight || 400 }]);
+    const text = 'Café Zoë Ñ ŉ 漢';
+    await g.ensure(g.unknown(text));
+    const { clean } = sanitise(text, g.canDraw);
+    ok(clean.includes('Café Zoë Ñ'), key + ' keeps ordinary accents: ' + clean);
+    ok(!clean.includes('漢'), 'other scripts are stripped');
+    // Fraunces has no ŉ; Montserrat and Space Grotesk do.
+    eq(clean.includes('ŉ'), h.family !== 'Fraunces', key + ' ŉ with ' + h.family);
+    eq(await fontDraws(h.family, h.weight || 400, '漢'), false, 'detector flags a glyph the font really lacks');
+    eq(await fontDraws(h.family, h.weight || 400, 'é'), true);
+  });
   test('real [' + key + ']: the preview and the export are the same pixels', async () => {
     const R = await realBrand(key), photo = await makeSample('bright');
     const f = R.b.studio.formats[0], id = R.b.studio.layouts[0];
@@ -269,6 +291,15 @@ for (const key of ['dark-sans', 'light-serif']) {
     ok(inp.value.length < 28, 'typing stopped early at ' + inp.value.length); ok(/No more room/.test(note()), 'message: ' + note());
     ok(!s.getLast().plan.fit.over, 'never left in an over state'); eq(s.getLast().plan.fit.kUse >= 0.6, true);
     inp.value = 'x'.repeat(40); inp.dispatchEvent(new Event('input', { bubbles: true })); await frames(); ok(inp.value.length <= 28, 'limit of 28 applies to pasted text');
+  });
+  test('studio [' + key + ']: typing Café Zoë Ñ keeps the letters; a letter the font lacks is removed with a message', async () => {
+    const { s, root } = await openStudio(key); await s.setSample('dark');
+    const inp = root.querySelector('[data-field="headline"]'), note = () => root.querySelector('[data-wrap="headline"] .note').textContent;
+    await type(inp, 'Café Zoë Ñ'); await sleep(300); await frames();
+    eq(inp.value, 'Café Zoë Ñ'); eq(s.store.get().values.headline, 'Café Zoë Ñ'); ok(!/removed/.test(note()), 'no message: ' + note());
+    inp.value = 'Zoë ŉ 😀'; inp.dispatchEvent(new Event('input', { bubbles: true })); await sleep(500); await frames();
+    const lacks = s.brand.fonts.heading.family === 'Fraunces';
+    eq(inp.value, lacks ? 'Zoë  ' : 'Zoë ŉ ', 'value: [' + inp.value + ']'); ok(/removed/.test(note()), 'message: ' + note());
   });
   test('studio [' + key + ']: dragging and arrow keys keep the text inside the safe area in every format', async () => {
     const { s, root } = await openStudio(key); await s.setSample('dark');

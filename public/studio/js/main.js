@@ -14,6 +14,7 @@ import { createStore, saveState, loadState, savePhotoFile, loadPhotoFile, clearP
 import { createUI } from './controls.js';
 import { loadBrand } from './brand-loader.js';
 import { SAMPLES, makeSample } from './samples.js';
+import { createGlyphChecker } from './glyphs.js';
 
 const LUMA_SCALE = 0.25;
 
@@ -43,6 +44,10 @@ export async function start(opts) {
   const measure = makeMeasure(generics);
   const nameOf = hex => { const c = brand.palette.find(p => p.hex === hex); return c ? c.name : hex; };
   const candidates = brand.studio.photo_text_colours.map(hex => ({ name: nameOf(hex), hex }));
+  // Every font the layouts actually draw with, for the "can the font draw this letter" check.
+  const used = new Set(layouts.flatMap(l => (l.text.lines || []).map(x => x.font === 'body' ? 'body' : 'heading')));
+  const glyphs = createGlyphChecker([...used].map(w => ({ family: brand.fonts[w].family, weight: w === 'heading' ? (brand.fonts.heading.weight || 400) : (brand.fonts.body.weight || 400) })));
+  const REMOVED = 'Some characters can’t be drawn in the brand font and were removed.';
   const storeKey = 'stms-studio:' + (brand.slug || 'brand') + ':v' + (brand.version || 1);
   const libraryUrl = /^https:\/\//i.test(brand.library || '') ? brand.library : '';
 
@@ -159,6 +164,7 @@ export async function start(opts) {
   // ---------- what the client can do ----------
   const markDirty = patch => store.set(Object.assign({ dirty: true }, patch));
 
+  const fieldSeq = {};
   const cb = {
     onFormat: id => store.set({ format: id, guide: null, status: '' }),
     onLayout: id => {
@@ -166,11 +172,15 @@ export async function start(opts) {
       layoutFields(layout).forEach(f => { if ((values[f.id] || '').length > f.max) values[f.id] = values[f.id].slice(0, f.max); });
       markDirty({ layout: id, values, guide: null, status: '', notes: {} });
     },
-    onField: (id, raw) => {
+    onField: async (id, raw) => {
+      // Accented letters need the font checked once. Ordinary typing never waits.
+      const token = (fieldSeq[id] = (fieldSeq[id] || 0) + 1);
+      const unknown = glyphs.unknown(raw);
+      if (unknown.length) { await glyphs.ensure(unknown); if (token !== fieldSeq[id]) return; }
       const S = store.get();
       const def = layoutFields(layoutById[S.layout]).find(f => f.id === id);
       if (!def) return;
-      const sc = sanitise(raw);
+      const sc = sanitise(raw, glyphs.canDraw);
       const clean = sc.clean.slice(0, def.max), changed = sc.changed;
       const values = Object.assign({}, S.values, { [id]: clean });
       const cur = (S.values[id] || '');
@@ -180,7 +190,7 @@ export async function start(opts) {
         store.set({ notes: Object.assign({}, S.notes, { [id]: 'No more room: the text is already at its minimum size.' }) });
         return;
       }
-      markDirty({ values, notes: Object.assign({}, S.notes, { [id]: changed ? 'Some characters aren’t allowed here and were removed.' : '' }), status: '' });
+      markDirty({ values, notes: Object.assign({}, S.notes, { [id]: changed ? REMOVED : '' }), status: '' });
     },
     onTextColour: hex => markDirty({ textColour: hex }),
     onFile: async file => {
@@ -253,10 +263,24 @@ export async function start(opts) {
 
   window.addEventListener('beforeunload', e => { if (store.get().dirty) { e.preventDefault(); e.returnValue = ''; } });
 
+  // Text typed or restored before the fonts were ready is checked again once they are.
+  async function revalidateText() {
+    const S = store.get(), values = Object.assign({}, S.values), notes = Object.assign({}, S.notes);
+    let any = false;
+    for (const id of Object.keys(values)) {
+      const unknown = glyphs.unknown(values[id]);
+      if (unknown.length) await glyphs.ensure(unknown);
+      const { clean, changed } = sanitise(values[id], glyphs.canDraw);
+      if (changed) { values[id] = clean; notes[id] = REMOVED; any = true; }
+    }
+    if (any) store.set({ values, notes });
+  }
+
   // ---------- fonts ----------
   loadBrandFonts(brand, layouts, opts.assetBase || '').then(r => {
     measure.clear();
     store.set({ fonts: r.ready ? 'ready' : 'failed' });
+    if (r.ready) revalidateText();
     if (!r.ready) console.warn('Fonts not ready:', r.problems);
   });
 
