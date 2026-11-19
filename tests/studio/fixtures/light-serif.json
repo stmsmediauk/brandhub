@@ -1,0 +1,27 @@
+{
+  "_note": "TEST BRAND ONLY. A light, serif, round-cornered brand used to prove the studio repeats. Not a real client.",
+  "slug": "northlight",
+  "name": "Northlight",
+  "status": "draft",
+  "palette": [
+    { "name": "Forest", "hex": "#2F5D43" },
+    { "name": "White",  "hex": "#FFFFFF" },
+    { "name": "Ink",    "hex": "#1B2A21" },
+    { "name": "Crema",  "hex": "#F5EFE4" },
+    { "name": "Ember",  "hex": "#D9803A" }
+  ],
+  "fonts": {
+    "heading": { "family": "Fraunces", "source": "google", "fallback": "serif", "weight": 500, "case": "none", "tracking": -0.01 },
+    "body":    { "family": "DM Sans", "source": "google", "weight": 400 }
+  },
+  "look": { "hero": "tint", "corners": "pill", "theme": "light" },
+  "sections": { "studio": true },
+  "studio": {
+    "formats": ["1:1", "4:5", "9:16", "landscape"],
+    "layouts": ["full", "product", "details", "wordmark"],
+    "photo_text_colours": ["#FFFFFF", "#1B2A21", "#F5EFE4"],
+    "export": { "png": true, "jpg": true, "naming": "{brand}_{format}_{layout}" }
+  },
+  "library": "https://www.dropbox.com/scl/fo/test-light-library",
+  "version": 1
+}

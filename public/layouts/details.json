@@ -1,0 +1,82 @@
+{
+  "id": "details",
+  "name": "Details",
+  "fields": [
+    {
+      "id": "headline",
+      "label": "Headline",
+      "max": 28,
+      "example": "Your headline"
+    },
+    {
+      "id": "subline",
+      "label": "Subline",
+      "max": 32,
+      "example": "A short line beneath"
+    },
+    {
+      "id": "details",
+      "label": "Details",
+      "max": 24,
+      "example": "Date, place or price"
+    }
+  ],
+  "photo": {
+    "fill": 0.44
+  },
+  "panel": {
+    "edge": "top",
+    "size": 0.56
+  },
+  "text": {
+    "on": "panel",
+    "movable": false,
+    "align": "left",
+    "min_scale": 0.6,
+    "pad": 0.0556,
+    "gap": 0.0185,
+    "lines": [
+      {
+        "field": "headline",
+        "font": "heading",
+        "weight": "brand",
+        "size": 0.0481,
+        "case": "brand",
+        "tracking": "brand"
+      },
+      {
+        "field": "subline",
+        "font": "heading",
+        "weight": 400,
+        "size": 0.0259,
+        "case": "brand",
+        "tracking": "brand"
+      },
+      {
+        "field": "details",
+        "font": "heading",
+        "weight": 700,
+        "size": 0.0241,
+        "case": "brand",
+        "tracking": "brand",
+        "style": "pill",
+        "pad_x": 0.0259,
+        "pad_y": 0.013
+      }
+    ]
+  },
+  "by_format": {
+    "landscape": {
+      "photo": {
+        "fill": 0.5
+      },
+      "panel": {
+        "edge": "left",
+        "size": 0.5
+      },
+      "text": {
+        "pad": 0.04
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "wordmark",
+  "name": "Wordmark",
+  "fields": [
+    { "id": "headline", "label": "Headline", "max": 28, "example": "Your headline" },
+    { "id": "details",  "label": "Footer",   "max": 24, "example": "Website or handle" }
+  ],
+  "photo": { "fill": 1 },
+  "text": {
+    "on": "photo",
+    "movable": false,
+    "align": "center",
+    "min_scale": 0.6,
+    "max_width": 0.62,
+    "gap": 0.0185,
+    "lines": [
+      { "source": "brand_name", "font": "heading", "weight": "brand", "size": 0.0852, "case": "brand", "tracking": "brand" },
+      { "field": "headline",    "font": "heading", "weight": 400,     "size": 0.0259, "case": "brand", "tracking": "brand" },
+      { "field": "details",     "font": "heading", "weight": 600,     "size": 0.0204, "case": "brand", "tracking": "brand", "pin": "bottom", "offset": 0 }
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Brand hub login</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{text-decoration:none}
+input{font-family:inherit}
+</style>
+</helmet>
+<div style="{{rootStyle}} display:flex; flex-wrap:wrap; min-height:800px; background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.5; box-sizing:border-box">
+
+<section style="flex:1 1 520px; min-height:420px; background:var(--heroBg); color:var(--heroInk); padding:56px 64px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-between; gap:48px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:26px">{{b.name}}</span>
+<div style="display:flex; flex-direction:column; gap:18px; max-width:520px">
+<span style="font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--heroSub); font-family:var(--mono)">STMS Media · Brand hub</span>
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:clamp(38px,5vw,64px); line-height:1.02">Your brand hub, in one place.</span>
+</div>
+<span style="font-size:14px; color:var(--heroSub)">Logos, colours, fonts and an artwork studio that keeps everything on brand.</span>
+</section>
+
+<section style="flex:1 1 440px; display:flex; align-items:center; justify-content:center; padding:48px 32px; box-sizing:border-box">
+<form style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:22px" onSubmit="{{noop}}">
+<div style="display:flex; flex-direction:column; gap:8px">
+<h1 style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:32px; line-height:1.1">Sign in</h1>
+<p style="margin:0; color:var(--muted)">Enter your password to open your brand hub.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:8px">
+<label for="pw" style="font-size:14px; font-weight:600">Password</label>
+<input id="pw" type="password" autocomplete="current-password" style="padding:15px 16px; border-radius:var(--r); border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:16px; min-height:52px; box-sizing:border-box">
+</div>
+<button type="submit" style="background:var(--accent); color:var(--onAccent); border:none; border-radius:var(--rb); padding:16px 24px; font-weight:600; font-size:16px; min-height:52px; cursor:pointer; font-family:inherit">Open my brand hub</button>
+<p style="margin:0; font-size:13.5px; color:var(--muted)">Lost the password? Contact STMS Media.</p>
+</form>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"brand":{"editor":"enum","default":"stms","options":["stms","forma","northlight","kiln"],"section":"Brand"}}'>
+class Component extends DCLogic {
+renderVals() {
+const T = {
+forma: { name: 'FORMA', v: { bg:'#0B0D0E', surface:'#14181A', ink:'#F3F5F4', muted:'#A3AEB1', line:'rgba(255,255,255,.2)', accent:'#C8F04A', onAccent:'#0B0D0E', r:'2px', rb:'2px', head:"'Montserrat',sans-serif", body:"'Montserrat',sans-serif", headW:'600', headTrack:'.06em', headCase:'uppercase', heroBg:'linear-gradient(135deg,#222C31 0%,#0B0D0E 70%)', heroInk:'#F3F5F4', heroSub:'#B9C3C6' } },
+northlight: { name: 'Northlight', v: { bg:'#F5EFE4', surface:'#FFFFFF', ink:'#1B2A21', muted:'#5A685F', line:'rgba(27,42,33,.25)', accent:'#2F5D43', onAccent:'#FFFFFF', r:'14px', rb:'999px', head:"'Fraunces',serif", body:"'DM Sans',sans-serif", headW:'500', headTrack:'-.01em', headCase:'none', heroBg:'#EBE3D3', heroInk:'#1B2A21', heroSub:'#4A5A50' } },
+stms: { name: 'STMS Media', v: { bg:'#FFFFFF', surface:'#F5F5F3', surface2:'#E9E9E6', ink:'#0A0A0A', muted:'#5A5A57', line:'#DADAD6', accent:'#FF00FF', onAccent:'#0A0A0A', accentText:'#A100A1', r:'4px', r2:'12px', rb:'4px', head:"'Inter',sans-serif", body:"'Inter',sans-serif", mono:"'JetBrains Mono',monospace", headW:'700', headTrack:'-.03em', headCase:'lowercase', heroBg:'#FF00FF', heroInk:'#0A0A0A', heroSub:'rgba(10,10,10,.82)', heroBtn:'#0A0A0A', heroBtnInk:'#FFFFFF' } },
+kiln: { name: 'Kiln', v: { bg:'#FFFFFF', surface:'#F3F4F8', ink:'#0F1230', muted:'#555A78', line:'#B9BED6', accent:'#2B3BFF', onAccent:'#FFFFFF', r:'8px', rb:'8px', head:"'Space Grotesk',sans-serif", body:"'Inter',sans-serif", headW:'700', headTrack:'-.02em', headCase:'none', heroBg:'#2B3BFF', heroInk:'#FFFFFF', heroSub:'rgba(255,255,255,.86)' } }
+};
+const t = T[this.props.brand ?? 'stms'] || T.forma;
+return { b: { name: t.name }, rootStyle: Object.entries(t.v).map(([k, v]) => '--' + k + ':' + v + ';').join(''), noop: e => { if (e && e.preventDefault) e.preventDefault(); } };
+}
+}
+</script>
+</body>
+</html>

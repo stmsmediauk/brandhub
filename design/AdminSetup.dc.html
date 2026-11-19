@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin: brand setup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&family=Manrope:wght@400;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{text-decoration:none}
+button{font-family:inherit}
+input{font-family:inherit}
+input[type=color]{padding:0;border:none;background:none;cursor:pointer}
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; min-height:1500px; background:#F5F5F2; color:#141414; font-family:'Inter',sans-serif; font-size:15px; line-height:1.45; box-sizing:border-box">
+
+<header style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 24px; padding:16px 32px; background:#141414; color:#fff">
+<div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap">
+<a href="AdminBrands.dc.html" style="color:#fff; font-weight:700; letter-spacing:.02em">STMS Brand Studio</a>
+<span style="color:#9A9A94">/</span>
+<a href="AdminBrands.dc.html" style="color:#C9C9C2; font-size:14px">Brands</a>
+<span style="color:#9A9A94">/</span>
+<span style="font-weight:600">{{brandName}}</span>
+<span style="font-size:12px; font-weight:600; background:#FFD84D; color:#141414; padding:3px 10px; border-radius:999px">Draft</span>
+</div>
+<div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+<span style="font-size:13px; color:#C9C9C2">{{doneCount}} of 5 steps done · about {{minsLeft}} min left</span>
+<button type="button" onClick="{{goReview}}" style="background:#fff; color:#141414; border:none; border-radius:8px; padding:10px 18px; font-weight:600; font-size:14px; cursor:pointer; min-height:40px">Review and publish</button>
+</div>
+</header>
+
+<div style="display:flex; flex-wrap:wrap; gap:28px; padding:28px 32px 56px; align-items:flex-start; flex:1">
+
+<nav aria-label="Setup steps" style="flex:0 0 250px; display:flex; flex-direction:column; gap:6px">
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="5">
+<button type="button" onClick="{{st.go}}" aria-current="{{st.current}}" style="{{st.style}}">
+<span style="{{st.numStyle}}">{{st.num}}</span>
+<span style="display:flex; flex-direction:column; align-items:flex-start; text-align:left"><span style="font-weight:600; font-size:14.5px">{{st.title}}</span><span style="font-size:12px; opacity:.7">{{st.sub}}</span></span>
+</button>
+</sc-for>
+<div style="margin-top:18px; padding:16px; border:1px dashed #C9C9C2; border-radius:12px; font-size:13px; color:#555">Target: a new brand live in about an hour. Everything below the form is generated, so you only enter the brand’s decisions once.</div>
+</nav>
+
+<main style="flex:999 1 480px; min-width:0; display:flex; flex-direction:column; gap:20px">
+
+<sc-if value="{{s0}}" hint-placeholder-val="{{ true }}">
+<section style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; padding:32px; display:flex; flex-direction:column; gap:22px">
+<div><h1 style="margin:0 0 4px; font-size:26px; letter-spacing:-.01em">Basics</h1><p style="margin:0; color:#666">The name, handle and where the hub will live.</p></div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:18px">
+<div style="display:flex; flex-direction:column; gap:6px"><label for="a-name" style="font-size:13px; font-weight:600">Brand name</label><input id="a-name" type="text" value="{{brandName}}" onInput="{{editName}}" style="padding:12px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; min-height:44px; box-sizing:border-box"></div>
+<div style="display:flex; flex-direction:column; gap:6px"><label for="a-tag" style="font-size:13px; font-weight:600">Tagline</label><input id="a-tag" type="text" value="{{tag}}" onInput="{{editTag}}" style="padding:12px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; min-height:44px; box-sizing:border-box"></div>
+<div style="display:flex; flex-direction:column; gap:6px"><label for="a-handle" style="font-size:13px; font-weight:600">Social handle</label><input id="a-handle" type="text" value="{{handle}}" onInput="{{editHandle}}" style="padding:12px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; min-height:44px; box-sizing:border-box"></div>
+<div style="display:flex; flex-direction:column; gap:6px"><label for="a-dom" style="font-size:13px; font-weight:600">Domain</label><input id="a-dom" type="text" value="{{domain}}" onInput="{{editDomain}}" style="padding:12px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; min-height:44px; box-sizing:border-box"></div>
+<div style="display:flex; flex-direction:column; gap:6px"><label for="a-pw" style="font-size:13px; font-weight:600">Client password</label><div style="display:flex; gap:8px"><input id="a-pw" type="text" value="{{pw}}" onInput="{{editPw}}" style="flex:1; min-width:0; padding:12px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; font-family:ui-monospace,monospace; min-height:44px; box-sizing:border-box"><button type="button" onClick="{{genPw}}" style="background:#fff; color:#141414; border:1px solid #CFCFC8; border-radius:10px; padding:0 14px; font-weight:600; font-size:13px; min-height:44px; cursor:pointer; white-space:nowrap">Generate</button></div></div>
+</div>
+<div style="background:#F5F5F2; border-radius:12px; padding:16px 18px; font-size:13.5px; color:#555">Hub address: <b style="color:#141414">{{domain}}</b>. Each client gets their own address and password, and cannot see any other brand. Share the password with them yourself; the platform sends no email.</div>
+</section>
+</sc-if>
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{ false }}">
+<section style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; padding:32px; display:flex; flex-direction:column; gap:24px">
+<div><h1 style="margin:0 0 4px; font-size:26px; letter-spacing:-.01em">Colours</h1><p style="margin:0; color:#666">Add the brand’s palette, between 2 and 12 colours. Press Print on a colour to set its CMYK and Pantone values, otherwise CMYK is calculated. The approved pairings, the “never on” rows and the studio’s contrast rules are generated from them.</p></div>
+<div style="display:flex; flex-direction:column; gap:10px">
+<sc-for list="{{colours}}" as="c" hint-placeholder-count="8">
+<div style="display:flex; flex-direction:column; gap:8px">
+<div style="display:flex; flex-wrap:nowrap; align-items:center; gap:10px">
+<input type="color" aria-label="{{c.name}} colour" value="{{c.hex}}" onInput="{{c.editHex}}" style="width:44px; height:44px; border-radius:10px; flex:none">
+<input type="text" aria-label="Colour name" value="{{c.name}}" onInput="{{c.editName}}" style="flex:1 1 0; min-width:0; padding:11px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; min-height:44px; box-sizing:border-box">
+<input type="text" aria-label="{{c.name}} hex" value="{{c.hex}}" onInput="{{c.editHex}}" style="flex:0 0 108px; min-width:0; padding:11px 12px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; font-family:ui-monospace,monospace; min-height:44px; box-sizing:border-box">
+<span style="flex:0 0 76px; font-size:12.5px; color:#666; white-space:nowrap">{{c.stat}}</span>
+<button type="button" aria-expanded="{{c.open}}" aria-label="Print values for {{c.name}}" title="CMYK and Pantone" onClick="{{c.togglePrint}}" style="{{c.printStyle}}">Print</button>
+<button type="button" aria-label="Remove {{c.name}}" title="Remove" onClick="{{c.remove}}" style="{{c.removeStyle}}">✕</button>
+</div>
+
+<sc-if value="{{c.open}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex; flex-wrap:wrap; gap:10px; padding-left:54px; align-items:center"><input type="text" aria-label="{{c.name}} CMYK override" placeholder="{{c.cmykCalc}}" value="{{c.cmyk}}" onInput="{{c.editCmyk}}" style="flex:1 1 200px; min-width:0; padding:10px 12px; border:1px solid #CFCFC8; border-radius:10px; font-size:14px; font-family:ui-monospace,monospace; min-height:42px; box-sizing:border-box"><input type="text" aria-label="{{c.name}} Pantone" placeholder="Pantone, for example 2427 C" value="{{c.pantone}}" onInput="{{c.editPantone}}" style="flex:1 1 200px; min-width:0; padding:10px 12px; border:1px solid #CFCFC8; border-radius:10px; font-size:14px; font-family:ui-monospace,monospace; min-height:42px; box-sizing:border-box"></div>
+</sc-if>
+</div>
+</sc-for>
+<div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap"><button type="button" onClick="{{addColour}}" style="{{addStyle}}">Add colour</button><span style="font-size:13px; color:#666">{{colourCount}}</span></div>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; border-top:1px solid #ECECE6; padding-top:22px">
+<sc-if value="{{hasWarnings}}" hint-placeholder-val="{{ false }}">
+<div style="background:#FFF4D6; border:1px solid #F0D98A; border-radius:12px; padding:14px 18px; font-size:14px"><b>Heads up.</b> {{warnings}}</div>
+</sc-if>
+<sc-if value="{{noWarnings}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex; align-items:center; gap:12px; font-size:14px; color:#444"><span aria-hidden="true" style="width:24px; height:24px; border-radius:50%; background:#2E9E5B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex:none">✓</span><span>Every colour has at least one approved text colour. Pairings are worked out automatically.</span></div>
+</sc-if>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<section style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; padding:32px; display:flex; flex-direction:column; gap:26px">
+<div><h1 style="margin:0 0 4px; font-size:26px; letter-spacing:-.01em">Type and look</h1><p style="margin:0; color:#666">Fonts, hero, corners and buttons. The layout is the same for every client; these choices make it feel like theirs.</p></div>
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Heading font</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px">
+<sc-for list="{{headFonts}}" as="f" hint-placeholder-count="10"><button type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="{{f.style}}"><span style="{{f.sampleStyle}}">Aa</span><span style="font-size:12.5px">{{f.name}}</span></button></sc-for>
+</div></div>
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Body font</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px">
+<sc-for list="{{bodyFonts}}" as="f" hint-placeholder-count="5"><button type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="{{f.style}}"><span style="{{f.sampleStyle}}">Aa</span><span style="font-size:12.5px">{{f.name}}</span></button></sc-for>
+</div></div>
+<div style="display:flex; flex-wrap:wrap; gap:28px; align-items:flex-end">
+<div style="display:flex; flex-direction:column; gap:8px"><span style="font-size:13px; font-weight:600">Heading weight</span>
+<div style="display:flex; gap:8px"><sc-for list="{{weights}}" as="w" hint-placeholder-count="4"><button type="button" aria-pressed="{{w.on}}" onClick="{{w.pick}}" style="{{w.style}}">{{w.label}}</button></sc-for></div></div>
+<div style="display:flex; flex-direction:column; gap:8px"><span style="font-size:13px; font-weight:600">Heading case</span>
+<div style="display:flex; gap:8px"><button type="button" aria-pressed="{{notUpper}}" onClick="{{setNormal}}" style="{{caseNormalStyle}}">Sentence</button><button type="button" aria-pressed="{{upper}}" onClick="{{setUpper}}" style="{{caseUpperStyle}}">UPPERCASE</button></div></div>
+<div style="display:flex; flex-direction:column; gap:8px; flex:1 1 200px"><label for="a-track" style="font-size:13px; font-weight:600">Letter-spacing</label><input id="a-track" type="range" min="-0.03" max="0.14" step="0.01" value="{{track}}" onInput="{{editTrack}}" style="accent-color:#141414"></div>
+</div>
+<div style="border:1px dashed #CFCFC8; border-radius:12px; padding:14px 18px; font-size:13.5px; color:#555">Using a font that isn’t on Google Fonts? Upload the .woff2 files here. The hub and the studio load them directly, so exports always match the preview. <b style="color:#141414">Upload font files</b></div>
+<div style="display:flex; flex-direction:column; gap:26px; border-top:1px solid #ECECE6; padding-top:28px">
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Hero style</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px"><sc-for list="{{heroes}}" as="h" hint-placeholder-count="3"><button type="button" aria-pressed="{{h.on}}" onClick="{{h.pick}}" style="{{h.style}}">{{h.label}}</button></sc-for></div>
+<sc-if value="{{heroFallback}}" hint-placeholder-val="{{ false }}"><div style="background:#FFF4D6; border:1px solid #F0D98A; border-radius:12px; padding:12px 16px; font-size:13.5px">The primary colour is too light to carry text as a solid block, so the hero is shown as a soft tint instead.</div></sc-if></div>
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Corners and buttons</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px"><sc-for list="{{radii}}" as="r" hint-placeholder-count="4"><button type="button" aria-pressed="{{r.on}}" onClick="{{r.pick}}" style="{{r.style}}"><span style="{{r.swatch}}"></span>{{r.label}}</button></sc-for></div></div>
+<div style="background:#F5F5F2; border-radius:12px; padding:16px 18px; font-size:13.5px; color:#555">Light or dark, surface tones, borders and text colours are derived from the palette, so you don’t set them by hand.</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<section style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; padding:32px; display:flex; flex-direction:column; gap:22px">
+<div><h1 style="margin:0 0 4px; font-size:26px; letter-spacing:-.01em">Logos and marks</h1><p style="margin:0; color:#666">Upload one SVG per logo. Every approved colourway, plus PNG exports, is generated from it.</p></div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px">
+<sc-for list="{{logoSlots}}" as="l" hint-placeholder-count="4">
+<button type="button" onClick="{{l.toggle}}" aria-pressed="{{l.done}}" style="{{l.style}}">
+<span style="font-size:15px; font-weight:600">{{l.title}}</span>
+<span style="font-size:13px; opacity:.75">{{l.status}}</span>
+</button>
+</sc-for>
+</div>
+<div style="background:#F5F5F2; border-radius:12px; padding:16px 18px; font-size:13.5px; color:#555">Each logo can be shown in up to <b style="color:#141414">{{cwColours}} colours</b> on <b style="color:#141414">{{cwBgs}} backgrounds</b>, taken from the pairing rules. SVG and PNG files are made when someone downloads them, so there is nothing to export by hand.</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px">
+<div style="border:1px solid #E2E2DC; border-radius:12px; padding:16px 18px"><b style="font-size:14px">Supporting marks</b><p style="margin:6px 0 0; font-size:13px; color:#666">Handle, quote marks, “Featuring” tag, portrait frame. Generated in the brand colours. Upload your own to replace any of them.</p></div>
+<div style="border:1px solid #E2E2DC; border-radius:12px; padding:16px 18px"><b style="font-size:14px">“Please don’t” gallery</b><p style="margin:6px 0 0; font-size:13px; color:#666">Generated automatically from the primary logo: stretched, tilted, recoloured, shadowed, on a busy background, retyped.</p></div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{s4}}" hint-placeholder-val="{{ false }}">
+<section style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; padding:32px; display:flex; flex-direction:column; gap:28px">
+<div style="display:flex; flex-direction:column; gap:22px;">
+<div><h2 style="margin:0 0 4px; font-size:20px; letter-spacing:-.01em">Sections to include</h2><p style="margin:0; color:#666">Switch off anything this client doesn’t need. The navigation adjusts itself.</p></div>
+<div style="display:flex; flex-direction:column; gap:10px">
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="9">
+<button type="button" role="switch" aria-checked="{{s.on}}" onClick="{{s.toggle}}" style="{{s.style}}">
+<span style="{{s.boxStyle}}">{{s.tick}}</span>
+<span style="display:flex; flex-direction:column; align-items:flex-start; text-align:left"><span style="font-weight:600; font-size:15px">{{s.title}}</span><span style="font-size:13px; color:#666">{{s.text}}</span></span>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex; flex-direction:column; gap:26px; border-top:1px solid #ECECE6; padding-top:28px;">
+<div><h2 style="margin:0 0 4px; font-size:20px; letter-spacing:-.01em">Artwork studio</h2><p style="margin:0; color:#666">Which formats and layouts this client can use. Everything else is locked.</p></div>
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Formats</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px"><sc-for list="{{formats}}" as="f" hint-placeholder-count="4"><button type="button" aria-pressed="{{f.on}}" onClick="{{f.toggle}}" style="{{f.style}}">{{f.label}}</button></sc-for></div></div>
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Layouts (up to 10)</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px"><sc-for list="{{layouts}}" as="f" hint-placeholder-count="5"><button type="button" aria-pressed="{{f.on}}" onClick="{{f.toggle}}" style="{{f.style}}">{{f.label}}</button></sc-for></div></div>
+<div style="display:flex; flex-direction:column; gap:10px"><span style="font-size:13px; font-weight:600">Text colours allowed on photos</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px"><sc-for list="{{photoCols}}" as="c" hint-placeholder-count="8"><button type="button" aria-pressed="{{c.on}}" onClick="{{c.toggle}}" style="{{c.style}}"><span aria-hidden="true" style="width:16px; height:16px; border-radius:50%; background:{{c.hex}}; border:1px solid rgba(128,128,128,.6)"></span>{{c.name}}</button></sc-for></div>
+<span style="font-size:13px; color:#666">{{photoColNote}}</span></div>
+<div style="display:flex; flex-direction:column; gap:8px"><label for="a-lib" style="font-size:13px; font-weight:600">Photo library (Dropbox folder link)</label><input id="a-lib" type="text" value="{{lib}}" onInput="{{editLib}}" placeholder="https://www.dropbox.com/..." style="padding:12px 14px; border:1px solid #CFCFC8; border-radius:10px; font-size:15px; min-height:44px; box-sizing:border-box"><span style="font-size:13px; color:#666">{{libNote}}</span></div>
+<div style="border:1px dashed #CFCFC8; border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:6px"><b style="font-size:14px">Import layouts from Illustrator</b><span style="font-size:13.5px; color:#555">Drop an .svg exported from your template. Layers named headline, subhead, details, cta, image-slot, locked-logo and safe-area-guides become the layout automatically.</span></div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; font-size:13.5px">
+<div style="background:#F5F5F2; border-radius:12px; padding:14px 16px"><b>Photo checks</b><br><span style="color:#666">Warn when enlarged past 100%, block past 133%.</span></div>
+<div style="background:#F5F5F2; border-radius:12px; padding:14px 16px"><b>Contrast</b><br><span style="color:#666">Text must reach 4.5:1 against the photo.</span></div>
+<div style="background:#F5F5F2; border-radius:12px; padding:14px 16px"><b>Exports</b><br><span style="color:#666">PNG, plus a smaller JPG.</span></div>
+</div>
+</div>
+<div style="display:flex; flex-direction:column; gap:22px; border-top:1px solid #ECECE6; padding-top:28px;">
+<div><h2 style="margin:0 0 4px; font-size:20px; letter-spacing:-.01em">Review and publish</h2><p style="margin:0; color:#666">Automatic checks before this goes in front of the client.</p></div>
+<div style="display:flex; flex-direction:column; gap:10px">
+<sc-for list="{{checks}}" as="k" hint-placeholder-count="6">
+<div style="display:flex; gap:14px; align-items:flex-start; padding:14px 16px; border:1px solid #E8E8E2; border-radius:12px">
+<span aria-hidden="true" style="{{k.dot}}">{{k.mark}}</span>
+<span style="display:flex; flex-direction:column"><span style="font-weight:600">{{k.title}}</span><span style="font-size:13.5px; color:#666">{{k.text}}</span></span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex; flex-wrap:wrap; gap:12px">
+<button type="button" style="background:#141414; color:#fff; border:none; border-radius:10px; padding:14px 24px; font-weight:600; font-size:15px; min-height:48px; cursor:pointer">Publish to staging</button>
+<button type="button" style="background:transparent; color:#141414; border:1px solid #CFCFC8; border-radius:10px; padding:13px 23px; font-weight:600; font-size:15px; min-height:48px; cursor:pointer">Send client preview link</button>
+</div>
+<div style="background:#F5F5F2; border-radius:12px; padding:16px 18px; font-size:13.5px; color:#555">Once live, every export is recorded: who made it, which layout and format, and when. You’ll see it on the Brands screen.</div>
+</div>
+</section>
+</sc-if>
+
+
+
+
+<div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
+<button type="button" onClick="{{prev}}" style="background:transparent; border:1px solid #CFCFC8; border-radius:10px; padding:12px 22px; font-weight:600; font-size:14px; min-height:44px; cursor:pointer">Back</button>
+<button type="button" onClick="{{next}}" style="background:#141414; color:#fff; border:none; border-radius:10px; padding:12px 26px; font-weight:600; font-size:14px; min-height:44px; cursor:pointer">Next step</button>
+</div>
+</main>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<aside aria-label="Live preview" style="flex:0 1 380px; min-width:300px; position:sticky; top:20px; display:flex; flex-direction:column; gap:12px">
+<span style="font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#666">Live preview</span>
+<div style="{{pvStyle}} border-radius:16px; overflow:hidden; border:1px solid #D8D8D2; display:flex; flex-direction:column; background:var(--bg); color:var(--ink); font-family:var(--body)">
+<div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--line)">
+<span style="font-family:var(--head); font-weight:var(--hw); letter-spacing:var(--tr); text-transform:var(--tc); font-size:17px">{{brandName}}</span>
+<span style="background:var(--accent); color:var(--onAccent); padding:7px 14px; border-radius:var(--rb); font-size:12px; font-weight:600">Studio</span>
+</div>
+<div style="margin:16px; padding:28px 22px; background:var(--heroBg); color:var(--heroInk); border-radius:var(--r2); display:flex; flex-direction:column; gap:10px">
+<span style="font-size:10.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; opacity:.8">Brand hub</span>
+<span style="font-family:var(--head); font-weight:var(--hw); letter-spacing:var(--tr); text-transform:var(--tc); font-size:26px; line-height:1.05">Everything {{brandName}}, in one place.</span>
+<span style="align-self:flex-start; background:var(--heroBtn); color:var(--heroBtnInk); padding:9px 16px; border-radius:var(--rb); font-size:12.5px; font-weight:600; margin-top:4px">Open the artwork studio</span>
+</div>
+<div style="display:grid; {{gridCols}} gap:4px; padding:0 16px">
+<sc-for list="{{pvSwatches}}" as="p" hint-placeholder-count="8"><span style="{{p.style}}"></span></sc-for>
+</div>
+<div style="padding:16px 20px 20px; display:flex; flex-direction:column; gap:6px">
+<span style="font-family:var(--head); font-weight:var(--hw); letter-spacing:var(--tr); text-transform:var(--tc); font-size:15px">Approved pairings</span>
+<span style="font-size:12.5px; color:var(--muted)">{{totals}}</span>
+</div>
+</div>
+</aside>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{}'>
+class Component extends DCLogic {
+initial() {
+return {
+step: 1, name: 'STMS Media', tag: 'Creative studio', handle: '@stmsmedia', domain: 'brands.stmsmedia.co.uk/stms', pw: 'Tide-Rail-4821', lib: 'https://www.dropbox.com/scl/fo/stms-photo-library',
+cols: [['Magenta','#FF00FF'],['Black','#0A0A0A'],['White','#FFFFFF'],['Paper','#F5F5F3'],['Grey 200','#E4E4E0'],['Grey 500','#6B6B67'],['Deep Magenta','#A100A1'],['Blush','#FFC2FF']],
+headFont: 'Inter', bodyFont: 'Inter', weight: 700, upper: false, track: -0.02,
+logos: { primary: true, tagline: true, secondary: false, icon: false },
+hero: 'solid', radius: 'sharp',
+sec: { start: true, logos: true, colours: true, pairings: true, type: true, dont: true, marks: true, photo: false, voice: false, studio: true },
+fmt: { '1:1': true, '4:5': true, '9:16': true, 'Landscape': true },
+ptc: [true, true, false, false, false, false, false, false], lay: { 'Full image': true, 'Product': true, 'Details': true, 'Athlete': false, 'Wordmark': true }
+};
+}
+renderVals() {
+if (!this.state || !this.state.cols) this.state = Object.assign({}, this.initial(), this.state || {});
+const S = this.state, set = o => this.setState(o);
+const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16) / 255).map(x => x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const ok6 = h => /^#[0-9a-fA-F]{6}$/.test(h);
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const inkOn = h => ratio(h, '#FFFFFF') >= ratio(h, '#0B0D0E') ? '#FFFFFF' : '#0B0D0E';
+const cols = S.cols.map(c => ({ name: c[0], hex: ok6(c[1]) ? c[1].toUpperCase() : '#888888', cmyk: c[2] || '', pantone: c[3] || '' }));
+const cmykOf = h => { const r = parseInt(h.substr(1, 2), 16) / 255, g = parseInt(h.substr(3, 2), 16) / 255, b = parseInt(h.substr(5, 2), 16) / 255; const k = 1 - Math.max(r, g, b); if (k >= 1) return 'C0 M0 Y0 K100'; const f = v => Math.round((1 - v - k) / (1 - k) * 100); return 'C' + f(r) + ' M' + f(g) + ' Y' + f(b) + ' K' + Math.round(k * 100); };
+const cls = r => r >= 4.5 ? 'ok' : r >= 3 ? 'large' : 'never';
+let nOk = 0, nLarge = 0, nNever = 0; const weak = [];
+const cells = [];
+const perBg = cols.map(bg => { let ok = 0, large = 0, never = 0; cols.forEach(tx => { if (tx.hex === bg.hex) return; const k = cls(ratio(bg.hex, tx.hex)); if (k === 'ok') ok++; else if (k === 'large') large++; else never++; }); return { ok, large, never }; });
+perBg.forEach((p, i) => { nOk += p.ok; nLarge += p.large; nNever += p.never; if (p.ok === 0) weak.push(cols[i].name); });
+cols.forEach(bg => cols.forEach(tx => {
+const same = tx.hex === bg.hex; const k = same ? 'same' : cls(ratio(bg.hex, tx.hex));
+let st = 'aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border-radius:4px;box-sizing:border-box;position:relative;background:' + bg.hex + ';color:' + tx.hex + ';border:1px solid rgba(0,0,0,.12);';
+if (k === 'large') st += 'border:1.5px dashed ' + tx.hex + ';';
+if (k === 'never') st += 'opacity:.45;background-image:linear-gradient(to top right, transparent calc(50% - 1px), #D8322B 50%, transparent calc(50% + 1px));';
+if (k === 'same') st += 'color:transparent;opacity:.35;';
+cells.push({ style: st });
+}));
+const totals = nOk + ' approved · ' + nLarge + ' headlines only · ' + nNever + ' never';
+const warnList = [];
+if (weak.length) warnList.push(weak.join(', ') + (weak.length > 1 ? ' have' : ' has') + ' no colour approved for body text. Consider adjusting them.');
+const colourRows = cols.map((c, i) => ({
+name: c.name, hex: c.hex,
+stat: perBg[i].ok + ' approved',
+editHex: e => { const v = e.target.value; const n = S.cols.map(x => x.slice()); n[i][1] = v; set({ cols: n }); },
+editName: e => { const n = S.cols.map(x => x.slice()); n[i][0] = e.target.value; set({ cols: n }); },
+remove: () => { if (S.cols.length <= 2) return; set({ pOpen: {}, cols: S.cols.filter((x, j) => j !== i), ptc: (S.ptc || []).filter((x, j) => j !== i) }); },
+open: !!(S.pOpen || {})[i], cmyk: c.cmyk, pantone: c.pantone, cmykCalc: 'Calculated ' + cmykOf(c.hex),
+togglePrint: () => set({ pOpen: Object.assign({}, S.pOpen || {}, { [i]: !(S.pOpen || {})[i] }) }),
+editCmyk: e => { const n = S.cols.map(x => x.slice()); n[i][2] = e.target.value; set({ cols: n }); },
+editPantone: e => { const n = S.cols.map(x => x.slice()); n[i][3] = e.target.value; set({ cols: n }); },
+printStyle: 'flex:none;border-radius:10px;padding:0 12px;font-weight:600;font-size:13px;min-height:44px;cursor:pointer;border:1px solid ' + ((c.cmyk || c.pantone) ? '#141414' : '#CFCFC8') + ';background:' + ((c.cmyk || c.pantone) ? '#141414' : '#fff') + ';color:' + ((c.cmyk || c.pantone) ? '#fff' : '#141414') + ';',
+removeStyle: 'flex:none;width:44px;background:#fff;color:#141414;border:1px solid #CFCFC8;border-radius:10px;padding:0;font-weight:600;font-size:14px;min-height:44px;cursor:pointer;' + (S.cols.length <= 2 ? 'opacity:.4;cursor:not-allowed;' : '')
+}));
+const fonts = ['Montserrat', 'Space Grotesk', 'Inter', 'DM Sans', 'Manrope', 'Archivo', 'Fraunces', 'Playfair Display', 'DM Serif Display', 'Bebas Neue'];
+const chipSt = on => 'display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 16px;min-width:116px;border-radius:12px;cursor:pointer;border:1.5px solid ' + (on ? '#141414' : '#DADAD3') + ';background:' + (on ? '#F5F5F2' : '#fff') + ';color:#141414;';
+const fontOpts = key => fonts.map(f => ({ name: f, on: S[key] === f, pick: () => set({ [key]: f }), style: chipSt(S[key] === f), sampleStyle: "font-family:'" + f + "',sans-serif;font-size:28px;line-height:1.1;font-weight:600" }));
+const optBtn = on => 'padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;min-height:42px;border:1.5px solid ' + (on ? '#141414' : '#DADAD3') + ';background:' + (on ? '#141414' : '#fff') + ';color:' + (on ? '#fff' : '#141414') + ';';
+const weights = [400, 500, 600, 700].map(w => ({ label: String(w), on: S.weight === w, pick: () => set({ weight: w }), style: optBtn(S.weight === w) }));
+const bgLight = cols.slice().sort((a, b) => lum(b.hex) - lum(a.hex))[0].hex;
+const inkDark = cols.slice().sort((a, b) => lum(a.hex) - lum(b.hex))[0].hex;
+const accent = cols[0].hex, onAccent = inkOn(accent);
+const solidOk = ratio(accent, onAccent) >= 4.5;
+const heroEff = S.hero === 'solid' && !solidOk ? 'tint' : S.hero;
+const heroBg = heroEff === 'solid' ? accent : heroEff === 'tint' ? accent + '26' : 'linear-gradient(135deg,#2a3338,#0b0d0e)';
+const heroInk = heroEff === 'solid' ? onAccent : heroEff === 'tint' ? inkDark : '#FFFFFF';
+const heroBtn = heroEff === 'solid' ? onAccent : accent, heroBtnInk = heroEff === 'solid' ? accent : onAccent;
+const R = { sharp: ['2px', '4px', '2px'], soft: ['8px', '16px', '8px'], round: ['16px', '24px', '16px'], pill: ['14px', '24px', '999px'] }[S.radius];
+const pvVars = { bg: bgLight, ink: inkDark, muted: ratio(bgLight, inkDark) > 7 ? inkDark + 'B3' : inkDark, line: inkDark + '24', accent, onAccent, r: R[0], r2: R[1], rb: R[2], head: "'" + S.headFont + "',sans-serif", body: "'" + S.bodyFont + "',sans-serif", hw: String(S.weight), tr: S.track + 'em', tc: S.upper ? 'uppercase' : 'none', heroBg, heroInk, heroBtn, heroBtnInk };
+const pvStyle = Object.entries(pvVars).map(([k, v]) => '--' + k + ':' + v + ';').join('');
+const secDefs = [['start', 'Start here', 'The four rules.'], ['logos', 'Logos', 'Every logo with its approved colourways.'], ['colours', 'Colours', 'The palette, with codes to copy.'], ['pairings', 'Approved pairings', 'Generated from the palette.'], ['type', 'Typography', 'Fonts to download and how to use them.'], ['dont', 'Please don’t', 'Generated misuse examples.'], ['marks', 'Supporting marks', 'Handle, quote marks, tags and frames.'], ['photo', 'Photography', 'Approved imagery and cropping.'], ['voice', 'Voice', 'How the brand sounds.'], ['studio', 'Artwork studio', 'Make on-brand posts and ads.']];
+const sections = secDefs.map(d => { const on = S.sec[d[0]]; return { title: d[1], text: d[2], on, tick: on ? '✓' : '', toggle: () => set({ sec: Object.assign({}, S.sec, { [d[0]]: !on }) }), style: 'display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;cursor:pointer;text-align:left;border:1px solid ' + (on ? '#141414' : '#E2E2DC') + ';background:' + (on ? '#F5F5F2' : '#fff') + ';color:#141414;', boxStyle: 'width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:none;font-weight:700;font-size:14px;border:1.5px solid ' + (on ? '#141414' : '#BDBDB5') + ';background:' + (on ? '#141414' : '#fff') + ';color:#fff;' }; });
+const toggleList = (obj, key) => Object.keys(obj).map(k => ({ label: k, on: obj[k], toggle: () => set({ [key]: Object.assign({}, S[key], { [k]: !obj[k] }) }), style: optBtn(obj[k]) }));
+const logoDefs = [['primary', 'Primary logo'], ['tagline', 'Primary with tagline'], ['secondary', 'Secondary logo'], ['icon', 'Brand mark']];
+const logoSlots = logoDefs.map(d => { const done = S.logos[d[0]]; return { title: d[1], done, status: done ? 'Uploaded · SVG' : 'Click to upload an SVG', toggle: () => set({ logos: Object.assign({}, S.logos, { [d[0]]: !done }) }), style: 'display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:22px;border-radius:14px;cursor:pointer;min-height:110px;color:#141414;border:' + (done ? '1.5px solid #141414' : '1.5px dashed #BDBDB5') + ';background:' + (done ? '#F5F5F2' : '#fff') + ';' }; });
+const upCount = Object.values(S.logos).filter(Boolean).length;
+const cwOk = (bg, tx) => bg.hex !== tx.hex && ratio(bg.hex, tx.hex) >= 3;
+const cwBgs = cols.filter(bg => cols.some(tx => cwOk(bg, tx))).length, cwColours = cols.filter(tx => cols.some(bg => cwOk(bg, tx))).length;
+const studioOk = Object.values(S.fmt).some(Boolean) && Object.values(S.lay).some(Boolean);
+const done = [S.name.trim() && S.domain.trim() && S.pw.trim(), warnList.length === 0 && S.cols.every(c => ok6(c[1])), true, upCount === 4, Object.values(S.sec).some(Boolean) && studioOk].map(Boolean);
+const stepDefs = [['Basics', 'Name, address, password'], ['Colours', 'Palette and pairings'], ['Type and look', 'Fonts, hero, corners'], ['Logos', 'Uploads and marks'], ['Studio and publish', 'Sections, studio, checks']];
+const steps = stepDefs.map((d, i) => { const cur = S.step === i; return { num: done[i] ? '✓' : String(i + 1), title: d[0], sub: d[1], current: cur ? 'step' : 'false', go: () => set({ step: i }), style: 'display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;cursor:pointer;text-align:left;border:1px solid ' + (cur ? '#141414' : 'transparent') + ';background:' + (cur ? '#fff' : 'transparent') + ';color:#141414;', numStyle: 'width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:' + (done[i] && i < 7 ? '#141414' : '#E6E6E0') + ';color:' + (done[i] && i < 7 ? '#fff' : '#141414') + ';' }; });
+const doneCount = done.filter(Boolean).length;
+const mkCheck = (ok, title, text) => ({ title, text, mark: ok ? '✓' : '!', dot: 'width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;background:' + (ok ? '#2E9E5B' : '#D98A00') + ';' });
+const ptc = S.ptc || [true, true, false, false, false, false, false, false];
+const photoCols = cols.map((c, i) => ({ name: c.name, hex: c.hex, on: !!ptc[i], toggle: () => { const n = ptc.slice(); n[i] = !n[i]; set({ ptc: n }); }, style: optBtn(!!ptc[i]) + 'display:flex;align-items:center;gap:8px;' }));
+const allowed = cols.filter((c, i) => ptc[i]);
+const hasLight = allowed.some(c => lum(c.hex) > 0.5), hasDark = allowed.some(c => lum(c.hex) < 0.18);
+const libOk = !S.lib.trim() || /^https:\/\/([a-z0-9-]+\.)?dropbox\.com\//i.test(S.lib.trim());
+const checks = [
+mkCheck(warnList.length === 0, 'Palette contrast', warnList.length ? warnList[0] : 'Every colour has at least one approved text colour.'),
+mkCheck(true, 'Fonts', S.headFont + ' and ' + S.bodyFont + ' are available, so exports will match the preview.'),
+mkCheck(upCount === 4, 'Logos', upCount + ' of 4 logos uploaded.' + (upCount < 4 ? ' The hub shows a placeholder until the rest are added.' : '')),
+mkCheck(Object.values(S.sec).some(Boolean), 'Sections', Object.values(S.sec).filter(Boolean).length + ' sections will be shown.'),
+mkCheck(Object.values(S.fmt).some(Boolean) && Object.values(S.lay).some(Boolean), 'Artwork studio', Object.values(S.fmt).filter(Boolean).length + ' formats and ' + Object.values(S.lay).filter(Boolean).length + ' layouts enabled.'),
+mkCheck(hasLight && hasDark, 'Photo text colours', hasLight && hasDark ? allowed.length + ' colours allowed, including a light and a dark option.' : 'Allow at least one light and one dark text colour for photos.'),
+mkCheck(S.pw.trim().length >= 8, 'Client password', S.pw.trim().length >= 8 ? 'Set. Share it with the client yourself.' : 'Use at least 8 characters.'),
+mkCheck(libOk, 'Photo library', libOk ? (S.lib.trim() ? 'Dropbox folder linked from the studio.' : 'No library link. Clients use their own photos.') : 'The library link should be a dropbox.com address.'),
+mkCheck(!!S.domain.trim(), 'Domain', S.domain + ' will serve this brand only, behind its own password.')
+];
+const photoColNote = (!hasLight || !hasDark) ? 'Add at least one light and one dark colour, so every photo has a readable choice. The studio picks the best match automatically for each photo.' : allowed.length + ' colours allowed. The studio picks the best readable one automatically for each photo, and only shows the ones that pass.';
+const stepFlag = i => S.step === i;
+return {
+brandName: S.name, gridCols: 'grid-template-columns:repeat(' + cols.length + ', minmax(0, 1fr));', addColour: () => { if (S.cols.length >= 12) return; set({ cols: S.cols.concat([['New colour', '#8A8A85']]), ptc: (S.ptc || []).concat([false]) }); }, addStyle: 'background:#141414;color:#fff;border:none;border-radius:10px;padding:0 18px;font-weight:600;font-size:14px;min-height:44px;cursor:pointer;' + (S.cols.length >= 12 ? 'opacity:.4;cursor:not-allowed;' : ''), colourCount: cols.length + ' of 12 colours', tag: S.tag, handle: S.handle, domain: S.domain,
+editLib: e => set({ lib: e.target.value }), lib: S.lib, libNote: libOk ? (S.lib.trim() ? 'The studio shows an Open photo library button that opens this folder in a new tab.' : 'Optional. Without a link, clients use their own photos.') : 'This should be a dropbox.com link.', editName: e => set({ name: e.target.value }), editTag: e => set({ tag: e.target.value }), editHandle: e => set({ handle: e.target.value }), editDomain: e => set({ domain: e.target.value }), pw: S.pw, editPw: e => set({ pw: e.target.value }), genPw: () => { const w = ['Tide','Rail','Kiln','Oak','Dock','Reed','Slate','Moss','Brick','Quay','Flint','Wren']; const r = n => w[Math.floor(Math.random() * w.length)]; set({ pw: r() + '-' + r() + '-' + (1000 + Math.floor(Math.random() * 9000)) }); },
+steps, doneCount, minsLeft: Math.max(5, (5 - doneCount) * 12 + 5),
+goReview: () => set({ step: 4 }), prev: () => set({ step: Math.max(0, S.step - 1) }), next: () => set({ step: Math.min(4, S.step + 1) }),
+s0: stepFlag(0), s1: stepFlag(1), s2: stepFlag(2), s3: stepFlag(3), s4: stepFlag(4),
+colours: colourRows, cells, totals, hasWarnings: warnList.length > 0, noWarnings: warnList.length === 0, warnings: warnList.join(' '),
+headFonts: fontOpts('headFont'), bodyFonts: fontOpts('bodyFont'), weights, upper: S.upper, notUpper: !S.upper,
+setNormal: () => set({ upper: false }), setUpper: () => set({ upper: true }),
+caseNormalStyle: optBtn(!S.upper), caseUpperStyle: optBtn(S.upper),
+track: S.track, editTrack: e => set({ track: parseFloat(e.target.value) }),
+logoSlots, cwBgs, cwColours,
+heroes: [['solid', 'Solid colour'], ['tint', 'Soft tint'], ['photo', 'Dark photo style']].map(h => ({ label: h[1], on: S.hero === h[0], pick: () => set({ hero: h[0] }), style: optBtn(S.hero === h[0]) })),
+heroFallback: S.hero === 'solid' && !solidOk,
+radii: [['sharp', 'Sharp'], ['soft', 'Soft'], ['round', 'Rounded'], ['pill', 'Pill buttons']].map(h => { const on = S.radius === h[0]; const rr = { sharp: '2px', soft: '8px', round: '14px', pill: '999px' }[h[0]]; return { label: h[1], on, pick: () => set({ radius: h[0] }), style: optBtn(on) + 'display:flex;align-items:center;gap:10px;', swatch: 'width:22px;height:16px;border:2px solid ' + (on ? '#fff' : '#141414') + ';border-radius:' + rr + ';' }; }),
+photoCols, photoColNote, sections, formats: toggleList(S.fmt, 'fmt'), layouts: toggleList(S.lay, 'lay'),
+checks, pvStyle, pvSwatches: cols.map(c => ({ style: 'aspect-ratio:1;border-radius:4px;border:1px solid rgba(0,0,0,.12);background:' + c.hex + ';' }))
+};
+}
+}
+</script>
+</body>
+</html>

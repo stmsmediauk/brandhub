@@ -1,0 +1,10 @@
+# secrets and local config
+config.php
+.env
+# uploaded brand files and exports stay out of git
+storage/*
+!storage/.gitkeep
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/

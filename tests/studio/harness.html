@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio test harness</title>
+<link rel="stylesheet" href="../../public/studio/studio.css">
+</head>
+<body>
+<!-- Runs the real studio against a test brand. Pick one with ?brand=light-serif, dark-sans or edge-midtones.
+     Sample photos are on here and never on the client page. -->
+<div id="app"></div>
+<script type="module">
+  import { start } from '../../public/studio/js/main.js';
+  const brand = new URLSearchParams(location.search).get('brand') || 'dark-sans';
+  window.studio = await start({
+    root: document.getElementById('app'),
+    brandUrl: 'fixtures/' + brand.replace(/[^a-z-]/g, '') + '.json',
+    layoutsBase: '../../public/layouts/',
+    assetBase: '',
+    hubUrl: '',
+    samples: true
+  });
+  window.studioReady = true;
+</script>
+</body>
+</html>

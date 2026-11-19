@@ -1,0 +1,25 @@
+{
+  "_note": "TEST BRAND ONLY. A dark, sans, sharp-cornered brand used to prove the studio repeats. Not a real client.",
+  "slug": "forma",
+  "name": "FORMA",
+  "status": "draft",
+  "palette": [
+    { "name": "Court",  "hex": "#C8F04A" },
+    { "name": "Carbon", "hex": "#0B0D0E" },
+    { "name": "White",  "hex": "#FFFFFF" }
+  ],
+  "fonts": {
+    "heading": { "family": "Montserrat", "source": "google", "weight": 600, "case": "upper", "tracking": 0.06 },
+    "body":    { "family": "Montserrat", "source": "google", "weight": 400 }
+  },
+  "look": { "hero": "dark", "corners": "sharp", "theme": "dark" },
+  "sections": { "studio": true },
+  "studio": {
+    "formats": ["1:1", "4:5", "9:16", "landscape"],
+    "layouts": ["full", "product", "details", "wordmark"],
+    "photo_text_colours": ["#FFFFFF", "#0B0D0E", "#C8F04A"],
+    "export": { "png": true, "jpg": true, "naming": "{brand}_{format}_{layout}" }
+  },
+  "library": "https://www.dropbox.com/scl/fo/test-dark-library",
+  "version": 1
+}

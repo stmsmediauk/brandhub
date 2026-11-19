@@ -1,0 +1,82 @@
+{
+  "id": "product",
+  "name": "Product",
+  "fields": [
+    {
+      "id": "headline",
+      "label": "Product name",
+      "max": 28,
+      "example": "Product name"
+    },
+    {
+      "id": "subline",
+      "label": "Features",
+      "max": 32,
+      "example": "Key feature or two"
+    },
+    {
+      "id": "details",
+      "label": "Price",
+      "max": 24,
+      "example": "From 49"
+    }
+  ],
+  "photo": {
+    "fill": 0.62
+  },
+  "panel": {
+    "edge": "bottom",
+    "size": 0.38
+  },
+  "text": {
+    "on": "panel",
+    "movable": false,
+    "align": "left",
+    "min_scale": 0.6,
+    "pad": 0.0556,
+    "gap": 0.0185,
+    "lines": [
+      {
+        "field": "headline",
+        "font": "heading",
+        "weight": "brand",
+        "size": 0.0481,
+        "case": "brand",
+        "tracking": "brand"
+      },
+      {
+        "field": "subline",
+        "font": "heading",
+        "weight": 400,
+        "size": 0.0259,
+        "case": "brand",
+        "tracking": "brand"
+      },
+      {
+        "field": "details",
+        "font": "heading",
+        "weight": 700,
+        "size": 0.0241,
+        "case": "brand",
+        "tracking": "brand",
+        "style": "pill",
+        "pad_x": 0.0259,
+        "pad_y": 0.013
+      }
+    ]
+  },
+  "by_format": {
+    "landscape": {
+      "photo": {
+        "fill": 0.58
+      },
+      "panel": {
+        "edge": "right",
+        "size": 0.42
+      },
+      "text": {
+        "pad": 0.04
+      }
+    }
+  }
+}

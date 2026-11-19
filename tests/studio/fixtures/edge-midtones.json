@@ -1,0 +1,23 @@
+{
+  "_note": "TEST BRAND ONLY. Two mid-tone colours, so no text colour reads clearly on a solid panel and few read on photos. Proves the studio blocks instead of letting the brand break.",
+  "slug": "sandstone",
+  "name": "Sandstone",
+  "status": "draft",
+  "palette": [
+    { "name": "Sand", "hex": "#C9B79C" },
+    { "name": "Clay", "hex": "#8A6D55" }
+  ],
+  "fonts": {
+    "heading": { "family": "Space Grotesk", "source": "google", "weight": 700, "case": "lower", "tracking": -0.02 },
+    "body":    { "family": "Inter", "source": "google", "weight": 400 }
+  },
+  "look": { "hero": "solid", "corners": "soft", "theme": "light" },
+  "sections": { "studio": true },
+  "studio": {
+    "formats": ["1:1", "4:5"],
+    "layouts": ["full", "product", "wordmark"],
+    "photo_text_colours": ["#C9B79C", "#8A6D55"],
+    "export": { "png": true, "jpg": true, "naming": "{brand}_{format}_{layout}" }
+  },
+  "version": 1
+}

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Brand hub home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{text-decoration:none}
+.nl:hover{opacity:.65}
+</style>
+</helmet>
+<div style="{{rootStyle}} display:flex; flex-direction:column; min-height:4700px; background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.5; box-sizing:border-box">
+
+<header style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px 32px; padding:22px 56px; border-bottom:1px solid var(--line); background:var(--bg)">
+<a href="#top" style="display:flex; align-items:baseline; gap:12px; color:var(--ink)">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:22px">{{b.name}}</span>
+<span style="font-size:13px; color:var(--muted)">{{b.tag}}</span>
+</a>
+<nav aria-label="Brand hub" style="display:flex; flex-wrap:wrap; gap:8px 26px; font-size:15px; font-weight:500">
+<a class="nl" href="#start" style="color:var(--ink)">Start here</a>
+<a class="nl" href="#logos" style="color:var(--ink)">Logos</a>
+<a class="nl" href="#colours" style="color:var(--ink)">Colours</a>
+<a class="nl" href="#pairings" style="color:var(--ink)">Pairings</a>
+<a class="nl" href="#type" style="color:var(--ink)">Type</a>
+<a class="nl" href="#dont" style="color:var(--ink)">Don’ts</a>
+<a class="nl" href="#marks" style="color:var(--ink)">Marks</a>
+</nav>
+<a href="{{studioHref}}" style="background:var(--accent); color:var(--onAccent); padding:12px 22px; border-radius:var(--rb); font-weight:600; font-size:15px">Artwork studio</a>
+</header>
+
+<main id="top" style="width:100%; max-width:1328px; margin:0 auto; box-sizing:border-box; padding:48px 56px 88px; display:flex; flex-direction:column; gap:96px">
+
+<section style="background:var(--heroBg); color:var(--heroInk); border-radius:var(--r2); padding:80px 64px; display:flex; flex-direction:column; gap:26px; min-height:320px; justify-content:flex-end">
+<span style="font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--heroSub)">Brand hub</span>
+<h1 style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:clamp(40px,6vw,72px); line-height:1.02; max-width:780px">Everything {{b.name}}, in one place.</h1>
+<p style="margin:0; max-width:540px; font-size:18px; color:var(--heroSub)">Logos, colours, fonts and the rules that keep it all consistent. Download what you need, or make new artwork that is always on brand.</p>
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:8px">
+<a href="{{studioHref}}" style="background:var(--heroBtn); color:var(--heroBtnInk); padding:15px 28px; border-radius:var(--rb); font-weight:600">Open the artwork studio</a>
+<a href="#start" style="border:1.5px solid var(--heroInk); color:var(--heroInk); padding:13.5px 26px; border-radius:var(--rb); font-weight:600">Read the four rules</a>
+</div>
+</section>
+
+<section id="start" aria-labelledby="h-start" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:620px">
+<h2 id="h-start" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Start here</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">Four rules cover almost everything. Follow them and your work will look like {{b.name}}.</p>
+</div>
+<div style="display:flex; flex-direction:column; border-top:2px solid var(--ink)">
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="4">
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px 40px; align-items:baseline; padding:32px 0; border-bottom:1px solid var(--line)">
+<div style="display:flex; align-items:baseline; gap:24px">
+<span style="font-family:var(--head); font-weight:var(--headW); font-size:64px; line-height:.9; color:var(--accentText); min-width:48px">{{r.n}}</span>
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:30px; line-height:1.1">{{r.title}}</span>
+</div>
+<span style="font-size:17px; color:var(--muted); max-width:460px">{{r.text}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="logos" aria-labelledby="h-logos" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:640px">
+<h2 id="h-logos" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Logos</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">Choose what it’s going on and see the logo in each approved colourway. Only combinations that pass the pairing rules are offered.</p>
+</div>
+<a href="#logos" style="color:var(--accentText); font-weight:600; font-size:15px">Download all (zip)</a>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:24px">
+<sc-for list="{{logos}}" as="c" hint-placeholder-count="4">
+<div style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r2); overflow:hidden; display:flex; flex-direction:column">
+<div style="{{c.previewStyle}} height:230px; display:flex; align-items:center; justify-content:center; transition:background .2s, color .2s">
+<sc-if value="{{c.isPrimary}}" hint-placeholder-val="{{ true }}">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:42px; line-height:1">{{b.name}}</span>
+</sc-if>
+<sc-if value="{{c.isTagline}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex; flex-direction:column; align-items:center; gap:10px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:38px; line-height:1">{{b.name}}</span>
+<span style="font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.24em; text-transform:uppercase">{{b.tag}}</span>
+</div>
+</sc-if>
+<sc-if value="{{c.isSecondary}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex; align-items:center; gap:14px">
+<span aria-hidden="true" style="width:34px; height:34px; border-radius:50%; background:radial-gradient(circle, currentColor 1.6px, transparent 2.2px) 0 0/6px 6px; flex:none"></span>
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:26px; line-height:1">{{b.name}}</span>
+</div>
+</sc-if>
+<sc-if value="{{c.isIcon}}" hint-placeholder-val="{{ false }}">
+<span aria-hidden="true" style="width:92px; height:92px; border-radius:50%; background:radial-gradient(circle, currentColor 2.4px, transparent 3.2px) 0 0/9px 9px"></span>
+</sc-if>
+</div>
+<div style="padding:24px 26px 26px; display:flex; flex-direction:column; gap:18px">
+<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:19px; line-height:1.2">{{c.title}}</span>
+<span style="font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; border:1px solid var(--line); border-radius:var(--rb); padding:4px 10px; color:var(--muted); white-space:nowrap">{{c.badge}}</span>
+</div>
+<span style="font-size:14.5px; color:var(--muted)">{{c.text}}</span>
+<div style="display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)">What is it going on?</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px">
+<sc-for list="{{c.dots}}" as="d" hint-placeholder-count="8">
+<button type="button" aria-label="{{d.name}}" aria-pressed="{{d.pressed}}" onClick="{{d.pick}}" style="{{d.style}}"></button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)">Colourway</span>
+<div style="display:flex; flex-wrap:wrap; gap:8px">
+<sc-for list="{{c.chips}}" as="h" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{h.on}}" onClick="{{h.pick}}" style="{{h.style}}"><span aria-hidden="true" style="width:12px; height:12px; border-radius:50%; background:{{h.hex}}; border:1px solid rgba(128,128,128,.5)"></span>{{h.name}}</button>
+</sc-for>
+</div>
+</div>
+<span style="font-size:13px; color:var(--muted)">{{c.combo}}</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px">
+<a href="#logos" style="background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:var(--rb); font-weight:600; font-size:14px; min-height:20px">Download PNG</a>
+<a href="#logos" style="border:1px solid var(--line); color:var(--ink); padding:11px 19px; border-radius:var(--rb); font-weight:600; font-size:14px">Original .svg</a>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="colours" aria-labelledby="h-col" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:640px">
+<h2 id="h-col" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Colours</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">Eight colours. Nothing outside this palette. Click any value to copy it.</p>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:20px">
+<sc-for list="{{palette}}" as="s" hint-placeholder-count="8">
+<div style="border:1px solid var(--line); border-radius:var(--r2); overflow:hidden; background:var(--surface); display:flex; flex-direction:column">
+<button type="button" onClick="{{s.copyHex}}" aria-label="Copy {{s.name}} HEX" style="background:{{s.hex}}; color:{{s.ink}}; height:128px; padding:16px 18px; box-sizing:border-box; display:flex; align-items:flex-end; justify-content:space-between; border:none; cursor:pointer; font-family:var(--head); font-weight:var(--headW); font-size:22px; text-align:left">
+<span>{{s.name}}</span><span style="font-family:var(--body); font-size:12px; font-weight:600; opacity:.9">{{s.hexLabel}}</span>
+</button>
+<div style="padding:8px 10px 10px; display:flex; flex-direction:column; gap:2px">
+<sc-for list="{{s.values}}" as="v" hint-placeholder-count="3">
+<button type="button" onClick="{{v.copy}}" aria-label="Copy {{s.name}} {{v.label}}" style="display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; box-sizing:border-box; padding:11px 12px; border:none; background:transparent; color:var(--ink); border-radius:var(--r); cursor:pointer; font-family:var(--body); font-size:14px; min-height:44px; text-align:left">
+<span style="display:flex; gap:12px; align-items:baseline"><span style="width:42px; font-size:12px; font-weight:700; letter-spacing:.06em; color:var(--muted)">{{v.label}}</span><span style="font-weight:500">{{v.value}}</span></span>
+<span style="{{v.chip}}">{{v.action}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="pairings" aria-labelledby="h-pair" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:680px">
+<h2 id="h-pair" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Which colours go together</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">Choose the background you’re using. We’ll show you which text colours are safe on it.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px">
+<span style="font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)">1. Pick a background</span>
+<div style="display:flex; flex-wrap:wrap; gap:12px">
+<sc-for list="{{pairBgs}}" as="d" hint-placeholder-count="8">
+<button type="button" aria-label="{{d.name}}" aria-pressed="{{d.pressed}}" onClick="{{d.pick}}" style="{{d.style}}"></button>
+</sc-for>
+</div>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:24px; align-items:stretch">
+<div style="{{pairSampleBox}} border-radius:var(--r2); padding:40px 36px; min-height:340px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:14px; border:1px solid var(--line)">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:40px; line-height:1.05">{{pairHeadline}}</span>
+<sc-if value="{{pairBodyOk}}" hint-placeholder-val="{{ true }}"><span style="font-size:16px; max-width:380px">This is how body text looks in {{pairTextName}} on {{pairBgName}}.</span></sc-if>
+<sc-if value="{{pairBodyNo}}" hint-placeholder-val="{{ false }}"><span style="font-size:14px; max-width:380px; opacity:.9">Too faint for small text. Use it for big headlines and graphics only.</span></sc-if>
+</div>
+<div style="display:flex; flex-direction:column; gap:22px">
+<div style="display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)">2. Use these for text</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px">
+<sc-for list="{{pairOk}}" as="o" hint-placeholder-count="3"><button type="button" aria-pressed="{{o.on}}" onClick="{{o.pick}}" style="{{o.style}}"><span aria-hidden="true" style="width:14px; height:14px; border-radius:50%; background:{{o.hex}}; border:1px solid rgba(128,128,128,.5)"></span>{{o.name}}</button></sc-for>
+</div>
+</div>
+<sc-if value="{{pairHasLarge}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)">Big headlines and graphics only</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px">
+<sc-for list="{{pairLarge}}" as="o" hint-placeholder-count="2"><button type="button" aria-pressed="{{o.on}}" onClick="{{o.pick}}" style="{{o.style}}"><span aria-hidden="true" style="width:14px; height:14px; border-radius:50%; background:{{o.hex}}; border:1px solid rgba(128,128,128,.5)"></span>{{o.name}}</button></sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)">Never use</span>
+<div style="display:flex; flex-wrap:wrap; gap:14px">
+<sc-for list="{{pairNever}}" as="o" hint-placeholder-count="2"><span style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); text-decoration:line-through"><span aria-hidden="true" style="width:14px; height:14px; border-radius:50%; background:{{o.hex}}; border:1px solid rgba(128,128,128,.5)"></span>{{o.name}}</span></sc-for>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="type" aria-labelledby="h-type" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:620px">
+<h2 id="h-type" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Typography</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">Two typefaces. No guest fonts.</p>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px">
+<div style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r2); padding:32px; display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:13px; color:var(--muted); font-weight:600; letter-spacing:.1em; text-transform:uppercase">Headings</span>
+<span style="font-family:var(--head); font-weight:var(--headW); text-transform:var(--headCase); letter-spacing:var(--headTrack); font-size:88px; line-height:1">Aa</span>
+<span style="font-weight:600; font-size:18px">{{b.headFont}}</span>
+<span style="font-family:var(--head); font-weight:var(--headW); text-transform:var(--headCase); letter-spacing:var(--headTrack); font-size:22px; color:var(--muted)">ABCDEFGHIJKLM 0123456789</span>
+<a href="#type" style="color:var(--accentText); font-weight:600; font-size:15px; margin-top:6px">Download font</a>
+</div>
+<div style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r2); padding:32px; display:flex; flex-direction:column; gap:10px">
+<span style="font-family:var(--mono); font-size:13px; color:var(--muted); font-weight:600; letter-spacing:.1em; text-transform:uppercase">Body</span>
+<span style="font-size:88px; line-height:1; font-weight:500">Aa</span>
+<span style="font-weight:600; font-size:18px">{{b.bodyFont}}</span>
+<span style="font-size:17px; color:var(--muted)">The quick brown fox jumps over the lazy dog. 0123456789</span>
+<a href="#type" style="color:var(--accentText); font-weight:600; font-size:15px; margin-top:6px">Download font</a>
+</div>
+</div>
+</section>
+
+<section id="dont" aria-labelledby="h-dont" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:620px">
+<h2 id="h-dont" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Please don’t</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">The mistakes we see most. Every one of these is easy to avoid.</p>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:20px">
+<sc-for list="{{donts}}" as="d" hint-placeholder-count="6">
+<div style="display:flex; flex-direction:column; gap:12px">
+<div style="position:relative; height:170px; border-radius:var(--r2); overflow:hidden; display:flex; align-items:center; justify-content:center; background:{{d.bg}}; border:1px solid var(--line)">
+<span style="{{d.style}}">{{b.name}}</span>
+<span aria-hidden="true" style="position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:#D8322B; display:flex; align-items:center; justify-content:center">
+<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2 L12 12 M12 2 L2 12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+</span>
+</div>
+<span style="font-size:14px; color:var(--muted)"><b style="color:var(--ink)">{{d.title}}</b> · {{d.text}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="marks" aria-labelledby="h-marks" style="display:flex; flex-direction:column; gap:32px; scroll-margin-top:24px">
+<div style="display:flex; flex-direction:column; gap:10px; max-width:620px">
+<h2 id="h-marks" style="margin:0; font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:36px; line-height:1.1">Supporting marks</h2>
+<p style="margin:0; color:var(--muted); font-size:17px">Small graphics that finish a layout. Download each one as SVG.</p>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:20px">
+<div style="display:flex; flex-direction:column; gap:12px">
+<div style="height:190px; border-radius:var(--r2); background:var(--surface); border:1px solid var(--line); display:flex; align-items:center; justify-content:center">
+<span style="background:var(--accent); color:var(--onAccent); border-radius:var(--rb); padding:10px 22px; font-weight:600; font-size:18px">{{b.handle}}</span>
+</div>
+<div style="display:flex; justify-content:space-between; font-size:14px"><b>Handle</b><a href="#marks" style="color:var(--accentText); font-weight:600">Download SVG</a></div>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px">
+<div style="height:190px; border-radius:var(--r2); background:var(--surface); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--accentText); font-family:var(--head); font-weight:700; font-size:150px; line-height:1; padding-top:48px; box-sizing:border-box">“</div>
+<div style="display:flex; justify-content:space-between; font-size:14px"><b>Quote marks</b><a href="#marks" style="color:var(--accentText); font-weight:600">Download SVG</a></div>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px">
+<div style="height:190px; border-radius:var(--r2); background:var(--surface); border:1px solid var(--line); display:flex; align-items:center; justify-content:center">
+<span style="font-family:var(--mono); border:1.5px solid var(--ink); border-radius:var(--rb); padding:8px 20px; font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase">Featuring</span>
+</div>
+<div style="display:flex; justify-content:space-between; font-size:14px"><b>“Featuring” tag</b><a href="#marks" style="color:var(--accentText); font-weight:600">Download SVG</a></div>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px">
+<div style="height:190px; border-radius:var(--r2); background:var(--surface); border:1px solid var(--line); display:flex; align-items:center; justify-content:center">
+<div style="width:104px; height:134px; border:3px solid var(--accent); border-radius:var(--r2); background:var(--surface2); position:relative"><span style="position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:56px; height:62px; background:var(--line); border-radius:28px 28px 0 0"></span></div>
+</div>
+<div style="display:flex; justify-content:space-between; font-size:14px"><b>Portrait frame</b><a href="#marks" style="color:var(--accentText); font-weight:600">Download SVG</a></div>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"brand":{"editor":"enum","default":"stms","options":["stms","forma","northlight","kiln"],"section":"Brand"}}'>
+class Component extends DCLogic {
+renderVals() {
+const T = {
+forma: {
+name: 'FORMA', tag: 'Padel', handle: '@formapadel', headFont: 'Montserrat SemiBold', bodyFont: 'Montserrat Regular',
+v: { bg:'#0B0D0E', surface:'#14181A', surface2:'#1C2124', ink:'#F3F5F4', muted:'#A3AEB1', line:'rgba(255,255,255,.14)', accent:'#C8F04A', onAccent:'#0B0D0E', accentText:'#C8F04A', r:'2px', r2:'4px', rb:'2px', head:"'Montserrat',sans-serif", body:"'Montserrat',sans-serif", headW:'600', headTrack:'.06em', headCase:'uppercase', heroBg:'linear-gradient(135deg,#222C31 0%,#0B0D0E 70%)', heroInk:'#F3F5F4', heroSub:'#B9C3C6', heroBtn:'#C8F04A', heroBtnInk:'#0B0D0E' },
+pal: [['Carbon','#0B0D0E'],['Court','#C8F04A'],['Graphite','#2B3438'],['Steel','#5C6A70'],['Mist','#A3AEB1'],['Fog','#E3E8EA'],['White','#FFFFFF'],['Signal','#FF5A36']],
+logoBad: '#FF5A36', busy: 'repeating-linear-gradient(45deg,#C8F04A 0 14px,#FF5A36 14px 28px,#2B3438 28px 42px)', plain: '#14181A', logoCol: '#F3F5F4'
+},
+northlight: {
+name: 'Northlight', tag: 'Coffee roasters', handle: '@northlightcoffee', headFont: 'Fraunces Medium', bodyFont: 'DM Sans Regular',
+v: { bg:'#F5EFE4', surface:'#FFFFFF', surface2:'#EBE3D3', ink:'#1B2A21', muted:'#5A685F', line:'rgba(27,42,33,.16)', accent:'#2F5D43', onAccent:'#FFFFFF', accentText:'#2F5D43', r:'14px', r2:'28px', rb:'999px', head:"'Fraunces',serif", body:"'DM Sans',sans-serif", headW:'500', headTrack:'-.01em', headCase:'none', heroBg:'#EBE3D3', heroInk:'#1B2A21', heroSub:'#4A5A50', heroBtn:'#2F5D43', heroBtnInk:'#FFFFFF' },
+pal: [['Pine','#2F5D43'],['Moss','#7A9A5B'],['Crema','#F5EFE4'],['Bone','#EBE3D3'],['Roast','#6B3F26'],['Ember','#D9803A'],['Ink','#1B2A21'],['White','#FFFFFF']],
+logoBad: '#D9803A', busy: 'repeating-linear-gradient(45deg,#7A9A5B 0 14px,#D9803A 14px 28px,#6B3F26 28px 42px)', plain: '#FFFFFF', logoCol: '#1B2A21'
+},
+stms: {
+name: 'STMS Media', tag: 'Creative studio', handle: '@stmsmedia', headFont: 'Inter Bold', bodyFont: 'Inter Regular',
+v: { bg:'#FFFFFF', surface:'#F5F5F3', surface2:'#E9E9E6', ink:'#0A0A0A', muted:'#5A5A57', line:'#DADAD6', accent:'#FF00FF', onAccent:'#0A0A0A', accentText:'#A100A1', r:'4px', r2:'12px', rb:'4px', head:"'Inter',sans-serif", body:"'Inter',sans-serif", mono:"'JetBrains Mono',monospace", headW:'700', headTrack:'-.03em', headCase:'lowercase', heroBg:'#FF00FF', heroInk:'#0A0A0A', heroSub:'rgba(10,10,10,.82)', heroBtn:'#0A0A0A', heroBtnInk:'#FFFFFF' },
+pal: [['Magenta','#FF00FF'],['Black','#0A0A0A'],['White','#FFFFFF'],['Paper','#F5F5F3'],['Grey 200','#E4E4E0'],['Grey 500','#6B6B67'],['Deep Magenta','#A100A1'],['Blush','#FFC2FF']],
+logoBad: '#FF8A00', busy: 'repeating-linear-gradient(45deg,#FF00FF 0 14px,#0A0A0A 14px 28px,#FFFFFF 28px 42px)', plain: '#F5F5F3', logoCol: '#0A0A0A'
+},
+kiln: {
+name: 'Kiln', tag: 'Studio software', handle: '@kilnapp', headFont: 'Space Grotesk Bold', bodyFont: 'Inter Regular',
+v: { bg:'#FFFFFF', surface:'#F3F4F8', surface2:'#E6E8F2', ink:'#0F1230', muted:'#555A78', line:'#D9DCEA', accent:'#2B3BFF', onAccent:'#FFFFFF', accentText:'#2B3BFF', r:'8px', r2:'16px', rb:'8px', head:"'Space Grotesk',sans-serif", body:"'Inter',sans-serif", headW:'700', headTrack:'-.02em', headCase:'none', heroBg:'#2B3BFF', heroInk:'#FFFFFF', heroSub:'rgba(255,255,255,.86)', heroBtn:'#FFFFFF', heroBtnInk:'#2B3BFF' },
+pal: [['Kiln Blue','#2B3BFF'],['Ink','#0F1230'],['Flare','#FF6B3D'],['Sky','#8FA2FF'],['Cloud','#E6E8F2'],['Paper','#F3F4F8'],['Slate','#555A78'],['White','#FFFFFF']],
+logoBad: '#FF6B3D', busy: 'repeating-linear-gradient(45deg,#2B3BFF 0 14px,#FF6B3D 14px 28px,#8FA2FF 28px 42px)', plain: '#F3F4F8', logoCol: '#0F1230'
+}
+};
+const key = this.props.brand ?? 'stms';
+const t = T[key] || T.forma;
+const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16) / 255).map(x => x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const inkOn = h => ratio(h, '#FFFFFF') >= ratio(h, '#0B0D0E') ? '#FFFFFF' : '#0B0D0E';
+const rgb = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)).join(', ');
+const cmyk = h => { const [r, g, b] = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16) / 255); const k = 1 - Math.max(r, g, b); if (k >= 1) return '0, 0, 0, 100'; return [(1 - r - k) / (1 - k), (1 - g - k) / (1 - k), (1 - b - k) / (1 - k), k].map(x => Math.round(x * 100)).join(', '); };
+const ST = this.state || {};
+const doCopy = (txt, key) => { try { const p = navigator.clipboard && navigator.clipboard.writeText(txt); if (p && p.catch) p.catch(() => {}); } catch (e) {} this.setState({ copied: key }); setTimeout(() => { if ((this.state || {}).copied === key) this.setState({ copied: null }); }, 1600); };
+const pal = t.pal.map(a => { const vals = [['HEX', a[1]], ['RGB', rgb(a[1])], ['CMYK', cmyk(a[1])]]; return { name: a[0], hex: a[1], ink: inkOn(a[1]), hexLabel: a[1], copyHex: () => doCopy(a[1], a[0] + 'HEX'), values: vals.map(v => { const key = a[0] + v[0], on = ST.copied === key; return { label: v[0], value: v[1], action: on ? 'Copied' : 'Copy', copy: () => doCopy(v[1], key), chip: 'font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid ' + (on ? 'var(--accentText)' : 'var(--line)') + ';color:' + (on ? 'var(--accentText)' : 'var(--muted)') + ';' }; }) }; });
+const pairs = pal.map(bg => {
+const others = pal.filter(o => o.hex !== bg.hex).map(o => ({ name: o.name, hex: o.hex, r: ratio(bg.hex, o.hex), ratio: ratio(bg.hex, o.hex).toFixed(1) + ':1' }));
+const ok = others.filter(o => o.r >= 4.5).sort((a, b) => b.r - a.r);
+const large = others.filter(o => o.r >= 3 && o.r < 4.5);
+const never = others.filter(o => o.r < 3);
+return { name: bg.name, hex: bg.hex, ink: bg.ink, ok, large, hasLarge: large.length > 0, never };
+});
+const sel = (this.state && this.state.sel) || {};
+const whiteI = Math.max(0, pal.findIndex(p => p.hex === '#FFFFFF'));
+const kinds = [
+{ id: 'primary', title: 'Primary logo', badge: 'Primary', text: 'The main voice and signature of the brand. Websites, headers, footers, stationery.', bgI: 0 },
+{ id: 'tagline', title: 'Primary logo with tagline', badge: 'Primary', text: 'Use when there is room. Skip the tagline at small sizes.', bgI: whiteI },
+{ id: 'secondary', title: 'Secondary logo', badge: 'Secondary', text: 'For when the primary will not fit the space. Narrow headers, avatars, small elements.', bgI: 1 },
+{ id: 'icon', title: 'Brand mark', badge: 'Icon', text: 'The mark on its own. App icons, favicons, stamps.', bgI: 3 }
+];
+const logos = kinds.map(k => {
+const cur = sel[k.id] || {};
+const bg = pal.find(p => p.hex === cur.bg) || pal[k.bgI];
+let allowed = pal.filter(o => o.hex !== bg.hex && ratio(bg.hex, o.hex) >= 3).sort((x, y) => ratio(bg.hex, y.hex) - ratio(bg.hex, x.hex));
+if (!allowed.length) allowed = [{ name: 'Auto', hex: inkOn(bg.hex) }];
+const cw = allowed.find(o => o.hex === cur.cw) || allowed[0];
+const save = (b, c) => this.setState({ sel: Object.assign({}, this.state.sel || {}, { [k.id]: { bg: b, cw: c } }) });
+const dots = pal.map(p => { const on = p.hex === bg.hex; return { name: p.name, pressed: on, pick: () => save(p.hex, null), style: 'width:34px;height:34px;border-radius:50%;cursor:pointer;padding:0;background:' + p.hex + ';border:1px solid rgba(128,128,128,.45);box-shadow:' + (on ? '0 0 0 2px var(--surface),0 0 0 4px var(--ink)' : 'none') + ';' }; });
+const chips = allowed.map(o => { const on = o.hex === cw.hex; return { name: o.name, hex: o.hex, on, pick: () => save(bg.hex, o.hex), style: 'display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--rb);min-height:36px;border:1px solid ' + (on ? 'var(--ink)' : 'var(--line)') + ';background:' + (on ? 'var(--ink)' : 'transparent') + ';color:' + (on ? 'var(--bg)' : 'var(--ink)') + ';' }; });
+return { title: k.title, badge: k.badge, text: k.text, isPrimary: k.id === 'primary', isTagline: k.id === 'tagline', isSecondary: k.id === 'secondary', isIcon: k.id === 'icon', previewStyle: 'background:' + bg.hex + ';color:' + cw.hex + ';', dots, chips, combo: cw.name + ' on ' + bg.name + ' · ' + ratio(bg.hex, cw.hex).toFixed(1) + ':1' };
+});
+const pbHex = (pal.find(p => p.hex === ST.pairBg) || pal[0]).hex;
+const pb = pal.find(p => p.hex === pbHex);
+const pOthers = pal.filter(o => o.hex !== pb.hex).map(o => ({ name: o.name, hex: o.hex, r: ratio(pb.hex, o.hex) }));
+const pOk = pOthers.filter(o => o.r >= 4.5).sort((x, y) => y.r - x.r), pLarge = pOthers.filter(o => o.r >= 3 && o.r < 4.5), pNever = pOthers.filter(o => o.r < 3);
+const pSel = [...pOk, ...pLarge].find(o => o.hex === ST.pairText) || pOk[0] || pLarge[0] || { name: inkOn(pb.hex) === '#FFFFFF' ? 'White' : 'Black', hex: inkOn(pb.hex), r: 9 };
+const pChip = o => { const on = o.hex === pSel.hex; return { name: o.name, hex: o.hex, on, pick: () => this.setState({ pairText: o.hex }), style: 'display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;padding:10px 16px;border-radius:var(--rb);min-height:44px;border:1.5px solid ' + (on ? 'var(--ink)' : 'var(--line)') + ';background:' + (on ? 'var(--ink)' : 'transparent') + ';color:' + (on ? 'var(--bg)' : 'var(--ink)') + ';' }; };
+const pairBgs = pal.map(p => { const on = p.hex === pb.hex; return { name: p.name, pressed: on, pick: () => this.setState({ pairBg: p.hex, pairText: null }), style: 'width:52px;height:52px;border-radius:50%;cursor:pointer;padding:0;background:' + p.hex + ';border:1px solid rgba(128,128,128,.45);box-shadow:' + (on ? '0 0 0 3px var(--bg),0 0 0 5px var(--ink)' : 'none') + ';' }; });
+const hrefs = { forma: 'Studio.dc.html', northlight: 'Studio.dc.html', kiln: 'Studio.dc.html' };
+const base = "font-family:" + t.v.head + ";font-weight:" + t.v.headW + ";letter-spacing:" + t.v.headTrack + ";text-transform:" + t.v.headCase + ";font-size:34px;color:" + t.logoCol + ";";
+const donts = [
+{ title: 'Don’t stretch', text: 'Scale the logo evenly.', bg: t.plain, style: base + 'display:inline-block;transform:scaleX(1.6) scaleY(.8)' },
+{ title: 'Don’t tilt', text: 'Keep it level.', bg: t.plain, style: base + 'display:inline-block;transform:rotate(-14deg)' },
+{ title: 'Don’t recolour', text: 'Use only the approved logo colours.', bg: t.plain, style: base.replace(t.logoCol, t.logoBad) },
+{ title: 'Don’t add shadows', text: 'No effects, glows or outlines.', bg: t.plain, style: base + 'text-shadow:4px 5px 0 rgba(0,0,0,.35),0 0 14px rgba(0,0,0,.25)' },
+{ title: 'Don’t use a busy background', text: 'Keep clear space behind it.', bg: t.busy, style: base.replace(t.logoCol, '#FFFFFF') },
+{ title: 'Don’t use a guest font', text: 'Never retype the logo.', bg: t.plain, style: "font-family:'Brush Script MT','Comic Sans MS',cursive;font-size:36px;color:" + t.logoCol }
+];
+return {
+b: { name: t.name, tag: t.tag, handle: t.handle, headFont: t.headFont, bodyFont: t.bodyFont },
+rootStyle: Object.entries(t.v).map(([k, v]) => '--' + k + ':' + v + ';').join(''),
+studioHref: hrefs[key] || hrefs.forma,
+rules: [
+{ n: '1', title: 'Use the primary logo first', text: 'Reach for the primary logo before anything else. Other versions are for when it genuinely doesn’t fit.' },
+{ n: '2', title: 'Only the eight palette colours', text: 'Every colour you use comes from the palette. No near-matches, no new tints.' },
+{ n: '3', title: 'Only approved pairings', text: 'If a text and background combination isn’t on the list, the answer is no.' },
+{ n: '4', title: 'No guest fonts', text: 'Two typefaces, supplied here. Nothing else, however similar it looks.' }
+],
+palette: pal, pairs, donts, logos, pairBgs, pairOk: pOk.map(pChip), pairLarge: pLarge.map(pChip), pairNever: pNever, pairHasLarge: pLarge.length > 0,
+pairSampleBox: 'background:' + pb.hex + ';color:' + pSel.hex + ';', pairHeadline: 'Headline in ' + pSel.name, pairTextName: pSel.name, pairBgName: pb.name, pairBodyOk: pSel.r >= 4.5, pairBodyNo: pSel.r < 4.5
+};
+}
+}
+</script>
+</body>
+</html>

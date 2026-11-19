@@ -1,0 +1,28 @@
+{
+  "id": "full",
+  "name": "Full image",
+  "fields": [
+    { "id": "headline", "label": "Headline", "max": 28, "example": "Your headline" },
+    { "id": "subline",  "label": "Subline",  "max": 32, "example": "A short line beneath" },
+    { "id": "details",  "label": "Details",  "max": 24, "example": "Date, place or call to action" }
+  ],
+  "photo": { "fill": 1 },
+  "text": {
+    "on": "photo",
+    "movable": true,
+    "align": "left",
+    "start": { "fx": 0.15, "fy": 0.5 },
+    "start_by_format": { "landscape": { "fx": 0.09, "fy": 0.5 } },
+    "min_scale": 0.6,
+    "max_width": 0.62,
+    "max_width_by_format": { "landscape": 0.5 },
+    "line_gap": 0.013,
+    "outline_pad": 0.0185,
+    "lines": [
+      { "field": "headline", "font": "heading", "weight": "brand", "size": 0.0352, "case": "brand", "tracking": "brand" },
+      { "field": "subline",  "font": "heading", "weight": 400,     "size": 0.0259, "case": "brand", "tracking": "brand" },
+      { "field": "details",  "font": "heading", "weight": 600,     "size": 0.0204, "case": "brand", "tracking": "brand" }
+    ]
+  },
+  "mark": { "show": true, "size": 0.0704, "gap": 0.0333 }
+}

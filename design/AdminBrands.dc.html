@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin: brands</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{text-decoration:none}
+.row:hover{background:#FAFAF7}
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; min-height:1000px; background:#F5F5F2; color:#141414; font-family:'Inter',sans-serif; font-size:15px; line-height:1.45; box-sizing:border-box">
+
+<header style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 24px; padding:16px 32px; background:#141414; color:#fff">
+<span style="font-weight:700; letter-spacing:.02em">STMS Brand Studio</span>
+<span style="font-size:13px; color:#C9C9C2">Signed in as Steve</span>
+</header>
+
+<main style="width:100%; max-width:1280px; margin:0 auto; box-sizing:border-box; padding:40px 32px 64px; display:flex; flex-direction:column; gap:32px">
+
+<div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px">
+<div><h1 style="margin:0 0 4px; font-size:30px; letter-spacing:-.015em">Brands</h1><p style="margin:0; color:#666">Every client hub and studio, in one place.</p></div>
+<a href="AdminSetup.dc.html" style="background:#141414; color:#fff; padding:14px 24px; border-radius:10px; font-weight:600; font-size:15px">New brand</a>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px">
+<div style="background:#fff; border:1px solid #E2E2DC; border-radius:14px; padding:20px 22px"><div style="font-size:13px; color:#666">Live brands</div><div style="font-size:32px; font-weight:700; letter-spacing:-.02em">2</div></div>
+<div style="background:#fff; border:1px solid #E2E2DC; border-radius:14px; padding:20px 22px"><div style="font-size:13px; color:#666">Exports this month</div><div style="font-size:32px; font-weight:700; letter-spacing:-.02em">148</div></div>
+<div style="background:#fff; border:1px solid #E2E2DC; border-radius:14px; padding:20px 22px"><div style="font-size:13px; color:#666">Blocked for quality</div><div style="font-size:32px; font-weight:700; letter-spacing:-.02em">9</div><div style="font-size:12.5px; color:#666">low-res photos and text that didn’t fit</div></div>
+<div style="background:#fff; border:1px solid #E2E2DC; border-radius:14px; padding:20px 22px"><div style="font-size:13px; color:#666">In setup</div><div style="font-size:32px; font-weight:700; letter-spacing:-.02em">1</div></div>
+</div>
+
+<section aria-label="Brands" style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; overflow:hidden">
+<div style="display:grid; grid-template-columns:minmax(180px, 2fr) 110px minmax(160px, 2fr) 110px 150px; gap:16px; padding:14px 24px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#777; border-bottom:1px solid #ECECE6">
+<span>Brand</span><span>Status</span><span>Domain</span><span>Exports</span><span>Last export</span>
+</div>
+<sc-for list="{{brands}}" as="b" hint-placeholder-count="3">
+<a class="row" href="AdminSetup.dc.html" style="display:grid; grid-template-columns:minmax(180px, 2fr) 110px minmax(160px, 2fr) 110px 150px; gap:16px; align-items:center; padding:18px 24px; border-bottom:1px solid #F0F0EA; color:#141414">
+<span style="display:flex; align-items:center; gap:14px"><span style="display:flex; gap:3px"><span style="{{b.c1}}"></span><span style="{{b.c2}}"></span><span style="{{b.c3}}"></span></span><span style="font-weight:600">{{b.name}}</span></span>
+<span><span style="{{b.badge}}">{{b.status}}</span></span>
+<span style="color:#555; font-size:14px">{{b.domain}}</span>
+<span style="font-weight:600">{{b.exports}}</span>
+<span style="color:#666; font-size:14px">{{b.last}}</span>
+</a>
+</sc-for>
+</section>
+
+<section aria-labelledby="h-log" style="display:flex; flex-direction:column; gap:14px">
+<div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px">
+<h2 id="h-log" style="margin:0; font-size:20px">Recent activity</h2>
+<span style="font-size:13px; color:#666">Every export is recorded. Filter by brand, layout or format.</span>
+</div>
+<div style="background:#fff; border:1px solid #E2E2DC; border-radius:16px; overflow:hidden">
+<sc-for list="{{log}}" as="l" hint-placeholder-count="6">
+<div style="display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; padding:14px 24px; border-bottom:1px solid #F0F0EA; font-size:14px">
+<span style="flex:0 0 110px; color:#777">{{l.when}}</span>
+<span style="flex:0 0 110px; font-weight:600">{{l.brand}}</span>
+<span style="flex:1 1 200px">{{l.what}}</span>
+<span style="{{l.badge}}">{{l.result}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{}'>
+class Component extends DCLogic {
+renderVals() {
+const dot = h => 'width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.15);background:' + h + ';';
+const badge = (bg, fg) => 'display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:' + bg + ';color:' + fg + ';';
+return {
+brands: [
+{ name: 'FORMA Padel', status: 'Live', domain: 'brands.stmsmedia.co.uk/forma', exports: '96', last: 'Today, 11:20', c1: dot('#0B0D0E'), c2: dot('#C8F04A'), c3: dot('#A3AEB1'), badge: badge('#DDF3E4', '#1B6B3A') },
+{ name: 'Northlight Coffee', status: 'Live', domain: 'brands.stmsmedia.co.uk/northlight', exports: '52', last: 'Yesterday', c1: dot('#2F5D43'), c2: dot('#D9803A'), c3: dot('#F5EFE4'), badge: badge('#DDF3E4', '#1B6B3A') },
+{ name: 'STMS Media', status: 'Draft', domain: 'brands.stmsmedia.co.uk/stms', exports: '0', last: 'Not published', c1: dot('#FF00FF'), c2: dot('#0A0A0A'), c3: dot('#FFFFFF'), badge: badge('#FFF1C2', '#7A5B00') }
+],
+log: [
+{ when: 'Today, 11:20', brand: 'FORMA Padel', what: 'Full image · 4:5 · exported PNG', result: 'Exported', badge: badge('#DDF3E4', '#1B6B3A') },
+{ when: 'Today, 10:42', brand: 'FORMA Padel', what: 'Product · 1:1 · photo 133% enlarged', result: 'Blocked: low-res', badge: badge('#FBE0DC', '#9B2A1F') },
+{ when: 'Today, 09:15', brand: 'FORMA Padel', what: 'Details · 9:16 · exported JPG', result: 'Exported', badge: badge('#DDF3E4', '#1B6B3A') },
+{ when: 'Yesterday', brand: 'Northlight', what: 'Wordmark · 1:1 · exported PNG', result: 'Exported', badge: badge('#DDF3E4', '#1B6B3A') },
+{ when: 'Yesterday', brand: 'Northlight', what: 'Full image · Landscape · weak contrast warning', result: 'Exported with warning', badge: badge('#FFF1C2', '#7A5B00') },
+{ when: 'Mon', brand: 'FORMA Padel', what: 'Full image · 9:16 · text didn’t fit', result: 'Blocked: text', badge: badge('#FBE0DC', '#9B2A1F') }
+]
+};
+}
+}
+</script>
+</body>
+</html>

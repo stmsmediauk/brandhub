@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Artwork studio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Montserrat:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{text-decoration:none}
+input{font-family:inherit}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="{{rootStyle}} display:flex; flex-direction:column; min-height:1100px; background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.45; box-sizing:border-box">
+
+<header style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 24px; padding:18px 40px; border-bottom:1px solid var(--line); background:var(--bg)">
+<div style="display:flex; align-items:baseline; gap:14px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:20px">{{b.name}}</span>
+<span style="color:var(--muted); font-size:14px">Artwork studio</span>
+</div>
+<a href="{{hubHref}}" style="color:var(--ink); font-weight:600; font-size:14px; padding:10px 16px; border:1px solid var(--line); border-radius:var(--rb)">Back to brand hub</a>
+</header>
+
+<div style="display:flex; flex-wrap:wrap; gap:36px; padding:32px 40px 56px; align-items:flex-start; flex:1">
+
+<section aria-label="Preview" style="flex:999 1 560px; min-width:0; display:flex; flex-direction:column; align-items:center; gap:18px">
+<div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center" role="group" aria-label="Format">
+<sc-for list="{{formats}}" as="f" hint-placeholder-count="4"><button type="button" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="{{f.style}}">{{f.label}}</button></sc-for>
+</div>
+
+<div style="{{frameStyle}} position:relative; overflow:hidden; border-radius:var(--r); box-shadow:0 24px 60px rgba(0,0,0,.18); background:#222; touch-action:none; flex:none" onPointerDown="{{pDown}}" onPointerMove="{{pMove}}" onPointerUp="{{pUp}}" onPointerCancel="{{pUp}}">
+
+<sc-if value="{{isFull}}" hint-placeholder-val="{{ true }}">
+<div style="{{photoStyle}} position:absolute; inset:0; transform:{{photoTf}}; transform-origin:50% 50%"></div>
+<div style="{{safeStyle}} position:absolute; border:1.5px dashed rgba(255,255,255,{{safeAlpha}}); box-shadow:0 0 0 1px rgba(0,0,0,.22), inset 0 0 0 1px rgba(0,0,0,.22); border-radius:2px; pointer-events:none"></div>
+<sc-if value="{{snapV}}" hint-placeholder-val="{{ false }}"><div style="{{snapVStyle}} position:absolute; top:0; bottom:0; width:0; border-left:1.5px dashed #FFFFFF; pointer-events:none"></div></sc-if>
+<sc-if value="{{snapH}}" hint-placeholder-val="{{ false }}"><div style="{{snapHStyle}} position:absolute; left:0; right:0; height:0; border-top:1.5px dashed #FFFFFF; pointer-events:none"></div></sc-if>
+<button type="button" aria-label="Text block. Drag to move, or use the arrow keys." onPointerDown="{{down}}" onPointerMove="{{move}}" onPointerUp="{{up}}" onPointerCancel="{{up}}" onKeyDown="{{key}}" style="{{blockStyle}} position:absolute; display:flex; align-items:center; gap:{{gap}}px; color:{{tcol}}; background:transparent; border:none; padding:0; cursor:move; text-align:left; outline:1.5px solid {{outlineCol}}; outline-offset:{{pad}}px; border-radius:2px; touch-action:none">
+<span aria-hidden="true" style="{{markStyle}} flex:none"></span>
+<span style="display:flex; flex-direction:column; gap:{{lineGap}}px">
+<span style="{{s1}}">{{t1}}</span><span style="{{s2}}">{{t2}}</span><span style="{{s3}}">{{t3}}</span>
+</span>
+</button>
+</sc-if>
+
+<sc-if value="{{isProduct}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute; left:0; right:0; top:0; height:62%; overflow:hidden"><div style="{{photoStyle}} position:absolute; inset:0; transform:{{photoTf}}"></div></div>
+<div style="position:absolute; left:0; right:0; bottom:0; height:38%; background:var(--ink); color:#fff; padding:{{pPad}}px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:{{pGap}}px">
+<span style="{{pName}}">{{t1}}</span>
+<span style="{{pSub}}">{{t2}}</span>
+<span style="{{pPrice}}">{{t3}}</span>
+</div>
+</sc-if>
+
+<sc-if value="{{isDetails}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute; left:0; right:0; top:0; height:56%; background:var(--ink); color:#fff; padding:{{pPad}}px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:{{pGap}}px">
+<span style="{{pName}}">{{t1}}</span>
+<span style="{{pSub}}">{{t2}}</span>
+<span style="{{pPrice}}">{{t3}}</span>
+</div>
+<div style="position:absolute; left:0; right:0; bottom:0; height:44%; overflow:hidden"><div style="{{photoStyle}} position:absolute; inset:0; transform:{{photoTf}}"></div></div>
+</sc-if>
+
+<sc-if value="{{isWordmark}}" hint-placeholder-val="{{ false }}">
+<div style="{{photoStyle}} position:absolute; inset:0; transform:{{photoTf}}"></div>
+<div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:{{pGap}}px; color:{{tcol}}; text-align:center">
+<span style="{{wMark}}">{{b.name}}</span>
+<span style="{{pSub}}">{{t1}}</span>
+</div>
+<span style="{{wFoot}}">{{t3}}</span>
+</sc-if>
+
+<span style="position:absolute; right:12px; bottom:10px; font-size:11px; color:rgba(255,255,255,.8); pointer-events:none">{{photoLabel}}</span>
+</div>
+<span style="font-size:13px; color:var(--muted); text-align:center; max-width:480px">{{hint}}</span>
+</section>
+
+<aside aria-label="Controls" style="flex:1 1 340px; max-width:420px; min-width:300px; display:flex; flex-direction:column; gap:26px">
+
+<div style="display:flex; flex-direction:column; gap:12px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:16px">Layout</span>
+<div style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px">
+<sc-for list="{{layouts}}" as="l" hint-placeholder-count="4">
+<button type="button" aria-label="{{l.label}}" aria-pressed="{{l.on}}" onClick="{{l.pick}}" style="{{l.style}}"><span style="font-size:11.5px; font-weight:600; font-family:var(--mono)">{{l.label}}</span></button>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex; flex-direction:column; gap:14px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:16px">Text</span>
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="3">
+<div style="display:flex; flex-direction:column; gap:6px">
+<label for="{{f.id}}" style="display:flex; justify-content:space-between; font-size:13px; color:var(--muted); font-weight:500"><span>{{f.label}}</span><span>{{f.count}}</span></label>
+<input id="{{f.id}}" type="text" value="{{f.value}}" onInput="{{f.edit}}" maxlength="{{f.max}}" autocomplete="off" style="box-sizing:border-box; width:100%; padding:13px 14px; border-radius:var(--r); border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:15px; min-height:46px">
+<span style="font-size:12.5px; color:var(--muted); min-height:16px">{{f.note}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex; flex-direction:column; gap:12px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:16px">Text colour</span>
+<sc-if value="{{showColours}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex; flex-wrap:wrap; gap:8px">
+<sc-for list="{{textCols}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}"><span aria-hidden="true" style="width:16px; height:16px; border-radius:50%; background:{{c.hex}}; border:1px solid rgba(128,128,128,.6)"></span>{{c.name}}</button></sc-for>
+</div>
+</sc-if>
+<span style="font-size:12.5px; color:var(--muted)">{{colourNote}}</span>
+</div>
+
+<div style="display:flex; flex-direction:column; gap:12px">
+<span style="font-family:var(--head); font-weight:var(--headW); letter-spacing:var(--headTrack); text-transform:var(--headCase); font-size:16px">Photo</span>
+<div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center">
+<label for="upfile" style="{{uploadStyle}}">Upload photo</label>
+<input id="upfile" type="file" accept="image/*" onChange="{{onFile}}" style="position:absolute; width:1px; height:1px; opacity:0; overflow:hidden">
+<span style="font-size:13px; color:var(--muted)">{{upMeta}}</span>
+</div>
+<sc-if value="{{hasLib}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center"><a href="{{libHref}}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; font-size:14px; font-weight:600; padding:9px 18px; border-radius:var(--rb); min-height:44px; box-sizing:border-box; border:1px solid var(--line); background:var(--surface); color:var(--ink)">Open photo library</a><span style="font-size:13px; color:var(--muted)">Download a photo there, then upload it here.</span></div>
+</sc-if>
+<span style="font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-family:var(--mono)">Or try a sample</span>
+<div style="display:flex; flex-wrap:wrap; gap:8px">
+<sc-for list="{{photos}}" as="p" hint-placeholder-count="3"><button type="button" aria-pressed="{{p.on}}" onClick="{{p.pick}}" style="{{p.style}}">{{p.label}}</button></sc-for>
+</div>
+<div style="display:flex; align-items:center; gap:14px">
+<label for="zoom" style="font-size:13px; color:var(--muted)">Zoom</label>
+<input id="zoom" type="range" min="1" max="3" step="0.05" value="{{zoom}}" onInput="{{editZoom}}" style="flex:1; accent-color:var(--accent)">
+<span style="font-size:13px; color:var(--muted); min-width:36px; text-align:right">{{zoomLabel}}</span>
+<button type="button" onClick="{{resetPhoto}}" style="{{resetStyle}}">Reset photo</button>
+</div>
+</div>
+
+<div style="display:flex; flex-direction:column; gap:8px" role="status" aria-label="Checks">
+<sc-for list="{{checks}}" as="k" hint-placeholder-count="4">
+<div style="display:flex; gap:12px; align-items:flex-start; padding:10px 14px; border-radius:var(--r); background:var(--surface); border:1px solid var(--line)">
+<span aria-hidden="true" style="{{k.dot}}">{{k.mark}}</span>
+<span style="display:flex; flex-direction:column"><span style="font-weight:600; font-size:14px">{{k.title}}</span><span style="font-size:12.5px; color:var(--muted)">{{k.text}}</span></span>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex; flex-direction:column; gap:10px">
+<button type="button" onClick="{{exportPng}}" aria-disabled="{{blocked}}" style="{{exportStyle}}">Download PNG <span style="font-weight:500; opacity:.75">· 2.1 MB</span></button>
+<button type="button" onClick="{{exportJpg}}" aria-disabled="{{blocked}}" style="{{exportStyle2}}">Download smaller JPG <span style="font-weight:500; opacity:.75">· 380 KB</span></button>
+<span style="font-size:13px; min-height:18px; color:var(--ink)" role="status">{{status}}</span>
+<span style="font-size:12.5px; color:var(--muted)">Fonts, colours and the logo are locked, so everything you make stays on brand.</span>
+</div>
+
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"brand":{"editor":"enum","default":"stms","options":["stms","forma","northlight","kiln"],"section":"Brand"}}'>
+class Component extends DCLogic {
+initial() {
+return { format: '4x5', layout: 'full', t: ['Studio open', '// Liverpool', 'Book a call'], photo: 'dark', zoom: 1, pos: {}, ph: {}, snap: null, note: {}, status: '', drag: null, up: null, tc: null };
+}
+renderVals() {
+if (!this.state || !this.state.format) this.state = Object.assign({}, this.initial(), this.state || {});
+const S = this.state, set = o => this.setState(o);
+const TOK = {
+stms: { name: 'STMS Media', lib: 'https://www.dropbox.com/scl/fo/stms-photo-library', pt: [['White','#FFFFFF'],['Black','#0A0A0A'],['Magenta','#FF00FF'],['Blush','#FFC2FF']], v: { bg:'#FFFFFF', surface:'#F5F5F3', surface2:'#E9E9E6', ink:'#0A0A0A', muted:'#5A5A57', line:'#DADAD6', accent:'#FF00FF', onAccent:'#0A0A0A', r:'4px', rb:'4px', head:"'Inter',sans-serif", body:"'Inter',sans-serif", mono:"'JetBrains Mono',monospace", headW:'700', headTrack:'-.03em', headCase:'lowercase' } },
+forma: { name: 'FORMA', pt: [['White','#FFFFFF'],['Carbon','#0B0D0E'],['Court','#C8F04A']], v: { bg:'#0B0D0E', surface:'#14181A', surface2:'#1C2124', ink:'#F3F5F4', muted:'#A3AEB1', line:'rgba(255,255,255,.14)', accent:'#C8F04A', onAccent:'#0B0D0E', r:'2px', rb:'2px', head:"'Montserrat',sans-serif", body:"'Montserrat',sans-serif", mono:"'JetBrains Mono',monospace", headW:'600', headTrack:'.06em', headCase:'uppercase' } },
+northlight: { name: 'Northlight', pt: [['White','#FFFFFF'],['Ink','#1B2A21'],['Crema','#F5EFE4'],['Ember','#D9803A']], v: { bg:'#F5EFE4', surface:'#FFFFFF', surface2:'#EBE3D3', ink:'#1B2A21', muted:'#5A685F', line:'rgba(27,42,33,.16)', accent:'#2F5D43', onAccent:'#FFFFFF', r:'14px', rb:'999px', head:"'Fraunces',serif", body:"'DM Sans',sans-serif", mono:"'JetBrains Mono',monospace", headW:'500', headTrack:'-.01em', headCase:'none' } },
+kiln: { name: 'Kiln', pt: [['White','#FFFFFF'],['Ink','#0F1230'],['Flare','#FF6B3D']], v: { bg:'#FFFFFF', surface:'#F3F4F8', surface2:'#E6E8F2', ink:'#0F1230', muted:'#555A78', line:'#D2D6E6', accent:'#2B3BFF', onAccent:'#FFFFFF', r:'8px', rb:'8px', head:"'Space Grotesk',sans-serif", body:"'Inter',sans-serif", mono:"'JetBrains Mono',monospace", headW:'700', headTrack:'-.02em', headCase:'none' } }
+};
+const key = this.props.brand ?? 'stms';
+const tk = TOK[key] || TOK.stms;
+const hubs = { stms: 'Main.dc.html' };
+const FM = { '1x1': [540, 540, '1:1'], '4x5': [520, 650, '4:5 feed'], '9x16': [380, 676, '9:16 story'], 'land': [600, 314, 'Landscape'] };
+const [W, H, flabel] = FM[S.format];
+const s = W / 540;
+const isFull = S.layout === 'full';
+const margin = S.format === 'land' ? 0.04 * W : 0.074 * W;
+const safe = { x0: margin, x1: W - margin, y0: S.format === '9x16' ? Math.max(margin, 0.13 * H) : margin, y1: S.format === '9x16' ? H - Math.max(margin, 0.177 * H) : H - margin };
+const sizes = [19 * s, 14 * s, 11 * s], track = [0.12, 0.1, 0.12];
+const MAX = [28, 32, 24];
+const lw = (txt, i) => txt.length * sizes[i] * (0.66 + track[i]);
+const fit = texts => { const zone = (safe.x1 - safe.x0) * (S.format === 'land' ? 0.5 : 0.62); const w1 = Math.max(lw(texts[0], 0), lw(texts[1], 1), lw(texts[2], 2), 1); let k = 1; if (w1 > zone) k = zone / w1; return { k: Math.max(k, 0.6), over: k < 0.6, w: Math.min(w1, zone / Math.max(0.6, 0.6) * 10) * Math.max(k, 0.6) }; };
+const F = fit(S.t);
+const k = F.k;
+const markW = 38 * s, gap = 18 * s, bw = markW + gap + F.w, bh = Math.max(markW, (13.7 + 20.5 + 15.5) * s * k);
+const dflt = S.format === 'land' ? { fx: 0.09, fy: 0.5 } : { fx: 0.15, fy: 0.5 };
+const pkey = S.format;
+const pos0 = S.pos[pkey] || dflt;
+const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), Math.max(lo, hi));
+const left = clamp(pos0.fx * W, safe.x0, safe.x1 - bw);
+const cy = clamp(pos0.fy * H, safe.y0 + bh / 2, safe.y1 - bh / 2);
+const place = (nl, nc, snap) => {
+if (snap) {
+const th = 12; let sv = null, sh = null;
+const xs = [[safe.x0, safe.x0], [safe.x1 - bw, safe.x1], [W / 2 - bw / 2, W / 2]], ys = [[safe.y0 + bh / 2, safe.y0], [safe.y1 - bh / 2, safe.y1], [H / 2, H / 2]];
+for (const [v, line] of xs) if (Math.abs(nl - v) <= th) { nl = v; sv = line; break; }
+for (const [v, line] of ys) if (Math.abs(nc - v) <= th) { nc = v; sh = line; break; }
+nl = clamp(nl, safe.x0, safe.x1 - bw); nc = clamp(nc, safe.y0 + bh / 2, safe.y1 - bh / 2);
+return { fx: nl / W, fy: nc / H, snap: (sv !== null || sh !== null) ? { v: sv, h: sh } : null };
+}
+nl = clamp(nl, safe.x0, safe.x1 - bw); nc = clamp(nc, safe.y0 + bh / 2, safe.y1 - bh / 2);
+return { fx: nl / W, fy: nc / H, snap: null };
+};
+const apply = r => set({ pos: Object.assign({}, S.pos, { [pkey]: { fx: r.fx, fy: r.fy } }), snap: r.snap });
+const down = e => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this._d = { sx: e.clientX, sy: e.clientY, l: left, c: cy }; };
+const move = e => { if (!this._d) return; apply(place(this._d.l + (e.clientX - this._d.sx), this._d.c + (e.clientY - this._d.sy), !e.altKey)); };
+const up = () => { this._d = null; set({ snap: null }); };
+const keyH = e => { const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return; e.preventDefault(); const st = e.shiftKey ? 40 : 10; apply(place(left + d[0] * st, cy + d[1] * st, false)); };
+// photo pan: offset stored as fractions of the frame, clamped so the photo always covers the frame
+const PH = { full: 1, product: 0.62, details: 0.44, wordmark: 1 }[S.layout] || 1;
+const Hp = H * PH;
+const cov = S.photo === 'upload' && S.up ? Math.max(W / S.up.w, Hp / S.up.h) : 1;
+const iw = S.photo === 'upload' && S.up ? S.up.w * cov : W, ih = S.photo === 'upload' && S.up ? S.up.h * cov : Hp;
+const maxX = Math.max(0, (iw * S.zoom - W) / 2), maxY = Math.max(0, (ih * S.zoom - Hp) / 2);
+const cl = (v, m) => Math.max(-m, Math.min(m, v));
+const p0 = S.ph[S.format] || { x: 0, y: 0 };
+const tx = cl(p0.x * W, maxX), ty = cl(p0.y * Hp, maxY);
+const canPan = maxX > 0.5 || maxY > 0.5;
+const pDown = e => { if (!canPan || (e.target.closest && e.target.closest('button'))) return; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this._p = { sx: e.clientX, sy: e.clientY, x: tx, y: ty }; };
+const pMove = e => { if (!this._p) return; const nx = cl(this._p.x + (e.clientX - this._p.sx), maxX), ny = cl(this._p.y + (e.clientY - this._p.sy), maxY); set({ ph: Object.assign({}, S.ph, { [S.format]: { x: nx / W, y: ny / Hp } }), status: '' }); };
+const pUp = () => { this._p = null; };
+// photo luminance estimate under the text
+const EXP = { '1x1': [1080, 1080], '4x5': [1080, 1350], '9x16': [1080, 1920], 'land': [1200, 628] }[S.format];
+const lumAt = (px, py) => { if (S.photo === 'upload' && S.up) { const u = S.up, sc = Math.max(W / u.w, H / u.h), dw = u.w * sc, dh = u.h * sc, ox = (W - dw) / 2, oy = (H - dh) / 2; const ix = ((px - W / 2 - tx) / S.zoom + W / 2 - ox) / dw, iy = ((py - H / 2 - ty) / S.zoom + H / 2 - oy) / dh; const gx = Math.min(23, Math.max(0, Math.floor(ix * 24))), gy = Math.min(23, Math.max(0, Math.floor(iy * 24))); return u.grid[gy * 24 + gx]; } const nx = ((px - W / 2 - tx) / S.zoom + W / 2) / W, ny = ((py - H / 2 - ty) / S.zoom + H / 2) / H; if (S.photo === 'bright') { const d = (nx - 0.3) * (nx - 0.3) + (ny - 0.3) * (ny - 0.3); return 0.82 - 0.2 * Math.min(1, d * 2); } const d2 = (nx - 0.72) * (nx - 0.72) + (ny - 0.44) * (ny - 0.44); return 0.04 + 0.5 * Math.exp(-d2 / (2 * 0.05)); };
+const lumHex = h => { const c = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16) / 255).map(x => x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const pts = [];
+if (isFull) { for (const fx of [0, 0.5, 1]) for (const fy of [-0.5, 0.5]) pts.push(lumAt(left + bw * fx, cy + bh * fy)); }
+else if (S.layout === 'wordmark') { for (const fx of [0.3, 0.5, 0.7]) for (const fy of [0.4, 0.6]) pts.push(lumAt(W * fx, H * fy)); }
+const cr = hex => { const lc = lumHex(hex); let m = 99; pts.forEach(Lb => { const r = (Math.max(lc, Lb) + 0.05) / (Math.min(lc, Lb) + 0.05); if (r < m) m = r; }); return m; };
+const solid = S.layout === 'product' || S.layout === 'details';
+const palOpts = tk.pt.map(c => ({ name: c[0], hex: c[1], r: pts.length ? cr(c[1]) : 99 }));
+const pass = palOpts.filter(o => o.r >= 4.5);
+const best = palOpts.slice().sort((x, y) => y.r - x.r)[0];
+const chosen = pass.find(o => o.hex === S.tc) || pass[0] || best;
+const tcol = solid ? '#FFFFFF' : chosen.hex;
+const ratio = solid ? 21 : chosen.r;
+const enlarge = S.photo === 'upload' && S.up ? Math.max(EXP[0] / S.up.w, EXP[1] / S.up.h) * S.zoom : S.zoom * (S.photo === 'lowres' ? 2.1 : 0.7);
+const checks = []; let blocked = false;
+const ck = (tone, title, text) => checks.push({ title, text, mark: tone === 'ok' ? '✓' : tone === 'warn' ? '!' : '✕', dot: 'width:24px;height:24px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;background:' + (tone === 'ok' ? '#2E7D4F' : tone === 'warn' ? '#B26A00' : '#C62828') + ';' });
+if (F.over) { blocked = true; ck('block', 'Text doesn’t fit', 'Shorten the text. It is already at its minimum size.'); }
+else if (k < 1) ck(k < 0.8 ? 'warn' : 'ok', 'Text shrunk to ' + Math.round(k * 100) + '%', 'It shrinks to fit, down to 60%.');
+else ck('ok', 'Text fits', 'At full size.');
+if (enlarge > 1.33) { blocked = true; ck('block', 'Photo too low-res', 'Export is blocked. Use a larger photo or zoom out.'); }
+else if (enlarge > 1) ck('warn', 'Photo a little soft', 'Enlarged to ' + Math.round(enlarge * 100) + '% for this crop.');
+else ck('ok', 'Photo is sharp enough', 'Plenty of pixels for this size.');
+if (solid) ck('ok', 'Text is easy to read', 'It sits on a solid panel.');
+else if (ratio >= 4.5) ck('ok', 'Text is easy to read', chosen.name + ' text reads clearly here (' + ratio.toFixed(1) + ':1).');
+else ck('warn', 'Text is hard to read here', 'Move the text to a clearer part of the photo, or choose another photo (' + ratio.toFixed(1) + ':1).');
+const optSt = on => 'font-size:14px;font-weight:600;padding:9px 16px;border-radius:var(--rb);min-height:44px;cursor:pointer;border:1px solid ' + (on ? 'var(--accent)' : 'var(--line)') + ';background:' + (on ? 'var(--accent)' : 'var(--surface)') + ';color:' + (on ? 'var(--onAccent)' : 'var(--ink)') + ';';
+const formats = Object.keys(FM).map(id => ({ label: FM[id][2], on: S.format === id, pick: () => set({ format: id, snap: null }), style: optSt(S.format === id) }));
+const layoutDefs = [['full', 'Full image', 'linear-gradient(160deg,#52666F,#1D2A31)'], ['product', 'Product', 'linear-gradient(to bottom,#9DB1BC 62%,#0A0A0A 62%)'], ['details', 'Details', 'linear-gradient(to bottom,#0A0A0A 56%,#9DB1BC 56%)'], ['wordmark', 'Wordmark', 'radial-gradient(ellipse at 70% 40%,#9DB1BC,#1D2A31)']];
+const layouts = layoutDefs.map(d => { const on = S.layout === d[0]; return { label: d[1], on, pick: () => set({ layout: d[0], snap: null }), style: 'all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;aspect-ratio:4/5;padding:0;border-radius:var(--r);overflow:hidden;border:2px solid ' + (on ? 'var(--accent)' : 'var(--line)') + ';background:' + d[2] + ';color:#fff;position:relative;' }; });
+layouts.forEach(l => { l.style += ''; });
+const labels = ['Headline', 'Subline', 'Details'];
+const fields = S.t.map((val, i) => ({
+id: 'fld' + i, label: labels[i], value: val, max: MAX[i], count: val.length + '/' + MAX[i], note: S.note[i] || '',
+edit: e => { const raw = e.target.value; const clean = raw.replace(/[\r\n\t]+/g, ' ').replace(/[^A-Za-z0-9 .,!?&'’\/:%+\-@#()£$€]/g, ''); const nt = S.t.slice(); nt[i] = clean; const f2 = fit(nt); if (f2.over) { set({ note: Object.assign({}, S.note, { [i]: 'No more room: the text is already at its minimum size.' }) }); return; } const note = clean !== raw ? 'Some characters aren’t allowed here and were removed.' : ''; set({ t: nt, note: Object.assign({}, S.note, { [i]: note }), status: '' }); }
+}));
+const photoBg = { dark: 'radial-gradient(ellipse at 72% 44%, #9DB1BC 0%, #52666F 38%, #1D2A31 100%)', bright: 'radial-gradient(ellipse at 30% 30%, #FFFFFF 0%, #EDEDEA 40%, #C8C8C2 100%)', lowres: 'radial-gradient(ellipse at 72% 44%, #9DB1BC 0%, #52666F 38%, #1D2A31 100%)' }[S.photo];
+const photoStyle = S.photo === 'upload' && S.up ? 'background:url(' + S.up.url + ') center/cover no-repeat;' : 'background:' + photoBg + ';' + (S.photo === 'lowres' ? 'filter:blur(2.5px);' : '');
+const photos = [['dark', 'Dark sample'], ['bright', 'Bright sample'], ['lowres', 'Low-res sample']].concat(S.up ? [['upload', 'Your photo']] : []).map(p => ({ label: p[1], on: S.photo === p[0], pick: () => set({ photo: p[0], status: '', zoom: 1, ph: {} }), style: optSt(S.photo === p[0]) }));
+const onFile = e => {
+const f = e.target.files && e.target.files[0]; if (!f) return;
+if (f.size > 40 * 1048576) { set({ status: 'That file is over 40 MB. Choose a smaller one.' }); return; }
+set({ status: 'Loading photo…' });
+const url = URL.createObjectURL(f), img = new Image();
+img.onload = () => {
+const w = img.naturalWidth, h = img.naturalHeight, c = document.createElement('canvas'); c.width = 24; c.height = 24;
+const g = c.getContext('2d'); g.drawImage(img, 0, 0, 24, 24);
+let d; try { d = g.getImageData(0, 0, 24, 24).data; } catch (x) { d = null; }
+const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+const grid = []; for (let i = 0; i < 576; i++) grid.push(d ? 0.2126 * lin(d[i * 4]) + 0.7152 * lin(d[i * 4 + 1]) + 0.0722 * lin(d[i * 4 + 2]) : 0.2);
+set({ up: { url, w, h, name: f.name, grid }, photo: 'upload', zoom: 1, ph: {}, status: '' });
+};
+img.onerror = () => set({ status: 'Couldn’t read that image. Try a JPG or PNG.' });
+img.src = url;
+e.target.value = '';
+};
+const fnt = 'font-family:' + tk.v.head + ';';
+const lines = [fnt + 'font-weight:' + tk.v.headW + ';letter-spacing:.12em;text-transform:uppercase;font-size:' + (sizes[0] * k) + 'px;line-height:1;white-space:nowrap;', fnt + 'font-style:italic;font-weight:400;letter-spacing:.1em;text-transform:uppercase;font-size:' + (sizes[1] * k) + 'px;line-height:1;white-space:nowrap;', fnt + 'font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:' + (sizes[2] * k) + 'px;line-height:1;white-space:nowrap;'];
+const hint = !isFull ? 'This layout fixes where the text sits. Choose Full image to move it.' : 'Drag the text to move it. It stays inside the dashed safe area. Hold Alt to turn off snapping, or use the arrow keys.';
+const status = S.status;
+const exp = type => () => { if (blocked) { set({ status: 'Fix the highlighted problem before exporting.' }); return; } set({ status: 'Saved ' + tk.name.toLowerCase().replace(/ /g, '-') + '_' + S.format + '_' + S.layout + '.' + type + ' (prototype: nothing is actually downloaded).' }); };
+const dis = blocked ? 'opacity:.45;cursor:not-allowed;' : 'cursor:pointer;';
+return {
+rootStyle: Object.entries(tk.v).map(([a, v]) => '--' + a + ':' + v + ';').join(''),
+b: { name: tk.name }, hubHref: hubs[key] || 'Main.dc.html',
+formats, layouts, fields, photos, checks, onFile, upMeta: S.up ? S.up.name + ' · ' + S.up.w + '×' + S.up.h + 'px' : 'JPG or PNG', uploadStyle: 'display:inline-flex;align-items:center;cursor:pointer;font-size:14px;font-weight:600;padding:9px 18px;border-radius:var(--rb);min-height:44px;box-sizing:border-box;border:1px solid var(--accent);background:var(--accent);color:var(--onAccent);', blocked: blocked ? 'true' : 'false', status, hint,
+isFull, isProduct: S.layout === 'product', isDetails: S.layout === 'details', isWordmark: S.layout === 'wordmark',
+frameStyle: 'width:' + W + 'px;height:' + H + 'px;max-width:100%;cursor:' + (canPan ? (this._p ? 'grabbing' : 'grab') : 'default') + ';',
+hasLib: !!tk.lib, libHref: tk.lib || '#', photoStyle, photoTf: 'translate(' + tx + 'px,' + ty + 'px) scale(' + S.zoom + ')', panCursor: canPan ? (this._p ? 'grabbing' : 'grab') : 'default', pDown, pMove, pUp, resetPhoto: () => set({ zoom: 1, ph: {}, status: '' }), resetStyle: 'all:unset;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);text-decoration:underline;text-underline-offset:3px;white-space:nowrap', zoom: S.zoom, zoomLabel: Math.round(S.zoom * 100) + '%', editZoom: e => set({ zoom: parseFloat(e.target.value), status: '' }),
+photoLabel: S.photo === 'upload' && S.up ? S.up.name : S.photo === 'lowres' ? 'Low-res sample' : 'Sample photo',
+safeStyle: 'left:' + safe.x0 + 'px;top:' + safe.y0 + 'px;width:' + (safe.x1 - safe.x0) + 'px;height:' + (safe.y1 - safe.y0) + 'px;', safeAlpha: S.snap ? 0.8 : 0.45,
+snapV: !!(S.snap && S.snap.v !== null), snapH: !!(S.snap && S.snap.h !== null),
+snapVStyle: 'left:' + (S.snap && S.snap.v !== null ? S.snap.v : 0) + 'px;', snapHStyle: 'top:' + (S.snap && S.snap.h !== null ? S.snap.h : 0) + 'px;',
+blockStyle: 'left:' + left + 'px;top:' + (cy - bh / 2) + 'px;height:' + bh + 'px;', gap: gap, pad: 10 * s, blockOutline: S.snap ? 0.95 : 0.0001, tcol, outlineCol: tcol + (S.snap ? 'F2' : '00'), showColours: !solid && pass.length > 0, textCols: pass.map(o => { const on = o.hex === chosen.hex; return { name: o.name, hex: o.hex, on, pick: () => set({ tc: o.hex }), style: 'display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:600;padding:8px 14px;border-radius:var(--rb);min-height:44px;border:1.5px solid ' + (on ? 'var(--ink)' : 'var(--line)') + ';background:' + (on ? 'var(--surface2)' : 'var(--surface)') + ';color:var(--ink);' }; }), colourNote: solid ? 'The text colour is set by this layout.' : pass.length === 0 ? 'No brand colour is readable here. Move the text, or change the photo.' : (S.tc && pass.find(o => o.hex === S.tc) ? 'Only colours that read clearly here are shown.' : 'Best match chosen automatically. Pick another if you like.'),
+markStyle: 'width:' + markW + 'px;height:' + markW + 'px;border-radius:50%;background:radial-gradient(circle,' + tcol + ' ' + (1.3 * s) + 'px,transparent ' + (1.9 * s) + 'px) 0 0/' + (5.5 * s) + 'px ' + (5.5 * s) + 'px;',
+lineGap: 7 * s * k, s1: lines[0], s2: lines[1], s3: lines[2], t1: S.t[0], t2: S.t[1], t3: S.t[2],
+down, move, up, key: keyH,
+pPad: 30 * s, pGap: 10 * s,
+pName: fnt + 'font-weight:' + tk.v.headW + ';letter-spacing:.04em;text-transform:uppercase;font-size:' + (26 * s) + 'px;line-height:1.05;',
+pSub: fnt + 'font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:' + (14 * s) + 'px;',
+pPrice: 'align-self:flex-start;background:var(--accent);color:var(--onAccent);padding:' + (7 * s) + 'px ' + (14 * s) + 'px;border-radius:var(--rb);' + fnt + 'font-weight:700;font-size:' + (13 * s) + 'px;letter-spacing:.06em;text-transform:uppercase;',
+wMark: fnt + 'font-weight:' + tk.v.headW + ';letter-spacing:' + tk.v.headTrack + ';text-transform:' + tk.v.headCase + ';font-size:' + (46 * s) + 'px;line-height:1;',
+wFoot: 'position:absolute;left:0;right:0;bottom:' + (32 * s) + 'px;text-align:center;color:' + tcol + ';' + fnt + 'font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:' + (11 * s) + 'px;',
+exportPng: exp('png'), exportJpg: exp('jpg'),
+exportStyle: 'font-size:16px;font-weight:600;padding:16px 24px;border-radius:var(--rb);border:none;background:var(--accent);color:var(--onAccent);min-height:52px;' + dis,
+exportStyle2: 'font-size:15px;font-weight:600;padding:14px 24px;border-radius:var(--rb);border:1px solid var(--line);background:transparent;color:var(--ink);min-height:48px;' + dis
+};
+}
+}
+</script>
+</body>
+</html>
