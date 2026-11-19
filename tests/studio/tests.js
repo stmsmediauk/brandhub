@@ -103,6 +103,20 @@ test('theme: surfaces follow the palette; muted text always reads at 4.5:1', () 
   ok(C.luminance(derive(BRANDS['dark-sans']).vars.bg) < 0.05, 'dark brand has a dark page');
   ok(C.luminance(derive(BRANDS['light-serif']).vars.bg) > 0.9, 'light brand has a light page');
 });
+test('theme: light or dark is derived from the palette (pale accent -> dark page; the prototype brands all come out as designed)', () => {
+  const mk = hexes => ({ palette: hexes.map((h, i) => ({ name: 'c' + i, hex: h })), fonts: { heading: { family: 'X', source: 'google' }, body: { family: 'X', source: 'google' } }, look: { corners: 'soft' } });
+  eq(derive(mk(['#C8F04A', '#0B0D0E', '#FFFFFF'])).darkPage, true, 'FORMA-style lime accent');
+  eq(derive(mk(['#2F5D43', '#FFFFFF', '#1B2A21', '#F5EFE4', '#D9803A'])).darkPage, false, 'Northlight-style dark green accent');
+  eq(derive(mk(['#FF00FF', '#0A0A0A', '#FFFFFF'])).darkPage, false, 'STMS-style magenta accent (3.1:1 on white is enough)');
+  eq(derive(mk(['#2B3BFF', '#0F1230', '#FFFFFF'])).darkPage, false, 'Kiln-style blue accent');
+  eq(derive(mk(['#C9B79C', '#8A6D55'])).darkPage, false, 'two mid-tones');
+  eq(derive(BRANDS['dark-sans']).darkPage, true); eq(derive(BRANDS['light-serif']).darkPage, false);
+});
+test('theme: nothing stored can override the derived page (a leftover look.theme is ignored)', () => {
+  const b = JSON.parse(JSON.stringify(BRANDS['light-serif'])); b.look.theme = 'dark';
+  eq(derive(b).darkPage, false); eq(derive(b).vars.bg, derive(BRANDS['light-serif']).vars.bg);
+  ok(!JSON.stringify(BRANDS).includes('"theme"'), 'fixtures hold no theme field');
+});
 test('theme: solid panel text reads at 4.5 for the two real brands, and is flagged for the mid-tone brand', () => {
   ok(derive(BRANDS['dark-sans']).panel.ok); ok(derive(BRANDS['light-serif']).panel.ok); ok(!derive(BRANDS['edge-midtones']).panel.ok);
 });

@@ -20,7 +20,7 @@ One record per brand. Its values come from the five admin steps.
 | status | draft or live | Studio and publish |
 | palette | A list of 2 to 12 colours, each with name and HEX. The first colour is the accent. CMYK and Pantone overrides per colour, used instead of the calculated values when set | Colours |
 | fonts | Heading and body: family, source (Google or uploaded files), plus heading weight, case and letter-spacing. Optional `fallback` (`serif` or `sans-serif`, the default) for the moment before a font loads. Uploaded fonts list their files: `files: [{ url, weight, style }]` | Type and look |
-| look | hero (solid, tint or dark photo), corners (sharp, soft, round or pill) and `theme` (`light` or `dark`: whether the hub and studio use the lightest or the darkest palette colour as their background) | Type and look |
+| look | hero (solid, tint or dark photo) and corners (sharp, soft, round or pill) | Type and look |
 | logos | Primary, primary with tagline, secondary and brand mark. One master SVG each | Logos |
 | sections | On or off for Start here, Logos, Colours, Pairings, Typography, Please don't, Supporting marks, Photography, Studio | Studio and publish |
 | start_here | The brand's own wording for the Start here rules, written by Steve | Studio and publish |
@@ -69,7 +69,8 @@ Example, shortened:
 - **Hero fallback:** a solid hero falls back to a tint if its text would fail 4.5:1.
 - **Studio text colours:** the allowed photo colours that pass 4.5:1 on the pixels under the text, with the best match chosen automatically. A colour passes when 95% of the pixels under the text reach 4.5:1, so a few stray specks are forgiven but a busy patch is not. The best match is the passing colour with the highest contrast. If none pass, export is blocked and the client is told to move the text or change the photo.
 - **Solid panel colours (Product and Details layouts):** the panel is the darkest palette colour, its text is the palette colour that reads best on it, and the price pill uses the accent (or, if the accent would be under 3:1 on the panel, the panel's text colour). If no palette colour reaches 4.5:1 on the panel, those layouts are blocked and the admin should warn.
-- **Page colours:** background, surface tones, borders and muted text come from the lightest and darkest palette colours. Muted text is moved only as far as it stays at 4.5:1.
+- **Light or dark page:** the page is light unless the accent (the first palette colour) is under 3:1 on the lightest palette colour and at least 4.5:1 on the darkest. A pale accent such as a lime therefore gets a dark page; most others get a light one. Nothing is stored, so changing the palette changes the page.
+- **Page colours:** the background is the lightest palette colour (light page) or the darkest (dark page), and the text is the other. Surface tones and borders are blends of the two. Muted text is moved only as far as it stays at 4.5:1.
 
 ## Layout
 

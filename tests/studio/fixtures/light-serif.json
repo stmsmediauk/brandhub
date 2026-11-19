@@ -14,7 +14,7 @@
     "heading": { "family": "Fraunces", "source": "google", "fallback": "serif", "weight": 500, "case": "none", "tracking": -0.01 },
     "body":    { "family": "DM Sans", "source": "google", "weight": 400 }
   },
-  "look": { "hero": "tint", "corners": "pill", "theme": "light" },
+  "look": { "hero": "tint", "corners": "pill" },
   "sections": { "studio": true },
   "studio": {
     "formats": ["1:1", "4:5", "9:16", "landscape"],

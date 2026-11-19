@@ -11,7 +11,7 @@
     "heading": { "family": "Space Grotesk", "source": "google", "weight": 700, "case": "lower", "tracking": -0.02 },
     "body":    { "family": "Inter", "source": "google", "weight": 400 }
   },
-  "look": { "hero": "solid", "corners": "soft", "theme": "light" },
+  "look": { "hero": "solid", "corners": "soft" },
   "sections": { "studio": true },
   "studio": {
     "formats": ["1:1", "4:5"],

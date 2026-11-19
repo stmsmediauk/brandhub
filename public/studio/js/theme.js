@@ -21,10 +21,13 @@ function cssFamily(f) {
 export function derive(brand) {
   const hexes = brand.palette.map(c => normaliseHex(c.hex));
   const light = lightest(hexes), dark = darkest(hexes);
-  const darkTheme = brand.look && brand.look.theme === 'dark';
-  const bg = darkTheme ? dark : light;
-  const ink = darkTheme ? light : dark;
   const accent = hexes[0];
+  // Light or dark page is worked out, never stored. The page is light unless the
+  // accent cannot be used on the lightest colour (under 3:1) but reads on the
+  // darkest (4.5:1 or more). A pale accent such as a lime needs a dark page.
+  const darkPage = contrast(accent, light) < HEADLINE && contrast(accent, dark) >= APPROVED;
+  const bg = darkPage ? dark : light;
+  const ink = darkPage ? light : dark;
   const onAccent = bestOn(accent, [light, dark]);
 
   // Muted text moves towards the background only as far as it stays readable.
@@ -59,5 +62,5 @@ export function derive(brand) {
     : { bg: panelText, text: panelBg };
   const panel = { bg: panelBg, text: panelText, ratio: panelRatio, ok: panelRatio >= APPROVED, pillBg: pill.bg, pillText: pill.text };
 
-  return { vars, panel, cornerPx: corners };
+  return { vars, panel, cornerPx: corners, darkPage };
 }
