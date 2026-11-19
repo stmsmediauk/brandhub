@@ -10,6 +10,7 @@ import { buildPlan, zones } from '../../public/studio/js/layout-engine.js';
 import { placement, resolutionLevel, LIMITS } from '../../public/studio/js/photo.js';
 import { assess, lumaMapFromImageData } from '../../public/studio/js/readability.js';
 import { buildChecks } from '../../public/studio/js/checks.js';
+import { summarise } from '../../public/studio/js/summary.js';
 import { validateBrand, loadBrand } from '../../public/studio/js/brand-loader.js';
 import { fileName, renderToCanvas, toBlob } from '../../public/studio/js/export.js';
 import { makeMeasure } from '../../public/studio/js/renderer.js';
@@ -220,6 +221,21 @@ test('export: file names come from the brand pattern', () => {
   eq(fileName(null, { brand: 'A B/C', format: 'landscape', layout: 'x' }, 'jpg'), 'a-b-c_landscape_x.jpg');
 });
 
+// ---------------------------------------------------------------- the one status line
+test('status line: all good says Ready to download; a problem says what to fix in a plain sentence', () => {
+  const good = summarise(buildChecks(facts({})).checks); eq(good.tone, 'ok'); eq(good.text, 'Ready to download'); ok(!good.blocked);
+  const bad = summarise(buildChecks(facts({ photo: { level: 'block', pct: 150 } })).checks); eq(bad.tone, 'block'); ok(bad.blocked); ok(/low-res/i.test(bad.text) && /larger photo/.test(bad.text), bad.text);
+  const soft = summarise(buildChecks(facts({ photo: { level: 'warn', pct: 120 } })).checks); eq(soft.tone, 'warn'); ok(!soft.blocked); ok(/120%/.test(soft.text));
+});
+test('status line: blocks win over warnings, extra blocks are counted, and it always agrees with the checks on blocking', () => {
+  const f = facts({ fonts: 'loading', photo: { level: 'warn', pct: 120 }, text: { hasText: true, over: true, kUse: 0.6, minScale: 0.6 } });
+  const r = buildChecks(f), sm = summarise(r.checks); eq(sm.tone, 'block'); ok(/1 more to fix/.test(sm.text), sm.text);
+  for (const fonts of ['loading', 'ready', 'failed']) for (const level of ['ok', 'warn', 'block']) for (const over of [false, true]) for (const hasPhoto of [true, false]) for (const anyPass of [true, false]) {
+    const rr = buildChecks(facts({ fonts, hasPhoto, photo: hasPhoto ? { level, pct: 100 } : null, text: { hasText: true, over, kUse: 1, minScale: 0.6 }, readability: { mode: 'photo', chosen: anyPass ? { name: 'White', ratio: 9 } : null, anyPass, closest: { ratio: 2 }, panel: { ok: true } } }));
+    eq(summarise(rr.checks).blocked, rr.blocked, 'status and export agree');
+  }
+});
+
 // ================================================================ real browser tests
 async function realBrand(key) {
   const b = BRANDS[key];
@@ -306,6 +322,40 @@ for (const key of ['dark-sans', 'light-serif']) {
     ok(!s.getLast().plan.fit.over, 'never left in an over state'); eq(s.getLast().plan.fit.kUse >= 0.6, true);
     inp.value = 'x'.repeat(40); inp.dispatchEvent(new Event('input', { bubbles: true })); await frames(); ok(inp.value.length <= 28, 'limit of 28 applies to pasted text');
   });
+  test('studio [' + key + ']: the download bar shows one status line: ready, or a plain reason with the buttons greyed', async () => {
+    const { s, root } = await openStudio(key);
+    const line = () => root.querySelector('.statusline'), btn = () => root.querySelector('.btn.big');
+    ok(/Add a photo/.test(line().textContent), 'no photo: ' + line().textContent); ok(line().classList.contains('t-block')); ok(btn().classList.contains('disabled'));
+    eq(root.querySelectorAll('.check').length, 0, 'the four check cards are gone');
+    await s.setSample('dark'); s.cb.onField('headline', 'Studio open'); await frames(); await frames();
+    eq(line().textContent.replace('✓', ''), 'Ready to download'); ok(line().classList.contains('t-ok')); ok(!btn().classList.contains('disabled')); eq(btn().getAttribute('aria-disabled'), 'false');
+    await s.setSample('busy'); await frames(); await frames();
+    ok(/hard to read/i.test(line().textContent) && /move the text/i.test(line().textContent), line().textContent); ok(btn().classList.contains('disabled'));
+    ok(line().getBoundingClientRect().bottom <= root.querySelector('.actions').getBoundingClientRect().top + 1, 'the status sentence must sit above the buttons, not over them');
+    eq(getComputedStyle(line()).position, 'static');
+    await s.setSample('tiny'); await frames(); await frames(); ok(/low-res/i.test(line().textContent), line().textContent);
+  });
+  test('studio [' + key + ']: the text colour control only appears when the brand offers more than one choice for this photo', async () => {
+    const { s, root } = await openStudio(key); s.cb.onField('headline', 'Studio open'); s.cb.onField('subline', 'Liverpool');
+    const box = () => [...root.querySelectorAll('.label')].find(l => l.textContent === 'Text colour').parentElement;
+    ok(box().hidden, 'hidden with no photo');
+    let sawHidden = false, sawShown = false;
+    for (const sample of ['dark', 'bright', 'portrait']) {
+      await s.setSample(sample); await frames(); await frames(); const n = s.getLast().read.options.length;
+      eq(box().hidden, n <= 1, sample + ' with ' + n + ' option(s)'); if (n > 1) { sawShown = true; ok(root.querySelectorAll('.sw').length === n, 'one swatch each'); } else sawHidden = true;
+      if (n === 1) eq(s.getLast().read.chosen.hex, s.getLast().read.options[0].hex, 'the only choice is used automatically');
+    }
+    ok(sawShown || sawHidden, 'exercised');
+  });
+  test('studio [' + key + ']: test photos and the photo badge are hidden unless dev is on', async () => {
+    const { s, root } = await openStudio(key); await s.setSample('dark'); await frames(); await frames();
+    ok([...root.querySelectorAll('.opt')].every(b => !['Dark', 'Bright', 'Busy', 'Portrait'].includes(b.textContent)), 'no sample buttons');
+    eq(root.querySelector('.photo-label').textContent, ''); ok(root.querySelector('.eyebrow').hidden);
+    document.getElementById('app').remove(); const r2 = document.createElement('div'); r2.id = 'app'; document.body.append(r2);
+    const d = await start({ root: r2, brandUrl: 'fixtures/' + key + '.json', layoutsBase: '../../public/layouts/', assetBase: '', hubUrl: '', samples: true, dev: true });
+    await d.setSample('dark'); await frames(); await frames();
+    ok([...r2.querySelectorAll('.opt')].some(b => b.textContent === 'Dark'), 'dev shows sample buttons'); ok(/sample/.test(r2.querySelector('.photo-label').textContent), 'dev shows the badge');
+  });
   test('studio [' + key + ']: typing Café Zoë Ñ keeps the letters; a letter the font lacks is removed with a message', async () => {
     const { s, root } = await openStudio(key); await s.setSample('dark');
     const inp = root.querySelector('[data-field="headline"]'), note = () => root.querySelector('[data-wrap="headline"] .note').textContent;
@@ -371,7 +421,7 @@ for (const key of ['dark-sans', 'light-serif']) {
     s.cb.onLayout('product'); await frames(); eq(s.store.get().values.headline, 'Kept'); eq(s.getLast().read.mode, 'panel'); ok(!s.getLast().blocked);
     s.cb.onLayout('wordmark'); await frames(); ok(s.getLast().plan.items.some(i => i.text === (key === 'dark-sans' ? 'FORMA' : 'Northlight')), 'brand name drawn');
     await s.setSample('tiny'); await frames(); await s.cb.onExport('png'); await frames();
-    ok(/Fix the highlighted problem/.test(s.store.get().status), 'status: ' + s.store.get().status);
+    ok(/Not ready yet/.test(s.store.get().status), 'status: ' + s.store.get().status);
   });
   test('studio [' + key + ']: work is remembered for a refresh, and the page warns before leaving', async () => {
     const { s } = await openStudio(key); s.cb.onField('headline', 'Remember me'); s.cb.onFormat('9:16'); await sleep(500);

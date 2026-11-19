@@ -22,6 +22,7 @@ public/studio/
     photo.js           reading photos, pan and zoom limits, resolution check
     readability.js     which text colours read clearly on the pixels under the text
     checks.js          the checks list, and whether export is blocked
+    summary.js         turns the checks into the one status line shown by the download bar
     export.js          PNG and JPG files and file names
     state.js           current choices, and recovery after a refresh
     samples.js         generated test photos (test harness only)
@@ -37,11 +38,28 @@ tests/studio/
 
 `index.html` calls `start({ brandUrl, layoutsBase, ... })`. `brand-loader.js` fetches the brand JSON, refuses it with a plain message if it is incomplete, then fetches each layout the brand opted into from `layoutsBase`. Until login exists, `brandUrl` points at a file that does not exist, so the page shows a message. When login is built (build step 2) `index.html` becomes `index.php` and the address becomes the logged-in brand's own record, read from the database on the server. Only `brand-loader.js` and that one address change.
 
+## The page
+
+Two columns, centred, up to 1200px wide.
+
+- **Left:** format tabs directly above the preview, and one short hint line under it. The preview is sticky: it stays in view while the controls scroll, and is sized to the height of the window.
+- **Right:** three compact sections (Layout, Text, Photo), then the download bar.
+  - Layout: the thumbnails in one row.
+  - Text: the fields the layout declares. The text colour choice appears only when the brand offers more than one colour that reads clearly on the current photo; with one it is used automatically.
+  - Photo: upload, the brand's photo library link, zoom and reset.
+  - Download bar: stays at the bottom of the controls. It shows one status line, either a green tick with "Ready to download" or a plain sentence saying what to fix (the buttons are greyed out when a problem blocks export). What blocks export has not changed: see `checks.js`.
+- **Phone (under 860px wide):** the preview stays fixed at the top, the controls scroll underneath, and the download bar is fixed to the bottom of the screen.
+- **Test photos** and the photo name badge are hidden unless the address has `?dev=1` *and* the page allows samples (the test harness does, the client page does not).
+
+The text colour, the dot mark and the artwork itself are drawn by the engine and are unaffected by the page layout.
+
 ## Running the tests
 
 From the project folder: `php -S 127.0.0.1:8765`, then open
 
 - `http://127.0.0.1:8765/tests/studio/unit.html`: the scripted checks. Every line should say PASS. They need an internet connection, because the brand fonts come from Google Fonts.
-- `http://127.0.0.1:8765/tests/studio/harness.html?brand=light-serif` (or `dark-sans`, or `edge-midtones`): the real studio with sample photos, for the manual break-it checklist.
+- `http://127.0.0.1:8765/tests/studio/harness.html?brand=light-serif&dev=1` (or `dark-sans`, or `edge-midtones`): the real studio, for the manual break-it checklist. `dev=1` adds the test photos; leave it off to see what a client sees (then use Upload photo).
+
+The page-layout checks (centred, sticky preview, pinned download bar, phone layout) need real window sizes, so they are run by a browser script rather than `unit.html`. Resize the harness window to check them by eye.
 
 The test brands are for testing only. They are not real clients.

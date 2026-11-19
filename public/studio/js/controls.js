@@ -43,12 +43,14 @@ function thumb(layout) {
 export function createUI(root, cb, opts) {
   root.textContent = '';
 
+  // ---------- header ----------
   const brandName = h('span', { class: 'brand-name' });
-  const header = h('header', { class: 'top' },
+  const header = h('header', { class: 'top' }, h('div', { class: 'top-in' },
     h('div', { class: 'top-id' }, brandName, h('span', { class: 'sub', text: 'Artwork studio' })),
-    opts.hubUrl ? h('a', { class: 'btn ghost', href: opts.hubUrl, text: 'Back to brand hub' }) : null);
+    opts.hubUrl ? h('a', { class: 'btn ghost small', href: opts.hubUrl, text: 'Back to brand hub' }) : null));
 
-  const formatRow = h('div', { class: 'row center', role: 'group', 'aria-label': 'Format' });
+  // ---------- left: format tabs, preview, one-line hint ----------
+  const formatRow = h('div', { class: 'tabs', role: 'group', 'aria-label': 'Format' });
   const canvas = h('canvas', { class: 'art', 'aria-label': 'Artwork preview' });
   const safeBox = h('div', { class: 'safe', hidden: true });
   const guideV = h('div', { class: 'guide v', hidden: true });
@@ -57,38 +59,42 @@ export function createUI(root, cb, opts) {
   const prompt = h('div', { class: 'prompt', hidden: true });
   const photoLabel = h('span', { class: 'photo-label' });
   const stage = h('div', { class: 'stage' }, canvas, safeBox, guideV, guideH, blockBtn, prompt, photoLabel);
-  const hint = h('span', { class: 'hint' });
+  const hint = h('p', { class: 'hint' });
   const preview = h('section', { class: 'preview', 'aria-label': 'Preview' }, formatRow, stage, hint);
 
-  const layoutGrid = h('div', { class: 'layouts' });
-  const fieldsBox = h('div', { class: 'col gap14' });
+  // ---------- right: Layout, Text, Photo, download bar ----------
+  const layoutRow = h('div', { class: 'layouts' });
+  const fieldsBox = h('div', { class: 'col gap12' });
   const swatches = h('div', { class: 'row wrap' });
   const colourNote = h('span', { class: 'note' });
-  const colourBox = h('div', { class: 'col gap12' }, h('span', { class: 'sect', text: 'Text colour' }), swatches, colourNote);
+  const colourBox = h('div', { class: 'col gap8', hidden: true }, h('span', { class: 'label', text: 'Text colour' }), swatches, colourNote);
 
   const upInput = h('input', { id: 'upfile', type: 'file', accept: 'image/*', class: 'vh', on: { change: e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) cb.onFile(f); } } });
-  const upMeta = h('span', { class: 'note' });
+  const upMeta = h('span', { class: 'note meta' });
   const libRow = h('div', { class: 'row wrap center-y', hidden: true });
-  const sampleLabel = h('span', { class: 'eyebrow', text: 'Or try a sample', hidden: true });
+  const sampleLabel = h('span', { class: 'eyebrow', text: 'Test photos (dev only)', hidden: true });
   const sampleRow = h('div', { class: 'row wrap' });
   const zoom = h('input', { id: 'zoom', type: 'range', min: '1', max: '3', step: '0.05', value: '1', on: { input: e => cb.onZoom(parseFloat(e.target.value)) } });
   const zoomLabel = h('span', { class: 'note zl' });
-  const photoBox = h('div', { class: 'col gap12' },
-    h('span', { class: 'sect', text: 'Photo' }),
+
+  const sLayout = h('section', { class: 'sec', 'aria-label': 'Layout' }, h('h2', { class: 'sect', text: 'Layout' }), layoutRow);
+  const sText = h('section', { class: 'sec', 'aria-label': 'Text' }, h('h2', { class: 'sect', text: 'Text' }), fieldsBox, colourBox);
+  const sPhoto = h('section', { class: 'sec', 'aria-label': 'Photo' }, h('h2', { class: 'sect', text: 'Photo' }),
     h('div', { class: 'row wrap center-y' }, h('label', { for: 'upfile', class: 'btn solid', text: 'Upload photo' }), upInput, upMeta),
     libRow, sampleLabel, sampleRow,
-    h('div', { class: 'row center-y gap14' }, h('label', { for: 'zoom', class: 'note', text: 'Zoom' }), zoom, zoomLabel,
+    h('div', { class: 'row center-y gap12' }, h('label', { for: 'zoom', class: 'note', text: 'Zoom' }), zoom, zoomLabel,
       h('button', { type: 'button', class: 'link', text: 'Reset photo', on: { click: () => cb.onResetPhoto() } })));
 
-  const checksBox = h('div', { class: 'col gap8', role: 'status', 'aria-label': 'Checks' });
+  // The download bar: one status line, then the buttons. Always in view.
+  const notice = h('span', { class: 'notice', role: 'status' });
+  const statusDot = h('span', { class: 'sdot', 'aria-hidden': 'true' });
+  const statusText = h('span', { class: 'stext' });
+  const statusLine = h('div', { class: 'statusline', role: 'status', 'aria-live': 'polite' }, statusDot, statusText);
   const btnPng = h('button', { type: 'button', class: 'btn solid big', text: 'Download PNG', on: { click: () => cb.onExport('png') } });
-  const btnJpg = h('button', { type: 'button', class: 'btn outline', text: 'Download smaller JPG', on: { click: () => cb.onExport('jpg') } });
-  const status = h('span', { class: 'status', role: 'status' });
-  const controls = h('aside', { class: 'controls', 'aria-label': 'Controls' },
-    h('div', { class: 'col gap12' }, h('span', { class: 'sect', text: 'Layout' }), layoutGrid),
-    h('div', { class: 'col gap14' }, h('span', { class: 'sect', text: 'Text' }), fieldsBox),
-    colourBox, photoBox, checksBox,
-    h('div', { class: 'col gap10' }, btnPng, btnJpg, status, h('span', { class: 'note', text: 'Fonts, colours and the logo are locked, so everything you make stays on brand.' })));
+  const btnJpg = h('button', { type: 'button', class: 'btn outline big2', text: 'Smaller JPG', on: { click: () => cb.onExport('jpg') } });
+  const bar = h('div', { class: 'bar' }, notice, statusLine, h('div', { class: 'actions' }, btnPng, btnJpg));
+
+  const controls = h('aside', { class: 'controls', 'aria-label': 'Controls' }, sLayout, sText, sPhoto, bar);
 
   const small = h('p', { class: 'small-note', text: 'The studio works best on a larger screen. Rotate your phone or use a tablet or computer.' });
   root.append(header, small, h('div', { class: 'body' }, preview, controls));
@@ -140,7 +146,7 @@ export function createUI(root, cb, opts) {
   const sig = {};
   const once = (key, value, fn) => { const s = JSON.stringify(value); if (sig[key] !== s) { sig[key] = s; fn(); } };
   const pct = (v, total) => (v / total * 100) + '%';
-  const optBtn = (label, on, fn, extra) => h('button', { type: 'button', class: 'opt' + (on ? ' on' : ''), 'aria-pressed': String(on), text: label, on: { click: fn } }, extra);
+  const optBtn = (label, on, fn) => h('button', { type: 'button', class: 'opt' + (on ? ' on' : ''), 'aria-pressed': String(on), text: label, on: { click: fn } });
 
   function update(m) {
     brandName.textContent = m.brandName;
@@ -148,11 +154,8 @@ export function createUI(root, cb, opts) {
     once('formats', m.formats, () => { formatRow.textContent = ''; m.formats.forEach(f => formatRow.append(optBtn(f.label, f.on, () => cb.onFormat(f.id)))); });
 
     once('layouts', m.layouts.map(l => [l.id, l.on]), () => {
-      layoutGrid.textContent = '';
-      m.layouts.forEach(l => {
-        const b = h('button', { type: 'button', class: 'layout' + (l.on ? ' on' : ''), 'aria-label': l.name, 'aria-pressed': String(l.on), on: { click: () => cb.onLayout(l.id) } }, thumb(l.def), h('span', { class: 'lname', text: l.name }));
-        layoutGrid.append(b);
-      });
+      layoutRow.textContent = '';
+      m.layouts.forEach(l => layoutRow.append(h('button', { type: 'button', class: 'layout' + (l.on ? ' on' : ''), 'aria-label': l.name, 'aria-pressed': String(l.on), on: { click: () => cb.onLayout(l.id) } }, thumb(l.def), h('span', { class: 'lname', text: l.name }))));
     });
 
     // Fields are rebuilt only when the layout changes, so typing is never interrupted.
@@ -160,7 +163,7 @@ export function createUI(root, cb, opts) {
       fieldsBox.textContent = '';
       m.fields.forEach(f => {
         const count = h('span', { class: 'count' });
-        const note = h('span', { class: 'note minh' });
+        const note = h('span', { class: 'note fnote', hidden: true });
         const input = h('input', { id: 'fld-' + f.id, type: 'text', maxlength: String(f.max), autocomplete: 'off', placeholder: f.example || '', 'data-field': f.id, on: { input: e => cb.onField(f.id, e.target.value) } });
         fieldsBox.append(h('div', { class: 'col gap6', 'data-wrap': f.id }, h('label', { for: 'fld-' + f.id, class: 'flabel' }, h('span', { text: f.label }), count), input, note));
       });
@@ -171,9 +174,11 @@ export function createUI(root, cb, opts) {
       const input = wrap.querySelector('input');
       if (input.value !== f.value) input.value = f.value;
       wrap.querySelector('.count').textContent = f.value.length + '/' + f.max;
-      wrap.querySelector('.note').textContent = f.note || '';
+      const note = wrap.querySelector('.note');
+      note.textContent = f.note || ''; note.hidden = !f.note;
     });
 
+    // Only shown when the brand offers a real choice for this photo.
     colourBox.hidden = !m.textColours.show;
     once('swatches', m.textColours.options, () => {
       swatches.textContent = '';
@@ -188,29 +193,27 @@ export function createUI(root, cb, opts) {
     libRow.hidden = !m.libraryUrl;
     once('lib', m.libraryUrl || '', () => {
       libRow.textContent = '';
-      if (m.libraryUrl) libRow.append(h('a', { class: 'btn outline', href: m.libraryUrl, target: '_blank', rel: 'noopener', text: 'Open photo library' }), h('span', { class: 'note', text: 'Download a photo there, then upload it here.' }));
+      if (m.libraryUrl) libRow.append(h('a', { class: 'btn outline small', href: m.libraryUrl, target: '_blank', rel: 'noopener', text: 'Open photo library' }), h('span', { class: 'note', text: 'Download a photo there, then upload it here.' }));
     });
     sampleLabel.hidden = !m.photo.samples;
+    sampleRow.hidden = !m.photo.samples;
     once('samples', m.photo.samples || [], () => { sampleRow.textContent = ''; (m.photo.samples || []).forEach(s => sampleRow.append(optBtn(s.label, s.on, () => cb.onSample(s.id)))); });
     if (parseFloat(zoom.value) !== m.photo.zoom) zoom.value = String(m.photo.zoom);
     zoomLabel.textContent = Math.round(m.photo.zoom * 100) + '%';
     zoom.disabled = !m.photo.hasPhoto;
 
-    once('checks', m.checks, () => {
-      checksBox.textContent = '';
-      m.checks.forEach(c => checksBox.append(h('div', { class: 'check' },
-        h('span', { class: 'cdot ' + c.tone, 'aria-hidden': 'true', text: c.tone === 'ok' ? '✓' : c.tone === 'warn' ? '!' : '✕' }),
-        h('span', { class: 'ctext' }, h('span', { class: 'ctitle', text: c.title }), h('span', { class: 'note', text: c.text })))));
-    });
-
+    // Download bar
+    const sm = m.summary;
+    statusLine.className = 'statusline t-' + sm.tone;
+    statusDot.textContent = sm.tone === 'ok' ? '✓' : sm.tone === 'warn' ? '!' : '✕';
+    statusText.textContent = sm.text;
+    notice.textContent = m.notice || ''; notice.hidden = !m.notice;
     btnPng.hidden = !m.export.png; btnJpg.hidden = !m.export.jpg;
-    [btnPng, btnJpg].forEach(b => { b.setAttribute('aria-disabled', String(m.blocked)); b.classList.toggle('disabled', m.blocked); });
-    status.textContent = m.status;
+    [btnPng, btnJpg].forEach(b => { b.setAttribute('aria-disabled', String(sm.blocked)); b.classList.toggle('disabled', sm.blocked); });
 
     // Stage
     const s = m.stage;
-    stage.style.width = Math.min(560, 680 * s.W / s.H) + 'px';
-    stage.style.aspectRatio = s.W + ' / ' + s.H;
+    stage.style.setProperty('--ar', (s.W / s.H).toFixed(5));
     stage.classList.toggle('canpan', s.canPan);
     hint.textContent = s.hint;
     photoLabel.textContent = s.photoLabel;

@@ -7,6 +7,7 @@ import { sanitise } from './text-fit.js';
 import { placement, resolutionLevel, decodeFile, clampPan } from './photo.js';
 import { lumaMapFromImageData, assess } from './readability.js';
 import { buildChecks } from './checks.js';
+import { summarise } from './summary.js';
 import { loadBrandFonts } from './fonts.js';
 import { makeMeasure, drawFrame, drawPhoto } from './renderer.js';
 import { renderToCanvas, toBlob, download, fileName, formatBytes } from './export.js';
@@ -26,9 +27,13 @@ function showError(root, message) {
   root.append(p);
 }
 
-// opts: { root, brandUrl, layoutsBase, assetBase, hubUrl, samples }
+// opts: { root, brandUrl, layoutsBase, assetBase, hubUrl, samples, dev }
+// Test photos and the photo badge only show when the page allows samples AND the
+// address has ?dev=1 (or opts.dev is true). The client page never allows samples.
 export async function start(opts) {
   const root = opts.root || document.getElementById('app');
+  const dev = opts.dev != null ? !!opts.dev : new URLSearchParams(location.search).get('dev') === '1';
+  const showSamples = !!opts.samples && dev;
   root.textContent = 'Loading the studio…';
   let loaded;
   try { loaded = await loadBrand(opts); } catch (e) { showError(root, e.message); return null; }
@@ -103,7 +108,7 @@ export async function start(opts) {
       const a = assess(map, plan.textRects, candidates, plan.W * 0.008);
       const manual = a.pass.find(o => o.hex === S.textColour);
       const chosen = manual || a.best;
-      read = { mode: 'photo', chosen, anyPass: a.anyPass, closest: a.closest, panel: theme.panel, manual: !!manual };
+      read = { mode: 'photo', chosen, anyPass: a.anyPass, closest: a.closest, panel: theme.panel, manual: !!manual, options: a.pass };
       options = a.pass;
     }
     const textHex = (read.chosen && read.chosen.hex) || (read.closest && read.closest.hex) || candidates[0].hex;
@@ -121,15 +126,12 @@ export async function start(opts) {
     drawFrame(ui.canvas.getContext('2d'), plan, view);
     last = { plan, view, blocked, checks, pl, read, S };
 
-    const movableNames = layouts.filter(l => l.text && l.text.movable).map(l => l.name);
     const hint = plan.block
-      ? 'Drag the text to move it. It stays inside the dashed safe area. Hold Alt to turn off snapping, or use the arrow keys.'
-      : 'This layout fixes where the text sits.' + (movableNames.length ? ' Choose ' + movableNames.join(' or ') + ' to move it.' : '');
-    const showSwatches = plan.onPhoto && !!photoData && options.length > 0;
-    const colourNote = !plan.onPhoto ? 'The text colour is set by this layout.'
-      : !photoData ? 'Choose a photo and the colours that read clearly will appear here.'
-      : options.length === 0 ? 'No brand colour is readable here. Move the text, or change the photo.'
-      : read.manual ? 'Only colours that read clearly here are shown.' : 'Best match chosen automatically. Pick another if you like.';
+      ? 'Drag the text to move it, or use the arrow keys.'
+      : 'The text position is fixed in this layout.';
+    // A text colour choice is only shown when the brand offers more than one that reads here.
+    const showSwatches = plan.onPhoto && !!photoData && options.length > 1;
+    const colourNote = !read.manual ? 'Best match chosen automatically. Pick another if you like.' : 'Only colours that read clearly here are shown.';
 
     ui.update({
       brandName: brand.name, libraryUrl,
@@ -140,11 +142,11 @@ export async function start(opts) {
       photo: {
         hasPhoto: !!photoData, zoom: S.zoom,
         meta: photoData ? photoData.name + ' · ' + photoData.natW + '×' + photoData.natH + 'px' : 'JPG or PNG',
-        samples: opts.samples ? SAMPLES.map(s => ({ id: s.id, label: s.label, on: !!(S.photoRef && S.photoRef.kind === 'sample' && S.photoRef.id === s.id) })) : null
+        samples: showSamples ? SAMPLES.map(s => ({ id: s.id, label: s.label, on: !!(S.photoRef && S.photoRef.kind === 'sample' && S.photoRef.id === s.id) })) : null
       },
-      checks, blocked, status: S.status, export: brand.studio.export,
+      summary: summarise(checks), notice: S.status, export: brand.studio.export,
       stage: {
-        W: plan.W, H: plan.H, hint, noPhoto: !photoData, photoLabel: photoData ? photoData.name : '',
+        W: plan.W, H: plan.H, hint, noPhoto: !photoData, photoLabel: dev && photoData ? photoData.name : '',
         canPan: !!pl && (pl.maxX > 0.5 || pl.maxY > 0.5),
         safe: plan.block ? plan.safe : null, guide: S.guide,
         block: plan.block ? { left: plan.block.left, top: plan.block.top, w: plan.block.w, h: plan.block.h, colour: textHex } : null
@@ -231,7 +233,7 @@ export async function start(opts) {
     onPanEnd: () => {},
 
     onExport: async type => {
-      if (!last || last.blocked) { store.set({ status: 'Fix the highlighted problem before exporting.' }); return; }
+      if (!last || last.blocked) { store.set({ status: 'Not ready yet. Fix the problem shown above first.' }); return; }
       try {
         const canvas = renderToCanvas(last.plan, last.view);
         const blob = await toBlob(canvas, type === 'png' ? 'image/png' : 'image/jpeg', brand.studio.export.jpg_quality);
