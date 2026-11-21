@@ -61,7 +61,9 @@ php tools/add-brand.php password <slug> --generate > password.sql      # change 
 - The brand JSON is checked first (palette 2 to 12 colours, valid HEX, fonts, formats, layouts, at least one light and one dark photo text colour, no stored password or `look.theme`). Problems are listed in plain words and no SQL is produced.
 - `status` and `version` are not kept in the JSON: they are columns.
 
-## Putting it on StackCP (to be checked on the real host)
+## Putting it on StackCP
+
+First deployed on 21 November 2026. The real layout, the upload routine and the permissions rule are in the Deploy section of `README.md`. The steps below are how it was set up.
 
 The web folder must contain only the contents of `public/`. The `app/`, `storage/`, `db/` and `tools/` folders and `config.php` must sit **outside** it (the `.htaccess` files in the project are a second lock if they are ever uploaded inside by mistake).
 
@@ -71,7 +73,7 @@ The web folder must contain only the contents of `public/`. The `app/`, `storage
 4. Add the brand with the tool and paste its SQL.
 5. Check `https://brands.stmsmedia.co.uk/<slug>/` signs in, and that the cookie is marked Secure in the browser's developer tools.
 
-Things to confirm there: that `.htaccess` rewriting is allowed, the PHP version, and that `storage/` is writable by PHP.
+Confirmed there: `.htaccess` rewriting works, `storage/` is writable by PHP, the cookie is Secure over https. The website and the command line both run PHP 8.0.30 (the website was switched from 7.4 in My20i). The database is MariaDB 10.11.
 
 ## Not covered yet
 

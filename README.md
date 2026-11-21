@@ -40,7 +40,7 @@ Last updated at the end of build step 2, slice 1.
 
 1. Read `CLAUDE.md`, then this README, `docs/server.md` and `docs/studio-engine.md`.
 2. Everything is committed in git. `git log --oneline` is the history; each change is its own commit so any can be rolled back.
-3. Nothing from step 2 is on the live site yet. The studio engine is also not deployed, because the studio needs the server to supply its brand.
+3. The secure core of step 2 is live at brands.stmsmedia.co.uk (STMS home page and sign-in). The only brand in the live database is the test brand `northlight`. The studio is not deployed, because it needs the server to supply its brand.
 
 ### Run it
 
@@ -62,9 +62,13 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 ### Open questions and things not yet checked
 
-- **On StackCP (Steve is testing):** does the `.htaccess` rewrite work, is `storage/` writable. The host's command line runs PHP 8.0.30 (the website's PHP version is not yet confirmed). The code is written for PHP 7.4+ but has only been run on PHP 8.5.
+- **Checked on the real host (21 November 2026):** the `.htaccess` rewrite works, PHP can write to `storage/` (sessions are saved), https redirects work and the session cookie is Secure, HttpOnly and SameSite=Lax. The database is MariaDB 10.11.
+- **PHP:** the website was on 7.4.33. Steve switched it to PHP 8.0 in My20i on 21 November 2026 (now 8.0.30; the main stmsmedia.co.uk site still answers).
+- **Also checked live:** signing in to a test brand (`northlight`, draft, from `tests/studio/fixtures/light-serif.json`), the usage log records the sign-in, a wrong password is refused, the 6th wrong try in 15 minutes is slowed, a form without its token is refused, and another brand's record is forbidden.
+- **Checked by Steve on the live site:** signed-in isolation (signed in to `northlight`, another brand's address shows the sign-in page), and sign-in on iPhone Safari.
+- **Not yet tried on the live site:** the full break-it checklist. `northlight` is a test brand: remove it before real clients are added.
 - **Draft versus live:** both can sign in for now. Decide what a draft brand means to clients when the admin is built.
-- **Never tested:** Safari, iPhone and Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message, https and the Secure cookie on the real host.
+- **Never tested:** the studio in Safari and on iPhone (only sign-in has been tried there), Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message.
 - **Not built:** carousel layout, logo files in the studio's wordmark layout, real logo colourways, the hub pages, the admin.
 - The STMS palette and the FORMA assets in `design/` are placeholders. The three test brands in `tests/studio/fixtures/` are not real clients.
 
@@ -91,7 +95,20 @@ The agreed upload routine:
 1. **Folder lock.** Only the brands folder (and, once agreed, a private folder beside `public_html` for `app/` and `storage/`) is ever written to.
 2. **Practice run.** An rsync dry run shows exactly which files would be sent. Steve approves the list.
 3. **Backup.** The live copies of those files are copied to a dated folder on the Mac first.
-4. **Upload, then check.** Only the approved files go up, then the live page is opened to confirm it works.
+4. **Upload, then check.** Use `rsync -a --chmod=D755,F644` for the web folder. Only the approved files go up, then the live page is opened to confirm it works.
 5. **Never uploaded:** `config.php`, `config.test.php`, `.git`, `design/`, `tests/`, `docs/`.
 
-Not yet decided: the exact server layout. `app/` and `storage/` should sit outside `public_html` so they cannot be opened in a browser. Propose it before the first deploy.
+Server layout (first deployed 21 November 2026):
+
+```
+/home/sites/5b/8/82a71f04d6/
+  public_html/brands/   contents of public/ (only index.php and .htaccess so far)
+  brands-app/           private, not reachable from the web
+    app/
+    storage/            sessions and brand files (written by PHP)
+    config.php          the local config.live.php, renamed on upload
+```
+
+`public/index.php` finds `app/` next to the web folder (on a computer) or in `brands-app/` beside `public_html` (live).
+
+**Permissions:** files on the Mac are owner-only, and rsync copies that, which makes Apache answer 403. Always upload with `--chmod=D755,F644` for the web folder, and keep `brands-app/` at 700 and `config.php` at 600.
