@@ -146,11 +146,14 @@ test('hub: pairings use the same rules as the studio (approved 4.5, headline 3, 
   }
   eq(H.pairingsFor('#C8F04A', BRANDS['dark-sans'].palette).ok[0].name, BRANDS['dark-sans'].palette.find(c => c.hex.toUpperCase() === '#0B0D0E').name, 'best first');
 });
-test('hub: standard Start here rules count the palette and the typefaces; the brand’s own wording replaces them', () => {
-  const r = H.startRules(BRANDS['light-serif']); eq(r.length, 4); eq(r[1].title, 'Only the five palette colours'); ok(r[3].text.startsWith('Two typefaces'));
-  ok(H.startRules(BRANDS['dark-sans'])[3].text.startsWith('One typeface'), 'FORMA uses one family for both');
-  const own = Object.assign({}, BRANDS['light-serif'], { start_here: [{ title: 'Pine first', text: 'Lead with Forest.' }, { title: '', text: 'ignored' }, 'junk'] });
-  eq(H.startRules(own).length, 1); eq(H.startRules(own)[0].title, 'Pine first');
+test('hub: the standard rules sit in their sections, with the palette count and font names filled in; own wording or Start here off replaces them', () => {
+  const r = H.sectionRules(BRANDS['light-serif']);
+  ok(r.logos.startsWith('Use the primary logo first')); eq(r.colours, 'Only these five colours. No near-matches, no new tints.');
+  ok(r.pairings.startsWith('Only approved pairings')); eq(r.typography, 'Fraunces and DM Sans only. No guest fonts.');
+  eq(H.sectionRules(BRANDS['dark-sans']).typography, 'Montserrat only. No guest fonts.', 'one family named once');
+  const own = Object.assign({}, BRANDS['light-serif'], { start_here: [{ title: 'Forest first', text: 'Lead with Forest.' }, { title: '', text: 'ignored' }, 'junk'] });
+  eq(H.ownRules(own).length, 1); eq(H.ownRules(own)[0].title, 'Forest first'); eq(Object.keys(H.sectionRules(own)).length, 0, 'own wording replaces the section rules');
+  eq(Object.keys(H.sectionRules(Object.assign({}, BRANDS['light-serif'], { sections: { start: false } }))).length, 0, 'Start here switched off');
 });
 test('hub: sections show unless switched off', () => {
   ok(H.sectionOn({}, 'colours')); ok(H.sectionOn({ sections: { studio: true } }, 'pairings')); ok(!H.sectionOn({ sections: { pairings: false } }, 'pairings'));

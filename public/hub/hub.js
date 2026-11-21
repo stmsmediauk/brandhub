@@ -10,7 +10,6 @@ import { logoList, mainLogo, colourways, recolour, svgText, pngBlob, fileName, d
 
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
 export const numberWord = n => WORDS[n] || String(n);
-const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
 // A section shows unless the brand record switches it off.
 export const sectionOn = (brand, key) => !(brand.sections && brand.sections[key] === false);
@@ -19,19 +18,25 @@ export function sameFamily(brand) {
   return brand.fonts.heading.family === brand.fonts.body.family;
 }
 
-// The brand's own Start here wording when Steve has written it, otherwise the standard four.
-export function startRules(brand) {
-  const own = Array.isArray(brand.start_here)
-    ? brand.start_here.filter(r => r && typeof r.title === 'string' && r.title.trim() && typeof r.text === 'string')
+// The brand's own Start here wording, when Steve has written it (shown in the intro row).
+export function ownRules(brand) {
+  return Array.isArray(brand.start_here)
+    ? brand.start_here.filter(r => r && typeof r.title === 'string' && r.title.trim() && typeof r.text === 'string').slice(0, 6).map(r => ({ title: r.title, text: r.text }))
     : [];
-  if (own.length) return own.slice(0, 6).map(r => ({ title: r.title, text: r.text }));
-  const n = brand.palette.length;
-  return [
-    { title: 'Use the primary logo first', text: 'Reach for the primary logo before anything else. Other versions are for when it genuinely doesn’t fit.' },
-    { title: 'Only the ' + numberWord(n) + ' palette colours', text: 'Every colour you use comes from the palette. No near-matches, no new tints.' },
-    { title: 'Only approved pairings', text: 'If a text and background combination isn’t on the list, the answer is no.' },
-    { title: 'No guest fonts', text: (sameFamily(brand) ? 'One typeface, supplied here.' : 'Two typefaces, supplied here.') + ' Nothing else, however similar it looks.' }
-  ];
+}
+
+// The standard rules, each shown at the top of the section it is about, so the page
+// opens on something visual rather than a block of text. None when the brand has its
+// own wording, or Start here is switched off.
+export function sectionRules(brand) {
+  if (!sectionOn(brand, 'start') || ownRules(brand).length) return {};
+  const h = brand.fonts.heading.family, b = brand.fonts.body.family;
+  return {
+    logos: 'Use the primary logo first. Other versions are for when it doesn’t fit.',
+    colours: 'Only these ' + numberWord(brand.palette.length) + ' colours. No near-matches, no new tints.',
+    pairings: 'Only approved pairings. If a combination isn’t listed here, the answer is no.',
+    typography: (sameFamily(brand) ? h : h + ' and ' + b) + ' only. No guest fonts.'
+  };
 }
 
 // Which palette colours may sit on a background: the same rules as the studio.
@@ -75,7 +80,7 @@ export function hubModel(brand) {
     if (typeof c.pantone === 'string' && c.pantone.trim()) values.push(['Pantone', c.pantone.trim()]);
     return { name: c.name, hex, ink: bestOn(hex, [light, dark]), values };
   });
-  return { theme, palette, rules: startRules(brand) };
+  return { theme, palette, rules: sectionRules(brand), own: ownRules(brand) };
 }
 
 // ---------------------------------------------------------------- page helpers
@@ -101,12 +106,15 @@ async function copyText(text) {
   t.remove(); return ok;
 }
 
-function sectionHead(id, title, intro) {
-  return el('div', { class: 'sec-head' }, el('h2', { id: 'h-' + id, class: 'h2' }, title), intro ? el('p', { class: 'intro' }, intro) : null);
-}
-
-function section(id, title, intro, ...body) {
-  return el('section', { id, class: 'sec', 'aria-labelledby': 'h-' + id }, sectionHead(id, title, intro), ...body);
+// head: { rule, intro }. The rule (when there is one) sits under the title, then a
+// short muted line on how to use the section.
+function section(id, title, head, ...body) {
+  return el('section', { id, class: 'sec', 'aria-labelledby': 'h-' + id },
+    el('div', { class: 'sec-head' },
+      el('h2', { id: 'h-' + id, class: 'h2' }, title),
+      head.rule ? el('p', { class: 'sec-rule' }, head.rule) : null,
+      head.intro ? el('p', { class: 'intro' }, head.intro) : null),
+    ...body);
 }
 
 function studioButton(cls) {
@@ -134,23 +142,13 @@ function placeLogo(holder, svg, hex, label, cls) {
 function heroSection(brand, model) {
   const btns = [];
   if (sectionOn(brand, 'studio')) btns.push(studioButton('btn btn-outline'));
-  if (sectionOn(brand, 'start')) btns.push(el('a', { class: 'btn btn-dark', href: '#start' }, model.rules.length === 1 ? 'Read the rule' : 'Read the ' + numberWord(model.rules.length) + ' rules'));
   return el('section', { class: 'hero', 'aria-label': 'Welcome' },
     el('div', { class: 'hero-copy' },
       el('span', { class: 'eyebrow hero-eyebrow' }, 'Brand hub'),
       el('h1', { class: 'hero-title' }, 'Everything ' + brand.name + ', in one place.'),
-      el('p', { class: 'hero-text' }, 'Logos, colours, fonts and the rules that keep it all consistent.')),
+      el('p', { class: 'hero-text' }, 'Logos, colours, fonts and the rules that keep it all consistent.'),
+      model.own.length ? el('ol', { class: 'own-rules' }, model.own.map(r => el('li', {}, el('b', {}, r.title), ' ', r.text))) : null),
     btns.length ? el('div', { class: 'hero-btns' }, btns) : null);
-}
-
-function startSection(brand, model) {
-  const n = model.rules.length;
-  return section('start', 'Start here', cap(numberWord(n)) + (n === 1 ? ' rule covers almost everything. Follow it' : ' rules cover almost everything. Follow them') + ' and your work will look like ' + brand.name + '.',
-    el('ol', { class: 'rules' }, model.rules.map((r, i) =>
-      el('li', { class: 'rule' },
-        el('span', { class: 'rule-n' }, String(i + 1)),
-        el('span', { class: 'rule-title head' }, r.title),
-        el('span', { class: 'rule-text' }, r.text)))));
 }
 
 function coloursSection(brand, model) {
@@ -173,8 +171,7 @@ function coloursSection(brand, model) {
     sw.addEventListener('click', () => rows[0].click());
     return el('div', { class: 'card colour' }, sw, el('div', { class: 'vals' }, rows));
   });
-  const n = model.palette.length;
-  return section('colours', 'Colours', cap(numberWord(n)) + ' colours. Nothing outside this palette. Click any value to copy it.',
+  return section('colours', 'Colours', { rule: model.rules.colours, intro: 'Tap any value to copy it.' },
     el('div', { class: 'grid grid-4' }, cards));
 }
 
@@ -231,10 +228,10 @@ function pairingsSection(brand, model) {
       el('div', { class: 'grid grid-300 pair-grid' }, sample, groups));
   }
   draw();
-  return section('pairings', 'Which colours go together', 'Choose the background you’re using. We’ll show you which text colours are safe on it.', box);
+  return section('pairings', 'Which colours go together', { rule: model.rules.pairings, intro: 'Choose the background you’re using to see which text colours are safe on it.' }, box);
 }
 
-function typeSection(brand, filesBase) {
+function typeSection(brand, filesBase, rules) {
   const card = (label, spec, isHead) => el('div', { class: 'card type-card' },
     el('span', { class: 'eyebrow' }, label),
     el('span', { class: 'type-aa' + (isHead ? ' head' : '') }, 'Aa'),
@@ -243,7 +240,7 @@ function typeSection(brand, filesBase) {
            : el('span', { class: 'type-sample' }, 'The quick brown fox jumps over the lazy dog. 0123456789'),
     el('div', { class: 'links' }, fontDownloads(spec, filesBase).map(d =>
       el('a', { class: 'link', href: d.href, download: d.download ? '' : null, target: d.download ? null : '_blank', rel: d.download ? null : 'noopener noreferrer' }, d.label))));
-  return section('type', 'Typography', (sameFamily(brand) ? 'One typeface.' : 'Two typefaces.') + ' No guest fonts.',
+  return section('type', 'Typography', { rule: rules.typography, intro: rules.typography ? '' : (sameFamily(brand) ? 'One typeface.' : 'Two typefaces.') + ' No guest fonts.' },
     el('div', { class: 'grid grid-300' }, card('Headings', brand.fonts.heading, true), card('Body', brand.fonts.body, false)));
 }
 
@@ -261,7 +258,7 @@ function logoCard(brand, logo, svgPromise) {
   const card = el('div', { class: 'card logo-card' }, preview,
     el('div', { class: 'logo-body' },
       el('div', { class: 'logo-head' }, el('span', { class: 'logo-title head' }, logo.name), el('span', { class: 'badge' }, KIND_LABEL[logo.kind])),
-      logo.use ? el('span', { class: 'muted small' }, logo.use) : null,
+      logo.use ? el('span', { class: 'logo-use' }, logo.use) : null,
       controls));
 
   function draw(focusSel) {
@@ -275,17 +272,16 @@ function logoCard(brand, logo, svgPromise) {
     else { const art = document.importNode(recolour(state.svg, cw.hex), true); art.setAttribute('class', 'logo-art logo-' + logo.kind); art.setAttribute('role', 'img'); art.setAttribute('aria-label', logo.name + ' in ' + cw.name + ' on ' + bg.name); preview.replaceChildren(art); }
 
     const dots = el('div', { class: 'dots' }, pal.map(c => {
-      const b = el('button', { type: 'button', class: 'dot dot-small', 'aria-label': c.name, 'aria-pressed': c.hex === bg.hex ? 'true' : 'false', 'data-hex': c.hex, style: { background: c.hex } });
-      b.addEventListener('click', () => { state.bg = c.hex; state.cw = null; draw('.dot[data-hex="' + c.hex + '"]'); });
+      const b = el('button', { type: 'button', class: 'dot dot-small', 'aria-label': 'On ' + c.name, title: c.name, 'aria-pressed': c.hex === bg.hex ? 'true' : 'false', 'data-hex': c.hex, style: { background: c.hex } });
+      b.addEventListener('click', () => { state.bg = c.hex; state.cw = null; draw('.dot-small[data-hex="' + c.hex + '"]'); });
       return b;
     }));
-    const chips = ways.length ? el('div', { class: 'chips' }, ways.map(w => {
+    const chips = ways.length ? el('div', { class: 'dots' }, ways.map(w => {
       const on = cw && w.hex === cw.hex;
-      const b = el('button', { type: 'button', class: 'chip chip-small' + (on ? ' on' : ''), 'aria-pressed': on ? 'true' : 'false', 'data-hex': w.hex },
-        el('span', { class: 'chip-dot', 'aria-hidden': 'true', style: { background: w.hex } }), w.name);
-      b.addEventListener('click', () => { state.cw = w.hex; draw('.chip[data-hex="' + w.hex + '"]'); });
+      const b = el('button', { type: 'button', class: 'dot dot-cw', 'aria-label': 'Logo in ' + w.name, title: w.name, 'aria-pressed': on ? 'true' : 'false', 'data-hex': w.hex, style: { background: w.hex } });
+      b.addEventListener('click', () => { state.cw = w.hex; draw('.dot-cw[data-hex="' + w.hex + '"]'); });
       return b;
-    })) : el('span', { class: 'muted small' }, 'No palette colour stands out enough on ' + bg.name + '. Pick another background.');
+    })) : el('span', { class: 'muted small' }, 'Nothing stands out on ' + bg.name + '. Pick another background.');
 
     const ready = state.svg && cw;
     const getSvg = () => recolour(state.svg, cw.hex);
@@ -301,9 +297,9 @@ function logoCard(brand, logo, svgPromise) {
     }
 
     controls.replaceChildren(
-      el('div', { class: 'group' }, el('span', { class: 'eyebrow' }, 'What is it going on?'), dots),
-      el('div', { class: 'group' }, el('span', { class: 'eyebrow' }, 'Colourway'), chips),
-      cw ? el('span', { class: 'muted small' }, cw.name + ' on ' + bg.name + ' · ' + cw.ratio.toFixed(1) + ':1') : null,
+      el('div', { class: 'pick' }, el('span', { class: 'eyebrow' }, 'On'), dots),
+      el('div', { class: 'pick' }, el('span', { class: 'eyebrow' }, 'Logo'), chips),
+      cw ? el('span', { class: 'combo' }, cw.name + ' on ' + bg.name + ' · ' + cw.ratio.toFixed(1) + ':1') : null,
       el('div', { class: 'links' }, png, svgBtn));
     if (focusSel) { const f = controls.querySelector(focusSel); if (f) f.focus(); }
   }
@@ -312,8 +308,8 @@ function logoCard(brand, logo, svgPromise) {
   return card;
 }
 
-function logosSection(brand, logos, loaded) {
-  return section('logos', 'Logos', 'Choose what it’s going on and see the logo in each approved colourway. Only combinations that pass the pairing rules are offered.',
+function logosSection(brand, logos, loaded, rules) {
+  return section('logos', 'Logos', { rule: rules.logos, intro: 'Pick what it’s going on; only colourways that pass the pairing rules are offered.' },
     el('div', { class: 'grid grid-logos' }, logos.map(l => logoCard(brand, l, loaded.get(l.id)))));
 }
 
@@ -354,7 +350,7 @@ function dontSection(brand, logo, svgPromise) {
     if (!svg) return;
     for (const t of tiles) if (!t.d.retype) { const art = document.importNode(recolour(svg, t.d.colour), true); art.setAttribute('class', 'logo-art'); art.setAttribute('aria-hidden', 'true'); t.holder.append(art); }
   });
-  return section('dont', 'Please don’t', 'The mistakes we see most. Every one of these is easy to avoid.',
+  return section('dont', 'Please don’t', { intro: 'The mistakes we see most. Every one of these is easy to avoid.' },
     el('div', { class: 'grid grid-6' }, tiles.map(t => t.tile)));
 }
 
@@ -398,11 +394,10 @@ export function renderHub({ root, nav, actions, brand, filesBase }) {
   const logos = logoList(brand);
   const loaded = new Map(logos.map(l => [l.id, loadLogo(filesBase, l.file)]));
   const main = mainLogo(logos);
-  add('start', 'start', 'Start here', () => startSection(brand, model));
-  if (logos.length) add('logos', 'logos', 'Logos', () => logosSection(brand, logos, loaded));
+  if (logos.length) add('logos', 'logos', 'Logos', () => logosSection(brand, logos, loaded, model.rules));
   add('colours', 'colours', 'Colours', () => coloursSection(brand, model));
   add('pairings', 'pairings', 'Pairings', () => pairingsSection(brand, model));
-  add('typography', 'type', 'Type', () => typeSection(brand, filesBase));
+  add('typography', 'type', 'Type', () => typeSection(brand, filesBase, model.rules));
   if (main) add('dont', 'dont', 'Don’ts', () => dontSection(brand, main, loaded.get(main.id)));
 
   if (nav) nav.replaceChildren(...links.map(([id, label]) => el('a', { class: 'nl', href: '#' + id }, label)));

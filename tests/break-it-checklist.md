@@ -37,9 +37,9 @@ Run by script: `php tests/server/run.php` (see docs/server.md). It covers every 
 
 ## Hub
 - [ ] Every brand gets the same clean white page; only the fonts and the heading and link colours change (Northlight: Forest; FORMA: Carbon, because its lime cannot be read on white)
-- [ ] A palette of 2 and of 12 colours: counts in Start here and Colours read correctly ("two", "twelve")
+- [ ] A palette of 2 and of 12 colours: the Colours rule reads correctly ("two", "twelve"), and 12 dots still fit on a phone logo card
 - [ ] A palette where nothing reads (Sandstone): the hub still loads, Pairings says no colour reads, nothing crashes
-- [ ] A brand with its own Start here wording, including a single rule ("Read the rule", "Follow it")
+- [ ] A brand with its own Start here wording shows it in the intro row, and the standard rules disappear from the sections
 - [ ] A section switched off disappears from the page and the header links
 - [ ] A CMYK override and a Pantone value show instead of / as well as the calculated values
 - [ ] Every Copy button puts exactly the shown value on the clipboard (desktop and iPhone)
