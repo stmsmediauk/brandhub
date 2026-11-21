@@ -19,6 +19,7 @@ import { makeSample, SAMPLES } from '../../public/studio/js/samples.js';
 import { drawFrame } from '../../public/studio/js/renderer.js';
 import { start } from '../../public/studio/js/main.js';
 import * as H from '../../public/hub/hub.js';
+import * as L from '../../public/hub/logos.js';
 
 const out = document.getElementById('results');
 const tests = [];
@@ -164,6 +165,48 @@ test('hub: font downloads: Google fonts link to Google, uploaded files come from
   eq(H.fontDownloads({ family: 'DM Sans', source: 'google' }, '/x/files/')[0].href, 'https://fonts.google.com/specimen/DM+Sans');
   const up = H.fontDownloads({ family: 'Brand', source: 'uploaded', files: [{ url: 'fonts/Brand Bold.woff2', weight: 700 }, { url: 'fonts/b.woff2', weight: 400, style: 'italic' }] }, '/acme/files/');
   eq(up[0].href, '/acme/files/fonts/Brand%20Bold.woff2'); eq(up[0].label, 'Download Bold'); eq(up[1].label, 'Download Regular italic'); ok(up[0].download);
+});
+
+const EVIL_SVG = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 50" onload="alert(1)"><style>.a{fill:red}</style><script>alert(2)</script>'
+  + '<foreignObject><div>x</div></foreignObject><a href="https://evil.example"><path d="M0 0h10v10z"/></a><image href="https://evil.example/x.png"/>'
+  + '<path class="a" d="M0 0h50v50z" fill="#123456" onclick="alert(3)" style="fill:url(https://evil.example/#x)"/><circle cx="70" cy="25" r="10" stroke="#000" fill="none"/><use href="#p"/><use xlink:href="https://evil.example/s.svg#x"/></svg>';
+test('logos: a master SVG is cleaned of scripts, styles, handlers, embedded pages and outside links', () => {
+  const svg = L.cleanSvg(EVIL_SVG); ok(svg, 'parsed'); const t = new XMLSerializer().serializeToString(svg);
+  for (const bad of ['<script', 'alert', '<style', 'foreignObject', 'evil.example', 'onload', 'onclick', '<image', '<a ']) ok(!t.includes(bad), 'removed ' + bad);
+  ok(t.includes('<use href="#p"'), 'a link inside the file is kept'); eq(svg.getAttribute('viewBox'), '0 0 100 50');
+  eq(L.cleanSvg('<html>not svg</html>'), null); eq(L.cleanSvg('<svg xmlns="http://www.w3.org/2000/svg"><path'), null, 'broken file');
+});
+test('logos: recolouring puts every shape in the one colour and leaves "none" alone', () => {
+  const svg = L.recolour(L.cleanSvg(EVIL_SVG), '#C8F04A');
+  eq(svg.getAttribute('fill'), '#C8F04A'); eq(svg.querySelector('path[d="M0 0h50v50z"]').getAttribute('fill'), '#C8F04A');
+  const c = svg.querySelector('circle'); eq(c.getAttribute('fill'), 'none'); eq(c.getAttribute('stroke'), '#C8F04A');
+  ok(L.svgText(svg).startsWith('<?xml'), 'download is a proper SVG file');
+});
+test('logos: only colourways at 3:1 or better are offered, clearest first, never the background itself', () => {
+  for (const k of Object.keys(BRANDS)) for (const bg of BRANDS[k].palette) {
+    const w = L.colourways(bg.hex, BRANDS[k].palette);
+    w.forEach(o => { ok(o.ratio >= 3, k); ok(o.hex !== C.normaliseHex(bg.hex), k + ' not the background'); });
+    for (let i = 1; i < w.length; i++) ok(w[i - 1].ratio >= w[i].ratio, 'sorted');
+  }
+  eq(L.colourways('#C8F04A', BRANDS['dark-sans'].palette).map(o => o.name).join(','), 'Carbon', 'FORMA logo on Court: Carbon only');
+  eq(L.colourways('#C9B79C', BRANDS['edge-midtones'].palette).length, 0, 'Sandstone: nothing stands out, so nothing is offered');
+});
+test('logos: the logo list keeps good entries, drops path tricks, and finds the primary', () => {
+  const list = L.logoList({ logos: [{ id: 'a', name: 'A', file: 'logos/a.svg', kind: 'secondary' }, { id: 'b', name: 'B', file: '../x.svg', kind: 'primary' }, { id: 'c', name: 'C', file: 'logos/c.png' }, { id: 'd', name: 'D', file: 'logos/d.svg', kind: 'primary' }, null] });
+  eq(list.map(l => l.id).join(','), 'a,d'); eq(L.mainLogo(list).id, 'd'); eq(L.logoList({}).length, 0);
+  eq(L.logoList(BRANDS['dark-sans']).length, 4, 'FORMA test brand has four logos');
+});
+test('logos: file names are safe and readable', () => {
+  eq(L.fileName('forma', 'wordmark-stacked', 'Carbon', 'png'), 'forma_wordmark-stacked_carbon.png');
+  eq(L.fileName('café', 'primary', 'Deep Blue / 2', 'svg'), 'cafe_primary_deep-blue-2.svg');
+});
+test('logos: PNG export is a real transparent PNG at 2000px on the long side, in the chosen colour', async () => {
+  const svg = L.recolour(L.cleanSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><rect x="0" y="0" width="100" height="100"/></svg>'), '#0B0D0E');
+  const blob = await L.pngBlob(svg); eq(blob.type, 'image/png');
+  const img = await createImageBitmap(blob); eq(img.width, 2000); eq(img.height, 1000);
+  const c = document.createElement('canvas'); c.width = 2000; c.height = 1000; const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+  const left = g.getImageData(500, 500, 1, 1).data, right = g.getImageData(1500, 500, 1, 1).data;
+  eq([left[0], left[1], left[2], left[3]].join(','), '11,13,14,255', 'shape in Carbon'); eq(right[3], 0, 'transparent elsewhere');
 });
 
 // ---------------------------------------------------------------- layout engine (stand-in measuring)

@@ -73,6 +73,34 @@ button { font: inherit; }
 .rule-title { font-size: 30px; line-height: 1.1; color: var(--headInk); }
 .rule-text { font-size: 17px; color: var(--muted); max-width: 460px; }
 
+/* ---------------------------------------------------------------- logos */
+.grid-340 { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 24px; }
+.logo-card { display: flex; flex-direction: column; }
+.logo-preview { height: 230px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: center; padding: 28px; transition: background .2s; }
+.logo-art { display: block; max-width: 78%; max-height: 150px; width: auto; height: auto; }
+.logo-preview .logo-mark { max-height: 110px; }
+.logo-preview svg { width: 100%; height: 100%; }
+.logo-body { padding: 24px 26px 26px; display: flex; flex-direction: column; gap: 16px; }
+.logo-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.logo-title { font-size: 19px; line-height: 1.2; }
+.logo-controls { display: flex; flex-direction: column; gap: 16px; }
+.badge { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--line); border-radius: var(--rb); padding: 4px 10px; color: var(--muted); white-space: nowrap; }
+.dot-small { width: 34px; height: 34px; }
+.dot-small[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+.chip-small { font-size: 13px; padding: 8px 14px; min-height: 40px; }
+.btn-dark { background: var(--ink); color: var(--bg); }
+.btn-small { min-height: 44px; padding: 10px 18px; font-size: 14px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------- please don't */
+.dont { display: flex; flex-direction: column; gap: 12px; }
+.dont-art { position: relative; height: 170px; border-radius: var(--r2); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); }
+.dont-logo { width: 60%; height: 64px; display: flex; align-items: center; justify-content: center; }
+.dont-logo .logo-art { max-width: 100%; max-height: 64px; width: 100%; height: 100%; }
+.dont-retype { font-family: 'Comic Sans MS', 'Brush Script MT', cursive; font-size: 34px; white-space: nowrap; }
+.dont-x { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%; background: #D8322B; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+.ink { color: var(--ink); }
+
 /* ---------------------------------------------------------------- colours */
 .colour { display: flex; flex-direction: column; }
 .swatch { height: 128px; padding: 16px 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border: none; cursor: pointer; font-size: 22px; text-align: left; border-radius: 0; }

@@ -2,6 +2,7 @@
   "_note": "TEST BRAND ONLY. A dark, sans, sharp-cornered brand used to prove the studio repeats. Not a real client.",
   "slug": "forma",
   "name": "FORMA",
+  "tagline": "Padel",
   "status": "draft",
   "palette": [
     { "name": "Court",  "hex": "#C8F04A" },
@@ -13,6 +14,12 @@
     "body":    { "family": "Montserrat", "source": "google", "weight": 400 }
   },
   "look": { "hero": "dark", "corners": "sharp" },
+  "logos": [
+    { "id": "primary", "name": "Primary logo", "file": "logos/primary.svg", "kind": "primary", "use": "Mark above the FORMA PADEL wordmark. Use it first." },
+    { "id": "wordmark-stacked", "name": "Wordmark, stacked", "file": "logos/wordmark-stacked.svg", "kind": "secondary", "use": "When the mark won’t fit." },
+    { "id": "wordmark-landscape", "name": "Wordmark, landscape", "file": "logos/wordmark-landscape.svg", "kind": "secondary", "use": "Narrow headers and wide spaces." },
+    { "id": "mark", "name": "Brand mark", "file": "logos/mark.svg", "kind": "mark", "use": "App icons, avatars, favicons." }
+  ],
   "sections": { "studio": true },
   "studio": {
     "formats": ["1:1", "4:5", "9:16", "landscape"],

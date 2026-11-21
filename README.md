@@ -31,7 +31,7 @@ Last updated at the end of build step 2, slice 2 (committed and uploaded on 21 N
 | Build step | State |
 |---|---|
 | 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** header, hero, Start here, Colours, Pairings and Typography, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 38 server checks, 89 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** header, hero, Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 41 server checks, 95 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -48,7 +48,7 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 - **Studio checks:** `php -S 127.0.0.1:8765`, then open `http://127.0.0.1:8765/tests/studio/unit.html` (every line PASS). To look at the studio: `.../tests/studio/harness.html?brand=light-serif` (or `dark-sans`, `edge-midtones`), add `&dev=1` for test photos.
 - **Server checks:** `php tests/server/run.php` (every line PASS).
-- **Sign in by hand:** `php tests/server/run.php --serve` prints a local address and a password for each test brand.
+- **Look at the hub by hand:** `php tests/server/run.php --serve` prints a local address for each test brand. Test mode is on there, so no password is asked. Don't run the checks while it is open: they reset the same test database (restart `--serve` afterwards).
 - One-off setup for the local database is in `docs/server.md`. `config.test.php` holds the local test database login and is not in git; if it is missing, recreate it from that doc.
 
 ### Decisions made along the way (all recorded in `docs/`)
@@ -70,7 +70,8 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 - **Not yet tried on the live site:** the full break-it checklist. `northlight` is a test brand: remove it before real clients are added.
 - **Draft versus live:** both can sign in. With test mode on (`config.php`), draft brands open without a password, so test brands stay draft. **Switch test mode off before real clients use the site.** Decide what a draft brand means to clients when the admin is built.
 - **Never tested:** the studio in Safari and on iPhone (only sign-in has been tried there), Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message.
-- **Hub sections not built yet:** Logos, Please don't and Supporting marks (they need logo files, which nothing can upload yet). The Artwork studio button is greyed out with "Coming soon" until slice 3.
+- **Logos:** real FORMA logos (from Steve's Dropbox) are kept in `storage/brands/forma/logos/` locally (not in git) and on the server in `brands-app/storage/brands/forma/logos/`. Until the admin exists, logo files are uploaded over SSH and listed in the brand record with the add-brand tool. `run.php --serve` copies `storage/brands/` in so they show locally.
+- **Hub sections not built yet:** Supporting marks, and the Download all (zip) link. The Artwork studio button is greyed out with "Coming soon" until slice 3.
 - `look.hero` in brand records is no longer used (the hub is white for every brand); `look.corners` is used by the artwork only. The admin's Type and look step can drop the hero choice.
 - **Not built:** carousel layout, logo files in the studio's wordmark layout, real logo colourways, the admin.
 - The STMS palette and the FORMA assets in `design/` are placeholders. The three test brands in `tests/studio/fixtures/` are not real clients.

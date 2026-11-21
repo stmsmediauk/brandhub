@@ -70,6 +70,24 @@ function validate_brand_config($b): array
             if (!is_array($r) || !isset($r['title'], $r['text']) || !is_string($r['title']) || !is_string($r['text']) || trim($r['title']) === '' || strlen($r['title']) > 80 || strlen($r['text']) > 400) $e[] = 'start_here rule ' . ($i + 1) . ' needs a title (up to 80 characters) and text (up to 400).';
         }
     }
+    if (isset($b['logos'])) {
+        $lg = $b['logos'];
+        if (!is_array($lg) || $lg !== array_values($lg) || count($lg) > 12) $e[] = 'logos must be a list of up to 12 logos.';
+        else {
+            $ids = [];
+            foreach ($lg as $i => $l) {
+                $n = 'logo ' . ($i + 1);
+                if (!is_array($l)) { $e[] = $n . ' is not an object.'; continue; }
+                if (!isset($l['id']) || !is_string($l['id']) || !preg_match('/^[a-z0-9-]{1,40}$/', $l['id'])) $e[] = $n . ' needs an id of lower-case letters, digits or hyphens.';
+                elseif (isset($ids[$l['id']])) $e[] = $n . ' repeats the id "' . $l['id'] . '".';
+                else $ids[$l['id']] = true;
+                if (!isset($l['name']) || !is_string($l['name']) || trim($l['name']) === '' || strlen($l['name']) > 60) $e[] = $n . ' needs a name (up to 60 characters).';
+                if (!isset($l['file']) || !is_string($l['file']) || !preg_match('#^[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*\.svg$#i', $l['file']) || strpos($l['file'], '..') !== false) $e[] = $n . ' needs a file: a plain path to an SVG in the brand\'s folder, for example logos/primary.svg.';
+                if (!isset($l['kind']) || !in_array($l['kind'], ['primary', 'secondary', 'mark'], true)) $e[] = $n . ' kind must be primary, secondary or mark.';
+                if (isset($l['use']) && (!is_string($l['use']) || strlen($l['use']) > 200)) $e[] = $n . ' use must be text (up to 200 characters).';
+            }
+        }
+    }
     foreach (['tagline', 'handle'] as $k) if (isset($b[$k]) && (!is_string($b[$k]) || strlen($b[$k]) > 80)) $e[] = $k . ' must be text (up to 80 characters).';
 
     foreach (['heading', 'body'] as $w) {

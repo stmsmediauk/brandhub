@@ -4,6 +4,7 @@
 // and the studio can never disagree. Nothing worked out here is stored.
 import { contrast, classify, bestOn, lightest, darkest, normaliseHex, rgbString, cmykFor } from '../studio/js/colour.js';
 import { derive } from '../studio/js/theme.js';
+import { logoList, mainLogo, colourways, recolour, svgText, pngBlob, fileName, download, loadLogo } from './logos.js';
 
 // ---------------------------------------------------------------- pure helpers (tested)
 
@@ -229,6 +230,117 @@ function typeSection(brand, filesBase) {
     el('div', { class: 'grid grid-300' }, card('Headings', brand.fonts.heading, true), card('Body', brand.fonts.body, false)));
 }
 
+// ---------------------------------------------------------------- logos
+
+const KIND_LABEL = { primary: 'Primary', secondary: 'Secondary', mark: 'Mark' };
+
+function logoCard(brand, logo, svgPromise) {
+  const hexes = brand.palette.map(c => normaliseHex(c.hex));
+  const pal = brand.palette.map(c => ({ name: c.name, hex: normaliseHex(c.hex) }));
+  const startBg = logo.kind === 'primary' ? hexes[0] : logo.kind === 'mark' ? darkest(hexes) : lightest(hexes);
+  const state = { bg: startBg, cw: null, svg: null, failed: false };
+  const preview = el('div', { class: 'logo-preview' });
+  const controls = el('div', { class: 'logo-controls' });
+  const card = el('div', { class: 'card logo-card' }, preview,
+    el('div', { class: 'logo-body' },
+      el('div', { class: 'logo-head' }, el('span', { class: 'logo-title head' }, logo.name), el('span', { class: 'badge' }, KIND_LABEL[logo.kind])),
+      logo.use ? el('span', { class: 'muted small' }, logo.use) : null,
+      controls));
+
+  function draw(focusSel) {
+    const bg = pal.find(c => c.hex === state.bg) || pal[0];
+    const ways = colourways(bg.hex, brand.palette);
+    const cw = ways.find(w => w.hex === state.cw) || ways[0] || null;
+    preview.style.background = bg.hex;
+    if (state.failed) preview.replaceChildren(el('span', { class: 'small', style: { color: bestOn(bg.hex, hexes) } }, 'This logo could not be loaded.'));
+    else if (!state.svg) preview.replaceChildren(el('span', { class: 'small', style: { color: bestOn(bg.hex, hexes) } }, 'Loading…'));
+    else if (!cw) preview.replaceChildren();
+    else { const art = document.importNode(recolour(state.svg, cw.hex), true); art.setAttribute('class', 'logo-art logo-' + logo.kind); art.setAttribute('role', 'img'); art.setAttribute('aria-label', logo.name + ' in ' + cw.name + ' on ' + bg.name); preview.replaceChildren(art); }
+
+    const dots = el('div', { class: 'dots' }, pal.map(c => {
+      const b = el('button', { type: 'button', class: 'dot dot-small', 'aria-label': c.name, 'aria-pressed': c.hex === bg.hex ? 'true' : 'false', 'data-hex': c.hex, style: { background: c.hex } });
+      b.addEventListener('click', () => { state.bg = c.hex; state.cw = null; draw('.dot[data-hex="' + c.hex + '"]'); });
+      return b;
+    }));
+    const chips = ways.length ? el('div', { class: 'chips' }, ways.map(w => {
+      const on = cw && w.hex === cw.hex;
+      const b = el('button', { type: 'button', class: 'chip chip-small' + (on ? ' on' : ''), 'aria-pressed': on ? 'true' : 'false', 'data-hex': w.hex },
+        el('span', { class: 'chip-dot', 'aria-hidden': 'true', style: { background: w.hex } }), w.name);
+      b.addEventListener('click', () => { state.cw = w.hex; draw('.chip[data-hex="' + w.hex + '"]'); });
+      return b;
+    })) : el('span', { class: 'muted small' }, 'No palette colour stands out enough on ' + bg.name + '. Pick another background.');
+
+    const ready = state.svg && cw;
+    const getSvg = () => recolour(state.svg, cw.hex);
+    const png = el('button', { type: 'button', class: 'btn btn-dark btn-small', disabled: ready ? null : true }, 'Download PNG');
+    const svgBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-small', disabled: ready ? null : true }, 'Download SVG');
+    if (ready) {
+      png.addEventListener('click', async () => {
+        png.textContent = 'Making PNG…';
+        try { download(await pngBlob(getSvg()), fileName(brand.slug || brand.name, logo.id, cw.name, 'png')); png.textContent = 'Download PNG'; }
+        catch (e) { png.textContent = 'Couldn’t make the PNG'; }
+      });
+      svgBtn.addEventListener('click', () => download(new Blob([svgText(getSvg())], { type: 'image/svg+xml' }), fileName(brand.slug || brand.name, logo.id, cw.name, 'svg')));
+    }
+
+    controls.replaceChildren(
+      el('div', { class: 'group' }, el('span', { class: 'eyebrow' }, 'What is it going on?'), dots),
+      el('div', { class: 'group' }, el('span', { class: 'eyebrow' }, 'Colourway'), chips),
+      cw ? el('span', { class: 'muted small' }, cw.name + ' on ' + bg.name + ' · ' + cw.ratio.toFixed(1) + ':1') : null,
+      el('div', { class: 'links' }, png, svgBtn));
+    if (focusSel) { const f = controls.querySelector(focusSel); if (f) f.focus(); }
+  }
+  draw();
+  svgPromise.then(svg => { if (svg) state.svg = svg; else state.failed = true; draw(); });
+  return card;
+}
+
+function logosSection(brand, logos, loaded) {
+  return section('logos', 'Logos', 'Choose what it’s going on and see the logo in each approved colourway. Only combinations that pass the pairing rules are offered.',
+    el('div', { class: 'grid grid-340' }, logos.map(l => logoCard(brand, l, loaded.get(l.id)))));
+}
+
+// A colour that is clearly not in the palette: the accent turned to the opposite hue.
+function offPalette(hexes) {
+  const [r, g, b] = hexes[0].slice(1).match(/../g).map(x => parseInt(x, 16) / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 180 + 360) % 360;
+  const sat = 0.85, lig = Math.min(Math.max(l, 0.42), 0.55);
+  const c = (1 - Math.abs(2 * lig - 1)) * sat, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = lig - c / 2;
+  const [rr, gg, bb] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return '#' + [rr, gg, bb].map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+function dontSection(brand, logo, svgPromise) {
+  const hexes = brand.palette.map(c => normaliseHex(c.hex));
+  const plain = lightest(hexes);
+  const ink = (colourways(plain, brand.palette)[0] || { hex: darkest(hexes) }).hex;
+  const busy = 'repeating-linear-gradient(45deg,' + [0, 1, 2].map(i => hexes[i % hexes.length] + ' ' + (i * 14) + 'px ' + (i * 14 + 14) + 'px').join(',') + ')';
+  const items = [
+    { title: 'Don’t stretch', text: 'Scale the logo evenly.', bg: plain, colour: ink, style: { transform: 'scaleX(1.5) scaleY(.75)' } },
+    { title: 'Don’t tilt', text: 'Keep it level.', bg: plain, colour: ink, style: { transform: 'rotate(-14deg)' } },
+    { title: 'Don’t recolour', text: 'Use only the approved logo colours.', bg: plain, colour: offPalette(hexes), style: {} },
+    { title: 'Don’t add shadows', text: 'No effects, glows or outlines.', bg: plain, colour: ink, style: { filter: 'drop-shadow(5px 6px 0 rgba(0,0,0,.35)) drop-shadow(0 0 12px rgba(0,0,0,.25))' } },
+    { title: 'Don’t use a busy background', text: 'Keep clear space behind it.', bg: busy, colour: lightest(hexes), style: {} },
+    { title: 'Don’t use a guest font', text: 'Never retype the logo.', bg: plain, colour: ink, retype: true }
+  ];
+  const tiles = items.map(d => {
+    const box = el('div', { class: 'dont-art', style: { background: d.bg } },
+      el('span', { class: 'dont-x', 'aria-hidden': 'true' }, '✕'));
+    const holder = el('div', { class: 'dont-logo', style: d.style || {} });
+    if (d.retype) holder.append(el('span', { class: 'dont-retype', style: { color: d.colour } }, brand.name));
+    box.prepend(holder);
+    return { d, holder, tile: el('div', { class: 'dont' }, box, el('span', { class: 'muted small' }, el('b', { class: 'ink' }, d.title), ' · ' + d.text)) };
+  });
+  svgPromise.then(svg => {
+    if (!svg) return;
+    for (const t of tiles) if (!t.d.retype) { const art = document.importNode(recolour(svg, t.d.colour), true); art.setAttribute('class', 'logo-art'); art.setAttribute('aria-hidden', 'true'); t.holder.append(art); }
+  });
+  return section('dont', 'Please don’t', 'The mistakes we see most. Every one of these is easy to avoid.',
+    el('div', { class: 'grid grid-250' }, tiles.map(t => t.tile)));
+}
+
 // ---------------------------------------------------------------- fonts
 
 function loadFonts(brand, filesBase) {
@@ -266,10 +378,15 @@ export function renderHub({ root, nav, actions, brand, filesBase }) {
   const parts = [];
   const links = [];
   const add = (key, id, label, make) => { if (sectionOn(brand, key)) { parts.push(make()); links.push([id, label]); } };
+  const logos = logoList(brand);
+  const loaded = new Map(logos.map(l => [l.id, loadLogo(filesBase, l.file)]));
+  const main = mainLogo(logos);
   add('start', 'start', 'Start here', () => startSection(brand, model));
+  if (logos.length) add('logos', 'logos', 'Logos', () => logosSection(brand, logos, loaded));
   add('colours', 'colours', 'Colours', () => coloursSection(brand, model));
   add('pairings', 'pairings', 'Pairings', () => pairingsSection(brand, model));
   add('typography', 'type', 'Type', () => typeSection(brand, filesBase));
+  if (main) add('dont', 'dont', 'Don’ts', () => dontSection(brand, main, loaded.get(main.id)));
 
   if (nav) nav.replaceChildren(...links.map(([id, label]) => el('a', { class: 'nl', href: '#' + id }, label)));
   if (actions && sectionOn(brand, 'studio')) actions.prepend(studioButton('btn btn-accent'));
@@ -278,6 +395,7 @@ export function renderHub({ root, nav, actions, brand, filesBase }) {
 }
 
 function boot() {
+  if (typeof document === 'undefined') return;   // imported outside a page (checks)
   const root = document.getElementById('hub');
   const data = document.getElementById('brand-data');
   if (!root || !data) return;

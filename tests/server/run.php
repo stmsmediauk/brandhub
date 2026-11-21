@@ -98,9 +98,21 @@ define('BASE', 'http://127.0.0.1:' . $port);
 register_shutdown_function(function () use (&$server, $tmp) { if (is_resource($server)) proc_terminate($server); exec('rm -rf ' . escapeshellarg($tmp)); });
 
 if ($serveOnly) {
-    echo "\nTest site running at " . BASE . "  (Ctrl+C to stop)\n";
-    foreach (['forma', 'northlight', 'sandstone'] as $s) echo "  " . BASE . "/$s/   password: {$PW[$s]}\n";
-    echo "These passwords are for this test database only and change every run.\n";
+    // For looking at pages by hand: every test brand is draft and test mode is on, so
+    // nothing asks for a password. (The checks below test real sign-in, with test mode off.)
+    $pdo->exec("UPDATE brands SET status = 'draft'");
+    file_put_contents($tmp . '/config.php', '<?php return ' . var_export(['db' => $d, 'secret' => $secret, 'storage_path' => $storage, 'test_mode' => true], true) . ';');
+    // Brand files kept locally (storage/brands, not in git), such as real logos, so they can be seen by hand.
+    if (is_dir($ROOT . '/storage/brands')) exec('cp -R ' . escapeshellarg($ROOT . '/storage/brands') . '/. ' . escapeshellarg($storage . '/brands/'));
+    // A real brand record kept with them (storage/brands/<slug>/brand.json) replaces that test brand's record.
+    foreach (glob($ROOT . '/storage/brands/*/brand.json') ?: [] as $real) {
+        $r = run_tool(['version', $real]);
+        if ($r['code'] === 0) { $pdo->exec($r['out']); echo "Using the real record for " . basename(dirname($real)) . "\n"; }
+        else echo "Could not use " . $real . ":\n" . $r['err'];
+    }
+    $pdo->exec("UPDATE brands SET status = 'draft'");
+    echo "\nTest site running at " . BASE . "  (Ctrl+C to stop). Test mode is on: no passwords.\n";
+    foreach (['forma', 'northlight', 'sandstone'] as $s) echo "  " . BASE . "/$s/\n";
     while (true) sleep(1);
 }
 
@@ -405,6 +417,16 @@ test('test mode on: a DRAFT brand opens without a password and says so; live and
         $s = new Browser; $s->base = $b->base; $s->login('forma', $GLOBALS['PW']['forma']);
         $sp = $s->get('/forma/')['body']; has($sp, 'Sign out'); lacks($sp, 'Test mode');
     } finally { proc_terminate($srv); }
+});
+test('add-brand checks: logo lists, Start here wording, sections, CMYK and Pantone are checked before anything is stored', function () {
+    $good = json_decode(file_get_contents(dirname(__DIR__) . '/studio/fixtures/dark-sans.json'), true);
+    eq(validate_brand_config($good), [], 'FORMA test brand with four logos');
+    $bad = $good;
+    $bad['logos'][0]['file'] = '../../config.php'; $bad['logos'][1]['id'] = 'primary'; $bad['logos'][2]['kind'] = 'hero'; $bad['logos'][3]['name'] = '';
+    $e = implode(' | ', validate_brand_config($bad));
+    has($e, 'logo 1 needs a file'); has($e, 'repeats the id "primary"'); has($e, 'logo 3 kind'); has($e, 'logo 4 needs a name');
+    $bad2 = $good; $bad2['logos'] = ['primary' => 'logos/primary.svg'];
+    has(implode(' ', validate_brand_config($bad2)), 'logos must be a list');
 });
 test('"hub" is reserved: no brand can take the address the hub’s own files use', function () {
     ok(reserved_slug('hub')); eq((new Browser)->get('/hub/')['status'], 404);

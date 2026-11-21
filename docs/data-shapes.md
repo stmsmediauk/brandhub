@@ -21,7 +21,7 @@ One record per brand. Its values come from the five admin steps.
 | palette | A list of 2 to 12 colours, each with name and HEX. The order matters: the first colour is the brand's main accent (used in the artwork, for example the price tag), and the hub's heading and link colours are the first colours in this order that read on white (see Derived). CMYK and Pantone overrides per colour, used instead of the calculated values when set: `cmyk` is four numbers from 0 to 100 (`[0, 95, 85, 0]`), `pantone` is text (`"7729 C"`) and adds a Pantone line in the hub | Colours |
 | fonts | Heading and body: family, source (Google or uploaded files), plus heading weight, case and letter-spacing. Optional `fallback` (`serif` or `sans-serif`, the default) for the moment before a font loads. Uploaded fonts list their files: `files: [{ url, weight, style }]` | Type and look |
 | look | corners (sharp, soft, round or pill), used by the artwork only (price tags and other rounded parts). `hero` is no longer used: the hub is the same white page for every brand | Type and look |
-| logos | Primary, primary with tagline, secondary and brand mark. One master SVG each | Logos |
+| logos | A list of the brand's logos (up to 12), each `{ "id", "name", "file", "kind", "use" }`: `file` is a plain path to one master SVG in the brand's folder (`logos/primary.svg`), `kind` is `primary`, `secondary` or `mark`, `use` says when to use it. Any brand's set fits: FORMA has a primary logo, two wordmarks and a brand mark. The first primary is the one the Please don't examples are made from | Logos |
 | sections | On or off for Start here, Logos, Colours, Pairings, Typography, Please don't, Supporting marks, Photography, Studio. Keys: `start`, `logos`, `colours`, `pairings`, `typography`, `dont`, `marks`, `photography`, `studio`. A section shows unless it is set to `false` | Studio and publish |
 | start_here | Optional. The brand's own wording for the Start here rules, written by Steve: a list of 1 to 6 `{ "title", "text" }`. When missing, the standard four rules are shown, with the palette and typeface counts filled in | Studio and publish |
 | studio.formats | Which of 1:1, 4:5, 9:16 and landscape are offered | Studio and publish |
@@ -48,7 +48,10 @@ Example, shortened:
     "body": { "family": "Inter", "source": "google" }
   },
   "look": { "corners": "sharp" },
-  "logos": { "primary": "logos/primary.svg", "tagline": "logos/tagline.svg" },
+  "logos": [
+    { "id": "primary", "name": "Primary logo", "file": "logos/primary.svg", "kind": "primary", "use": "Use it first." },
+    { "id": "mark", "name": "Brand mark", "file": "logos/mark.svg", "kind": "mark", "use": "App icons, avatars, favicons." }
+  ],
   "sections": { "start": true, "logos": true, "colours": true, "pairings": true, "studio": true },
   "studio": {
     "formats": ["1:1", "4:5", "9:16", "landscape"],
@@ -63,7 +66,8 @@ Example, shortened:
 ## Derived, never stored
 
 - **Pairing rules:** from the palette. Contrast of at least 4.5:1 is approved for text, 3 to 4.5 is headlines and graphics only, below 3 is never.
-- **Logo colourways:** a logo in each palette colour that passes 3:1 on the chosen background.
+- **Logo colourways:** a logo in each palette colour that passes 3:1 on the chosen background (never the background colour itself), clearest first. The master SVG is cleaned in the browser (scripts, styles, event handlers, embedded pages and outside links removed) and every shape is set to the one colour. SVG and PNG downloads (transparent, 2000px on the long side) are made in the browser from it. Logos are recoloured as one colour; a multi-colour original is not offered as it is yet.
+- **Please don't examples:** made from the first primary logo: stretched, tilted, in an off-palette colour (the accent turned to the opposite hue), with shadows, on a busy stripe of palette colours, and the brand name retyped in a guest font.
 - **CMYK:** calculated from the RGB value unless an override is set.
 - **Hub and studio page:** the same clean white page for every brand (white, near-black text, light grey cards and lines, neutral black buttons, fixed corners). These are platform values (`PAGE` in `public/studio/js/theme.js`), not brand data.
 - **Heading colour (hub):** the first palette colour, in the brand's order, that reads at 3:1 on white (headings are large, so the headlines rule applies). Used for the hero title, section headings, Start here numbers and rule titles. If no colour reaches 3:1, the page text colour.

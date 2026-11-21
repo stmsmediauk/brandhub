@@ -47,6 +47,10 @@ Run by script: `php tests/server/run.php` (see docs/server.md). It covers every 
 - [ ] At phone width nothing scrolls sideways; long brand names and colour names wrap
 - [ ] The Artwork studio button is greyed out with "Coming soon" and does nothing
 - [ ] An uploaded (non-Google) font downloads only when signed in to that brand
+- [ ] Logos: every background offers only colourways at 3:1 or better; a background where nothing stands out says so instead of showing a bad logo
+- [ ] Logos: SVG and PNG downloads open correctly in Illustrator / Preview, in the chosen colour, PNG transparent
+- [ ] Logos: a logo file containing a script, a style or an outside link shows the shape only, never runs anything
+- [ ] A brand with no logos shows no Logos or Please don't section
 
 ## Devices
 - [ ] Current Chrome and Safari on desktop
