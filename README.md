@@ -31,7 +31,7 @@ Last updated at the end of build step 2, slice 2 (committed and uploaded on 21 N
 | Build step | State |
 |---|---|
 | 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, the four rules folded into their sections, logos two across and colours as rows on phones, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 41 server checks, 96 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, the four rules folded into their sections, logos two across and colours as rows on phones, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 41 server checks, 96 browser checks. **Slice 3 (the studio at `/<brand>/studio/`) is built and PARKED on the `studio` git branch (21 November 2026): not merged, not uploaded.** |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -78,7 +78,7 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 ### Next step
 
-Slice 3: serve the studio from `/<slug>/studio/` using the signed-in brand's record and report exports to `/<slug>/api/log`. Stop after each slice and wait for Steve's go-ahead.
+Slice 3 is parked on the `studio` git branch; `main` matches the live site. To resume: `git checkout studio` and follow the Next step written in that branch's README.
 
 ## Build order
 
