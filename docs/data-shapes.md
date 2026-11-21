@@ -5,7 +5,7 @@ This defines what a brand and a layout are as data, so a new client never needs 
 ## The idea
 
 - **Stored:** only the decisions Steve makes in the admin.
-- **Derived:** everything else, worked out when needed. Pairings, logo colourways, surface tones, text-colour options on photos and the hero fallback are never stored, so they can never drift out of step with the palette.
+- **Derived:** everything else, worked out when needed. Pairings, logo colourways, the hub's heading and link colours, text-colour options on photos and panel colours are never stored, so they can never drift out of step with the palette.
 - **Versioned:** every save creates a new numbered version of the brand. A brand already delivered never breaks when the platform improves.
 
 ## Brand
@@ -15,15 +15,15 @@ One record per brand. Its values come from the five admin steps.
 | Field | What it holds | Admin step |
 |---|---|---|
 | slug | The address, for example forma, so the hub lives at brands.stmsmedia.co.uk/forma | Basics |
-| name, tagline, handle | Display text and the social handle | Basics |
+| name, tagline, handle | Display text and the social handle (tagline and handle optional, up to 80 characters). The tagline shows beside the name in the hub header | Basics |
 | password | One shared password for the whole brand, stored only as a hash | Basics |
 | status | draft or live | Studio and publish |
-| palette | A list of 2 to 12 colours, each with name and HEX. The first colour is the brand's main accent: it colours buttons and highlights, and it decides whether the hub and studio use a light or a dark page (see Derived). CMYK and Pantone overrides per colour, used instead of the calculated values when set | Colours |
+| palette | A list of 2 to 12 colours, each with name and HEX. The order matters: the first colour is the brand's main accent (used in the artwork, for example the price tag), and the hub's heading and link colours are the first colours in this order that read on white (see Derived). CMYK and Pantone overrides per colour, used instead of the calculated values when set: `cmyk` is four numbers from 0 to 100 (`[0, 95, 85, 0]`), `pantone` is text (`"7729 C"`) and adds a Pantone line in the hub | Colours |
 | fonts | Heading and body: family, source (Google or uploaded files), plus heading weight, case and letter-spacing. Optional `fallback` (`serif` or `sans-serif`, the default) for the moment before a font loads. Uploaded fonts list their files: `files: [{ url, weight, style }]` | Type and look |
-| look | hero (solid, tint or dark photo) and corners (sharp, soft, round or pill) | Type and look |
+| look | corners (sharp, soft, round or pill), used by the artwork only (price tags and other rounded parts). `hero` is no longer used: the hub is the same white page for every brand | Type and look |
 | logos | Primary, primary with tagline, secondary and brand mark. One master SVG each | Logos |
-| sections | On or off for Start here, Logos, Colours, Pairings, Typography, Please don't, Supporting marks, Photography, Studio | Studio and publish |
-| start_here | The brand's own wording for the Start here rules, written by Steve | Studio and publish |
+| sections | On or off for Start here, Logos, Colours, Pairings, Typography, Please don't, Supporting marks, Photography, Studio. Keys: `start`, `logos`, `colours`, `pairings`, `typography`, `dont`, `marks`, `photography`, `studio`. A section shows unless it is set to `false` | Studio and publish |
+| start_here | Optional. The brand's own wording for the Start here rules, written by Steve: a list of 1 to 6 `{ "title", "text" }`. When missing, the standard four rules are shown, with the palette and typeface counts filled in | Studio and publish |
 | studio.formats | Which of 1:1, 4:5, 9:16 and landscape are offered | Studio and publish |
 | studio.layouts | Which layouts are offered, by layout id | Studio and publish |
 | studio.photo_text_colours | Palette colours allowed for text on photos, at least one light and one dark | Studio and publish |
@@ -47,7 +47,7 @@ Example, shortened:
     "heading": { "family": "Inter", "source": "google", "weight": 700, "case": "lower", "tracking": -0.03 },
     "body": { "family": "Inter", "source": "google" }
   },
-  "look": { "hero": "solid", "corners": "sharp" },
+  "look": { "corners": "sharp" },
   "logos": { "primary": "logos/primary.svg", "tagline": "logos/tagline.svg" },
   "sections": { "start": true, "logos": true, "colours": true, "pairings": true, "studio": true },
   "studio": {
@@ -65,12 +65,11 @@ Example, shortened:
 - **Pairing rules:** from the palette. Contrast of at least 4.5:1 is approved for text, 3 to 4.5 is headlines and graphics only, below 3 is never.
 - **Logo colourways:** a logo in each palette colour that passes 3:1 on the chosen background.
 - **CMYK:** calculated from the RGB value unless an override is set.
-- **Surface tones, borders, muted text:** from the lightest and darkest palette colours.
-- **Hero fallback:** a solid hero falls back to a tint if its text would fail 4.5:1.
+- **Hub and studio page:** the same clean white page for every brand (white, near-black text, light grey cards and lines, neutral black buttons, fixed corners). These are platform values (`PAGE` in `public/studio/js/theme.js`), not brand data.
+- **Heading colour (hub):** the first palette colour, in the brand's order, that reads at 3:1 on white (headings are large, so the headlines rule applies). Used for the hero title, section headings, Start here numbers and rule titles. If no colour reaches 3:1, the page text colour.
+- **Link colour (hub and studio):** the first palette colour that reads at 4.5:1 on white. Used for links, the brand name in the header and other small brand-coloured text. If none does, the page text colour. Both are always real palette colours, never invented tints: FORMA's lime cannot be read on white, so its headings and links use Carbon.
 - **Studio text colours:** the allowed photo colours that pass 4.5:1 on the pixels under the text, with the best match chosen automatically. A colour passes when 95% of the pixels under the text reach 4.5:1, so a few stray specks are forgiven but a busy patch is not. The best match is the passing colour with the highest contrast. If none pass, export is blocked and the client is told to move the text or change the photo.
 - **Solid panel colours (Product and Details layouts):** the panel is the darkest palette colour, its text is the palette colour that reads best on it, and the price pill uses the accent (or, if the accent would be under 3:1 on the panel, the panel's text colour). If no palette colour reaches 4.5:1 on the panel, those layouts are blocked and the admin should warn.
-- **Light or dark page:** the page is light unless the accent (the first palette colour) is under 3:1 on the lightest palette colour and at least 4.5:1 on the darkest. A pale accent such as a lime therefore gets a dark page; most others get a light one. Nothing is stored, so changing the palette changes the page.
-- **Page colours:** the background is the lightest palette colour (light page) or the darkest (dark page), and the text is the other. Surface tones and borders are blends of the two. Muted text is moved only as far as it stays at 4.5:1.
 
 ## Layout
 

@@ -62,7 +62,7 @@ function route(): void
 function route_home(string $slug): void
 {
     $brand = signed_in_brand($slug);
-    if ($brand) { send_page(200, view_signed_in($brand, csrf_token())); return; }
+    if ($brand) { send_page(200, view_hub($brand, csrf_token()), [], HUB_CSP); return; }
     start_session(true);
     send_page(200, view_login($slug, csrf_token()));
 }

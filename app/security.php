@@ -23,7 +23,7 @@ const SESSION_IDLE_SECONDS = 8 * 3600;
 const SESSION_MAX_SECONDS = 24 * 3600;
 
 // Address words the site itself uses. A brand cannot take one of these as its slug.
-const RESERVED_SLUGS = ['studio', 'layouts', 'assets', 'api', 'files', 'static', 'public', 'login', 'logout', 'admin', 'app', 'storage', 'index', 'tests', 'docs', 'design', 'db', 'tools', 'www'];
+const RESERVED_SLUGS = ['studio', 'hub', 'layouts', 'assets', 'api', 'files', 'static', 'public', 'login', 'logout', 'admin', 'app', 'storage', 'index', 'tests', 'docs', 'design', 'db', 'tools', 'www'];
 
 function valid_slug(string $s): bool
 {

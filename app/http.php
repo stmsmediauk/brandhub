@@ -24,12 +24,16 @@ function security_headers(): void
 // Pages are STMS Media branded and load Inter from Google Fonts.
 const PAGE_CSP = "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 
-function send_page(int $status, string $html, array $headers = []): void
+// The signed-in hub also runs its own script (/hub/hub.js) and loads the brand's
+// fonts: from Google Fonts, or the brand's uploaded files on this site.
+const HUB_CSP = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+
+function send_page(int $status, string $html, array $headers = [], string $csp = PAGE_CSP): void
 {
     http_response_code($status);
     security_headers();
     header('Content-Type: text/html; charset=utf-8');
-    header('Content-Security-Policy: ' . PAGE_CSP);
+    header('Content-Security-Policy: ' . $csp);
     header('Cache-Control: no-store');
     foreach ($headers as $h) header($h);
     echo $html;

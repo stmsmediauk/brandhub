@@ -35,6 +35,19 @@ Run by script: `php tests/server/run.php` (see docs/server.md). It covers every 
 - [ ] The session cookie is HttpOnly and SameSite, and Secure everywhere except localhost
 - [ ] By hand on the real server: https works, the cookie shows Secure in the browser's developer tools, and a deliberately wrong database password shows only "Something went wrong"
 
+## Hub
+- [ ] Every brand gets the same clean white page; only the fonts and the heading and link colours change (Northlight: Forest; FORMA: Carbon, because its lime cannot be read on white)
+- [ ] A palette of 2 and of 12 colours: counts in Start here and Colours read correctly ("two", "twelve")
+- [ ] A palette where nothing reads (Sandstone): the hub still loads, Pairings says no colour reads, nothing crashes
+- [ ] A brand with its own Start here wording, including a single rule ("Read the rule", "Follow it")
+- [ ] A section switched off disappears from the page and the header links
+- [ ] A CMYK override and a Pantone value show instead of / as well as the calculated values
+- [ ] Every Copy button puts exactly the shown value on the clipboard (desktop and iPhone)
+- [ ] Picking colours in Pairings works by keyboard, and focus stays on the picked button
+- [ ] At phone width nothing scrolls sideways; long brand names and colour names wrap
+- [ ] The Artwork studio button is greyed out with "Coming soon" and does nothing
+- [ ] An uploaded (non-Google) font downloads only when signed in to that brand
+
 ## Devices
 - [ ] Current Chrome and Safari on desktop
 - [ ] iPhone and Android browsers, including touch drag in the studio

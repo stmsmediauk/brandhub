@@ -52,7 +52,25 @@ function validate_brand_config($b): array
     else foreach (array_values($pal) as $i => $c) {
         if (!is_array($c) || !hex_ok($c['hex'] ?? null)) $e[] = 'palette colour ' . ($i + 1) . ' has no valid HEX.';
         if (!is_array($c) || !isset($c['name']) || !is_string($c['name']) || trim($c['name']) === '') $e[] = 'palette colour ' . ($i + 1) . ' has no name.';
+        if (is_array($c) && isset($c['cmyk'])) {
+            $k = $c['cmyk'];
+            if (!is_array($k) || count($k) !== 4 || count(array_filter($k, function ($n) { return (is_int($n) || is_float($n)) && $n >= 0 && $n <= 100; })) !== 4) $e[] = 'palette colour ' . ($i + 1) . ' cmyk must be four numbers from 0 to 100, for example [0, 95, 85, 0].';
+        }
+        if (is_array($c) && isset($c['pantone']) && (!is_string($c['pantone']) || strlen($c['pantone']) > 40)) $e[] = 'palette colour ' . ($i + 1) . ' pantone must be text (up to 40 characters).';
     }
+
+    if (isset($b['sections'])) {
+        if (!is_array($b['sections'])) $e[] = 'sections must be an object of true or false values.';
+        else foreach ($b['sections'] as $k => $v) if (!is_bool($v)) $e[] = 'sections.' . $k . ' must be true or false.';
+    }
+    if (isset($b['start_here'])) {
+        $sh = $b['start_here'];
+        if (!is_array($sh) || count($sh) < 1 || count($sh) > 6) $e[] = 'start_here must be a list of 1 to 6 rules.';
+        else foreach (array_values($sh) as $i => $r) {
+            if (!is_array($r) || !isset($r['title'], $r['text']) || !is_string($r['title']) || !is_string($r['text']) || trim($r['title']) === '' || strlen($r['title']) > 80 || strlen($r['text']) > 400) $e[] = 'start_here rule ' . ($i + 1) . ' needs a title (up to 80 characters) and text (up to 400).';
+        }
+    }
+    foreach (['tagline', 'handle'] as $k) if (isset($b[$k]) && (!is_string($b[$k]) || strlen($b[$k]) > 80)) $e[] = $k . ' must be text (up to 80 characters).';
 
     foreach (['heading', 'body'] as $w) {
         $f = $b['fonts'][$w] ?? null;

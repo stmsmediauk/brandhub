@@ -18,6 +18,7 @@ import { loadBrandFonts } from '../../public/studio/js/fonts.js';
 import { makeSample, SAMPLES } from '../../public/studio/js/samples.js';
 import { drawFrame } from '../../public/studio/js/renderer.js';
 import { start } from '../../public/studio/js/main.js';
+import * as H from '../../public/hub/hub.js';
 
 const out = document.getElementById('results');
 const tests = [];
@@ -96,26 +97,17 @@ test('brand: bad records are refused with plain messages', () => {
 });
 
 // ---------------------------------------------------------------- theme
-test('theme: surfaces follow the palette; muted text always reads at 4.5:1', () => {
-  for (const k of ['light-serif', 'dark-sans']) {
-    const t = derive(BRANDS[k]);
-    ok(C.contrast(t.vars.muted, t.vars.bg) >= 4.5, k + ' muted'); ok(C.contrast(t.vars.ink, t.vars.bg) >= 4.5, k + ' ink');
+test('theme: the page is the same clean white for every brand; text and muted text read at 4.5:1', () => {
+  for (const k of Object.keys(BRANDS)) {
+    const v = derive(BRANDS[k]).vars;
+    eq(v.bg, '#FFFFFF', k); ok(C.contrast(v.ink, v.bg) >= 4.5, k + ' ink'); ok(C.contrast(v.muted, v.bg) >= 4.5, k + ' muted'); ok(C.contrast(v.onAccent, v.accent) >= 4.5, k + ' buttons');
   }
-  ok(C.luminance(derive(BRANDS['dark-sans']).vars.bg) < 0.05, 'dark brand has a dark page');
-  ok(C.luminance(derive(BRANDS['light-serif']).vars.bg) > 0.9, 'light brand has a light page');
+  const a = derive(BRANDS['dark-sans']).vars, b = derive(BRANDS['light-serif']).vars;
+  for (const k of ['bg', 'ink', 'muted', 'surface', 'surface2', 'line', 'accent', 'onAccent', 'r', 'r2', 'rb']) eq(a[k], b[k], 'page value ' + k + ' is the same for every brand');
 });
-test('theme: light or dark is derived from the palette (pale accent -> dark page; the prototype brands all come out as designed)', () => {
-  const mk = hexes => ({ palette: hexes.map((h, i) => ({ name: 'c' + i, hex: h })), fonts: { heading: { family: 'X', source: 'google' }, body: { family: 'X', source: 'google' } }, look: { corners: 'soft' } });
-  eq(derive(mk(['#C8F04A', '#0B0D0E', '#FFFFFF'])).darkPage, true, 'FORMA-style lime accent');
-  eq(derive(mk(['#2F5D43', '#FFFFFF', '#1B2A21', '#F5EFE4', '#D9803A'])).darkPage, false, 'Northlight-style dark green accent');
-  eq(derive(mk(['#FF00FF', '#0A0A0A', '#FFFFFF'])).darkPage, false, 'STMS-style magenta accent (3.1:1 on white is enough)');
-  eq(derive(mk(['#2B3BFF', '#0F1230', '#FFFFFF'])).darkPage, false, 'Kiln-style blue accent');
-  eq(derive(mk(['#C9B79C', '#8A6D55'])).darkPage, false, 'two mid-tones');
-  eq(derive(BRANDS['dark-sans']).darkPage, true); eq(derive(BRANDS['light-serif']).darkPage, false);
-});
-test('theme: nothing stored can override the derived page (a leftover look.theme is ignored)', () => {
-  const b = JSON.parse(JSON.stringify(BRANDS['light-serif'])); b.look.theme = 'dark';
-  eq(derive(b).darkPage, false); eq(derive(b).vars.bg, derive(BRANDS['light-serif']).vars.bg);
+test('theme: nothing stored can change the page (a leftover look.theme or look.hero is ignored)', () => {
+  const b = JSON.parse(JSON.stringify(BRANDS['light-serif'])); b.look.theme = 'dark'; b.look.hero = 'dark';
+  eq(JSON.stringify(derive(b).vars), JSON.stringify(derive(BRANDS['light-serif']).vars));
   ok(!JSON.stringify(BRANDS).includes('"theme"'), 'fixtures hold no theme field');
 });
 test('theme: solid panel text reads at 4.5 for the two real brands, and is flagged for the mid-tone brand', () => {
@@ -124,6 +116,54 @@ test('theme: solid panel text reads at 4.5 for the two real brands, and is flagg
 test('theme: a family name cannot break out of the CSS quotes', () => {
   const b = JSON.parse(JSON.stringify(BRANDS['dark-sans'])); b.fonts.heading.family = "X'; background:red; }";
   ok(!derive(b).vars.head.includes(';'));
+});
+
+// ---------------------------------------------------------------- hub (slice 2)
+const mkBrand = (hexes, look = {}) => ({ name: 'Test', palette: hexes.map((h, i) => ({ name: 'c' + i, hex: h })), fonts: { heading: { family: 'X', source: 'google', weight: 600 }, body: { family: 'Y', source: 'google' } }, look });
+test('hub: headings use the first palette colour that reads at 3:1 on white, links the first at 4.5:1, never an invented colour', () => {
+  for (const k of Object.keys(BRANDS)) {
+    const v = derive(BRANDS[k]).vars, hexes = BRANDS[k].palette.map(c => C.normaliseHex(c.hex));
+    ok(C.contrast(v.headInk, '#FFFFFF') >= 3, k + ' heading'); ok(C.contrast(v.accentText, '#FFFFFF') >= 4.5, k + ' link');
+    ok(hexes.includes(v.headInk) && hexes.includes(v.accentText), k + ' both are palette colours');
+    const firstHead = hexes.findIndex(h => C.contrast(h, '#FFFFFF') >= 3); eq(hexes.indexOf(v.headInk), firstHead, k + ' heading is the first that reads');
+  }
+  eq(derive(BRANDS['light-serif']).vars.headInk, '#2F5D43', 'Northlight: Forest, its first colour');
+  eq(derive(BRANDS['dark-sans']).vars.headInk, '#0B0D0E', 'FORMA: the lime cannot be read on white, so the next colour (Carbon)');
+  eq(derive(BRANDS['edge-midtones']).vars.accentText, '#8A6D55', 'Sandstone: Clay reads on white even though the palette has no readable pair');
+  const stms = derive(mkBrand(['#FF00FF', '#0A0A0A', '#FFFFFF'])).vars;
+  eq(stms.headInk, '#FF00FF', 'STMS magenta (3.1:1) is fine for big headings'); eq(stms.accentText, '#0A0A0A', 'but not for links');
+  eq(derive(mkBrand(['#FFFFFF', '#F0F0F0'])).vars.accentText, '#141414', 'a palette with nothing readable on white falls back to the page text');
+});
+test('hub: the artwork keeps the brand’s own corner style', () => {
+  eq(derive(BRANDS['light-serif']).cornerPx.rb, 999); eq(derive(BRANDS['dark-sans']).cornerPx.rb, 2);
+});
+test('hub: pairings use the same rules as the studio (approved 4.5, headline 3, never below)', () => {
+  for (const k of Object.keys(BRANDS)) for (const bg of BRANDS[k].palette) {
+    const p = H.pairingsFor(bg.hex, BRANDS[k].palette);
+    eq(p.ok.length + p.large.length + p.never.length, BRANDS[k].palette.length - 1, k + ' every other colour is listed once');
+    p.ok.forEach(o => ok(C.contrast(o.hex, bg.hex) >= 4.5)); p.large.forEach(o => { const r = C.contrast(o.hex, bg.hex); ok(r >= 3 && r < 4.5); }); p.never.forEach(o => ok(C.contrast(o.hex, bg.hex) < 3));
+  }
+  eq(H.pairingsFor('#C8F04A', BRANDS['dark-sans'].palette).ok[0].name, BRANDS['dark-sans'].palette.find(c => c.hex.toUpperCase() === '#0B0D0E').name, 'best first');
+});
+test('hub: standard Start here rules count the palette and the typefaces; the brand’s own wording replaces them', () => {
+  const r = H.startRules(BRANDS['light-serif']); eq(r.length, 4); eq(r[1].title, 'Only the five palette colours'); ok(r[3].text.startsWith('Two typefaces'));
+  ok(H.startRules(BRANDS['dark-sans'])[3].text.startsWith('One typeface'), 'FORMA uses one family for both');
+  const own = Object.assign({}, BRANDS['light-serif'], { start_here: [{ title: 'Pine first', text: 'Lead with Forest.' }, { title: '', text: 'ignored' }, 'junk'] });
+  eq(H.startRules(own).length, 1); eq(H.startRules(own)[0].title, 'Pine first');
+});
+test('hub: sections show unless switched off', () => {
+  ok(H.sectionOn({}, 'colours')); ok(H.sectionOn({ sections: { studio: true } }, 'pairings')); ok(!H.sectionOn({ sections: { pairings: false } }, 'pairings'));
+});
+test('hub: CMYK is calculated from RGB unless the colour sets its own; Pantone only when set', () => {
+  eq(C.cmykFromHex('#FFFFFF').join(','), '0,0,0,0'); eq(C.cmykFromHex('#000000').join(','), '0,0,0,100'); eq(C.cmykFromHex('#FF0000').join(','), '0,100,100,0');
+  eq(C.cmykFor({ hex: '#FF0000', cmyk: [0, 95, 85, 0] }).join(','), '0,95,85,0'); eq(C.cmykFor({ hex: '#FF0000', cmyk: [1, 2] }).join(','), '0,100,100,0', 'a bad override is ignored');
+  const m = H.hubModel(Object.assign({}, BRANDS['light-serif'], { palette: [{ name: 'A', hex: '#2F5D43', pantone: '7729 C' }, { name: 'B', hex: '#FFFFFF' }] }));
+  eq(m.palette[0].values.map(v => v[0]).join(','), 'HEX,RGB,CMYK,Pantone'); eq(m.palette[1].values.length, 3); eq(m.palette[0].values[1][1], '47, 93, 67');
+});
+test('hub: font downloads: Google fonts link to Google, uploaded files come from the brand’s own files', () => {
+  eq(H.fontDownloads({ family: 'DM Sans', source: 'google' }, '/x/files/')[0].href, 'https://fonts.google.com/specimen/DM+Sans');
+  const up = H.fontDownloads({ family: 'Brand', source: 'uploaded', files: [{ url: 'fonts/Brand Bold.woff2', weight: 700 }, { url: 'fonts/b.woff2', weight: 400, style: 'italic' }] }, '/acme/files/');
+  eq(up[0].href, '/acme/files/fonts/Brand%20Bold.woff2'); eq(up[0].label, 'Download Bold'); eq(up[1].label, 'Download Regular italic'); ok(up[0].download);
 });
 
 // ---------------------------------------------------------------- layout engine (stand-in measuring)
@@ -432,11 +472,13 @@ for (const key of ['dark-sans', 'light-serif']) {
     const s2 = await start({ root, brandUrl: 'fixtures/' + key + '.json', layoutsBase: '../../public/layouts/', assetBase: '', hubUrl: '', samples: true });
     await frames(); eq(s2.store.get().values.headline, 'Remember me'); eq(s2.store.get().format, '9:16'); ok(/Restored/.test(s2.store.get().status));
   });
-  test('studio [' + key + ']: every control carries the brand look (fonts and colours come from the variables)', async () => {
+  test('studio [' + key + ']: the page is the clean white look, with the brand’s font and colour on its name', async () => {
     const { s, root } = await openStudio(key);
     const cs = getComputedStyle(root.querySelector('.brand-name'));
     ok(cs.fontFamily.includes(s.brand.fonts.heading.family), 'heading font ' + cs.fontFamily);
-    eq(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toUpperCase(), s.brand.palette[0].hex);
+    eq(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toUpperCase(), '#141414', 'buttons are the same neutral for every brand');
+    const want = derive(s.brand).vars.accentText; const rgb = C.parseHex(want).join(', ');
+    eq(cs.color, 'rgb(' + rgb + ')', 'the brand name is in the brand’s link colour');
   });
 }
 test('studio [edge-midtones]: a brand with no readable panel colour cannot export panel layouts', async () => {

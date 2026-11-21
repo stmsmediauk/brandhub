@@ -67,12 +67,35 @@ function view_message(string $title, string $text): string
     return page_shell($title, '<div class="wrap">' . hero_panel() . '<section class="pane">' . $box . '</section></div>');
 }
 
-// Placeholder for the signed-in page until the hub is built (slice 2).
-function view_signed_in(array $brand, string $csrf): string
+// The signed-in hub. PHP sends the header (with the sign-out form) and the brand's own
+// record; /hub/hub.js draws the sections from it, in the brand's look. The record is
+// the same one /api/brand.json gives, for this signed-in brand only.
+function view_hub(array $brand, string $csrf): string
 {
-    $name = (string)(json_decode((string)$brand['config'], true)['name'] ?? $brand['slug']);
-    $box = '<div class="box"><h1>' . h($name) . '</h1><p class="muted">You are signed in. The brand hub is coming next.</p>'
-        . '<form method="post" action="/' . h((string)$brand['slug']) . '/logout" style="max-width:none">'
-        . '<input type="hidden" name="csrf" value="' . h($csrf) . '"><button class="ghost" type="submit">Sign out</button></form></div>';
-    return page_shell($name . ' brand hub', '<div class="wrap">' . hero_panel() . '<section class="pane">' . $box . '</section></div>');
+    $record = brand_json_for_client($brand);
+    $slug = (string)$brand['slug'];
+    $name = (string)($record['name'] ?? $slug);
+    $tag = isset($record['tagline']) && is_string($record['tagline']) ? $record['tagline'] : '';
+    // JSON_HEX_* turns < > & ' " into \u escapes, so nothing in the record can end the script block.
+    $json = json_encode($record, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $base = '/' . rawurlencode($slug) . '/';
+
+    $header = '<header class="top">'
+        . '<a class="brand" href="#top"><span class="brand-name head">' . h($name) . '</span>'
+        . ($tag !== '' ? '<span class="brand-tag">' . h($tag) . '</span>' : '') . '</a>'
+        . '<nav class="nav" id="hub-nav" aria-label="Brand hub"></nav>'
+        . '<div class="actions" id="hub-actions">'
+        . '<form method="post" action="' . h($base) . 'logout"><input type="hidden" name="csrf" value="' . h($csrf) . '">'
+        . '<button class="btn btn-ghost" type="submit">Sign out</button></form></div></header>';
+
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<meta name="robots" content="noindex, nofollow"><title>' . h($name) . ' brand hub</title>'
+        . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        . '<link rel="stylesheet" href="/hub/hub.css">'
+        . '<script type="application/json" id="brand-data">' . $json . '</script>'
+        . '<script type="module" src="/hub/hub.js"></script>'
+        . '</head><body class="hub-loading">' . $header
+        . '<main class="main" id="top"><div id="hub" data-files="' . h($base . 'files/') . '"></div></main>'
+        . '<noscript><style>body.hub-loading{visibility:visible}</style><p style="padding:24px">Your brand hub needs JavaScript switched on.</p></noscript>'
+        . '</body></html>';
 }

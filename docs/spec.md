@@ -50,7 +50,7 @@ The target is a new brand's hub live in about an hour. Studio layouts are a sepa
 
 **Bespoke look per client**
 
-One carefully designed layout serves every client, and each brand supplies its own look: palette, heading and body fonts, logos, corner and button style, and hero treatment (solid colour, soft tint or dark photo style). Backgrounds, borders and text colours are derived from the palette, and a primary colour too light for a solid hero falls back to a tint automatically. There is no custom CSS field, since Steve does not write CSS.
+One carefully designed layout serves every client, on a clean white page that is the same for every brand, so the hub stays tidy and nothing has to be designed per client. The brand comes through its heading and body fonts, and two text colours taken from its palette: large headings use the first palette colour that reads at 3:1 on white, links and highlights the first that reads at 4.5:1. The brand's colours, logos and fonts appear as content in their sections. The studio page around the artwork is the same white; the artwork itself keeps the brand's full look, including its corner style. There is no custom CSS field, since Steve does not write CSS. (Decided 21 November 2026, replacing a fully branded hub with a light or dark page and a hero treatment.)
 
 Steve is the only admin for now.
 

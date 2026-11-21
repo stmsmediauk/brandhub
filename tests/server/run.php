@@ -370,6 +370,24 @@ test('stored text is escaped on the page (a hostile brand name cannot run anythi
     has($page, '&lt;img src=x onerror=alert(1)&gt;'); lacks($page, '<img src=x');
 });
 
+test('hub page: only when signed in, carries only this brand’s record, and runs only the site’s own script', function () {
+    eq(strpos((new Browser)->get('/northlight/')['body'], 'brand-data'), false, 'no record before signing in');
+    $b = signed_in('northlight'); $r = $b->get('/northlight/'); $page = $r['body'];
+    ok(preg_match('#<script type="application/json" id="brand-data">(.*?)</script>#s', $page, $m) === 1, 'record block missing');
+    $j = json_decode($m[1], true); eq($j['slug'], 'northlight'); eq($j['name'], 'Northlight');
+    foreach (['FORMA', '"forma"', 'Sandstone', '$2y$', 'password'] as $bad) lacks($m[1], $bad, 'record');
+    has($page, '<script type="module" src="/hub/hub.js"></script>'); has($page, 'Sign out'); has($page, 'name="csrf"');
+    $csp = $r['headers']['content-security-policy'][0]; has($csp, "script-src 'self'"); lacks($csp, 'unsafe-eval'); lacks($csp, "script-src 'self' 'unsafe-inline'");
+});
+test('hub page: a hostile value in the record cannot end the script block', function () {
+    $b = new Browser; $b->login('xss', 'xss-password-1234'); $page = $b->get('/xss/')['body'];
+    preg_match('#<script type="application/json" id="brand-data">(.*?)</script>#s', $page, $m);
+    lacks($m[1], '<'); lacks($m[1], '>'); eq(json_decode($m[1], true)['name'], '<img src=x onerror=alert(1)> & "quotes"');
+});
+test('"hub" is reserved: no brand can take the address the hub’s own files use', function () {
+    ok(reserved_slug('hub')); eq((new Browser)->get('/hub/')['status'], 404);
+});
+
 // ================================================================ usage log
 test('usage log: login, export and blocked export are recorded; a visitor cannot forge anything else', function () {
     global $pdo; $pdo->exec('DELETE FROM usage_log'); $f = signed_in('forma');

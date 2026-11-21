@@ -15,7 +15,7 @@ A white-label brand hub and artwork studio for STMS Media clients. Read `README.
 
 ## Rules that must never be broken
 1. **Brand data is data.** Nothing about a specific client (colours, fonts, names, layouts) is written into code. A new client must never need a code change.
-2. **Derived values are never stored.** Pairings, logo colourways, surface tones, text-colour options and the hero fallback are always calculated from the palette. Store only what Steve decides in the admin.
+2. **Derived values are never stored.** Pairings, logo colourways, the hub's heading and link colours, text-colour options and panel colours are always calculated from the palette. Store only what Steve decides in the admin.
 3. **Isolation.** A logged-in client can reach only their own brand's pages and files, enforced on the server. Never rely on the browser to hide another brand.
 4. **Passwords** are stored only as hashes (`password_hash`) and checked on the server. One shared password per brand. The platform sends no email.
 5. **Contrast rules (WCAG ratios):** at least 4.5 is approved for text, 3 to 4.5 is headlines and graphics only, below 3 is never. The studio offers only options that pass.
@@ -27,7 +27,7 @@ A white-label brand hub and artwork studio for STMS Media clients. Read `README.
 
 ## Decisions already made
 - One domain, a path per brand: `brands.stmsmedia.co.uk/<brand>`. The login page is always STMS Media branded.
-- One fixed, well-designed hub layout. The brand supplies the look: palette (2 to 12 colours), fonts, logos, corner style, hero treatment.
+- One fixed, well-designed hub layout on a clean white page, the same for every brand (decided 21 November 2026). The brand shows through its fonts and two text colours from its palette (headings and links), plus its own colours, logos and fonts as content. The studio page around the artwork is the same white. The artwork itself keeps the brand's full look, including its corner style. Palette is 2 to 12 colours.
 - Admin is five steps: Basics, Colours, Type and look, Logos, Studio and publish. A live preview appears only on Type and look. There is no pairing matrix screen.
 - CMYK is calculated from RGB, with optional CMYK and Pantone overrides per colour.
 - Photo library is a Dropbox folder link per brand, shown as an Open photo library button in the studio. No Dropbox API for now.

@@ -1,8 +1,26 @@
-// Works out the page's colours, and the colours of solid panels, from the
-// brand's palette. Nothing here is stored: it is recalculated every time.
-import { APPROVED, HEADLINE, contrast, mix, lightest, darkest, bestOn, normaliseHex } from './colour.js';
+// Works out the page's look, and the colours of solid panels in the artwork, from
+// the brand record. Nothing here is stored: it is recalculated every time.
+//
+// The hub and the studio page are the same clean white page for every brand. The
+// brand shows through its fonts and two text colours taken from its palette. The
+// artwork itself (panels, price tags, corners) still uses the brand's full look.
+import { APPROVED, HEADLINE, contrast, lightest, darkest, bestOn, normaliseHex } from './colour.js';
 
-// Corner vocabulary (platform words, not brand data).
+// The page: the same for every brand (platform values, not brand data).
+export const PAGE = {
+  bg: '#FFFFFF',
+  ink: '#141414',
+  muted: '#5C5C5C',
+  surface: '#F5F5F4',
+  surface2: '#EBEBE9',
+  line: '#DEDEDB',
+  accent: '#141414',     // filled buttons and selected options
+  onAccent: '#FFFFFF',
+  r: '8px', r2: '16px', rb: '8px'
+};
+
+// Corner vocabulary for the artwork (platform words, not brand data): the price
+// tag and other rounded parts of a layout follow the brand's chosen style.
 const CORNERS = {
   sharp: { r: 2,  rb: 2 },
   soft:  { r: 8,  rb: 8 },
@@ -18,41 +36,35 @@ function cssFamily(f) {
   return `'${name}',${f.fallback === 'serif' ? 'serif' : 'sans-serif'}`;
 }
 
+// The first palette colour, in the brand's own order, that reads at `min` on the
+// page. Falls back to the page's text colour if none does.
+export function firstReadable(hexes, min) {
+  return hexes.find(h => contrast(h, PAGE.bg) >= min) || PAGE.ink;
+}
+
 export function derive(brand) {
   const hexes = brand.palette.map(c => normaliseHex(c.hex));
-  const light = lightest(hexes), dark = darkest(hexes);
-  const accent = hexes[0];
-  // Light or dark page is worked out, never stored. The page is light unless the
-  // accent cannot be used on the lightest colour (under 3:1) but reads on the
-  // darkest (4.5:1 or more). A pale accent such as a lime needs a dark page.
-  const darkPage = contrast(accent, light) < HEADLINE && contrast(accent, dark) >= APPROVED;
-  const bg = darkPage ? dark : light;
-  const ink = darkPage ? light : dark;
-  const onAccent = bestOn(accent, [light, dark]);
-
-  // Muted text moves towards the background only as far as it stays readable.
-  let muted = mix(ink, bg, 0.35);
-  for (let t = 0.35; contrast(muted, bg) < APPROVED && t > 0; t -= 0.05) muted = mix(ink, bg, Math.max(t, 0));
-
   const corners = CORNERS[(brand.look && brand.look.corners)] || CORNERS.soft;
   const heading = brand.fonts.heading, body = brand.fonts.body;
 
-  const vars = {
-    bg, ink, accent, onAccent, muted,
-    surface: mix(bg, ink, 0.05),
-    surface2: mix(bg, ink, 0.1),
-    line: mix(bg, ink, 0.18),
-    r: corners.r + 'px',
-    rb: corners.rb + 'px',
+  const vars = Object.assign({}, PAGE, {
+    // Large headings: the first palette colour at 3:1 (headlines and graphics).
+    headInk: firstReadable(hexes, HEADLINE),
+    // Links, numbers and other brand-coloured small text: the first at 4.5:1.
+    accentText: firstReadable(hexes, APPROVED),
     head: cssFamily(heading),
     body: cssFamily(body),
     headW: String(heading.weight || 600),
     headTrack: (heading.tracking || 0) + 'em',
-    headCase: CASES[heading.case] || 'none'
-  };
+    headCase: CASES[heading.case] || 'none',
+    mono: 'ui-monospace,SFMono-Regular,Menlo,monospace'
+  });
 
   // Solid panel (product and details layouts): darkest palette colour,
   // with the best-reading palette colour for the text on it.
+  const accent = hexes[0];
+  const light = lightest(hexes), dark = darkest(hexes);
+  const onAccent = bestOn(accent, [light, dark]);
   const panelBg = dark;
   const panelText = bestOn(panelBg, hexes);
   const panelRatio = contrast(panelText, panelBg);
@@ -62,5 +74,5 @@ export function derive(brand) {
     : { bg: panelText, text: panelBg };
   const panel = { bg: panelBg, text: panelText, ratio: panelRatio, ok: panelRatio >= APPROVED, pillBg: pill.bg, pillText: pill.text };
 
-  return { vars, panel, cornerPx: corners, darkPage };
+  return { vars, panel, cornerPx: corners };
 }

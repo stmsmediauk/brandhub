@@ -74,3 +74,27 @@ export function bestOn(on, candidates) {
   }
   return best;
 }
+
+// "R, G, B" for display.
+export function rgbString(hex) {
+  const rgb = parseHex(hex);
+  return rgb ? rgb.join(', ') : '';
+}
+
+// CMYK percentages calculated from RGB (a simple conversion with no colour profile).
+// A brand can set its own CMYK per colour instead; see cmykFor.
+export function cmykFromHex(hex) {
+  const rgb = parseHex(hex);
+  if (!rgb) return null;
+  const [r, g, b] = rgb.map(v => v / 255);
+  const k = 1 - Math.max(r, g, b);
+  if (k >= 1) return [0, 0, 0, 100];
+  return [(1 - r - k) / (1 - k), (1 - g - k) / (1 - k), (1 - b - k) / (1 - k), k].map(x => Math.round(x * 100));
+}
+
+// The CMYK to show for a palette colour: its own override when set, otherwise calculated.
+export function cmykFor(colour) {
+  const o = colour && colour.cmyk;
+  if (Array.isArray(o) && o.length === 4 && o.every(n => typeof n === 'number' && n >= 0 && n <= 100)) return o.map(n => Math.round(n));
+  return cmykFromHex(colour && colour.hex);
+}

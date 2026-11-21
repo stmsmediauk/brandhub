@@ -26,12 +26,12 @@ This replaces the old brands.stmsmedia.co.uk hub. FORMA Padel is the pilot, but 
 
 ## Where we are (update this at the end of every session)
 
-Last updated at the end of build step 2, slice 1.
+Last updated at the end of build step 2, slice 2 (built and tested locally, not yet committed or uploaded).
 
 | Build step | State |
 |---|---|
-| 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Light or dark page is derived from the palette. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool, with 35 server checks. **Slice 2 (the hub pages) and slice 3 (the studio served from the signed-in brand) are not started.** |
+| 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and tested locally:** header, hero, Start here, Colours, Pairings and Typography, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 38 server checks, 89 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -53,12 +53,13 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 ### Decisions made along the way (all recorded in `docs/`)
 
-- The first palette colour is the main accent. Light or dark page is derived from it (pale accent gives a dark page). Nothing derivable is stored.
+- The hub and studio page are the same clean white for every brand (decided 21 November 2026, replacing the light or dark branded page). The brand shows through its fonts, and headings and links in the first palette colours that read on white (3:1 and 4.5:1). The artwork keeps the brand's full look and corner style. Nothing derivable is stored.
 - Accented Latin letters are allowed. Only characters the brand's own font cannot draw, emoji, symbols and other scripts are stripped.
 - Export is blocked when: text does not fit, the photo is enlarged beyond 133%, fonts have not loaded, there is no photo, or no allowed text colour reads clearly on the photo.
 - The usage log holds brand, event and time only. No visitor address is stored. Wrong-password slowing keeps a keyed hash of the address for up to a day.
 - Brands are added by the tool's SQL pasted into phpMyAdmin; passwords are typed at a hidden prompt or generated once, never put on the command line.
 - Routing is in one file (`app/routes.php`) behind a single rewrite rule, so it can change if StackCP needs something different.
+- The hub page carries the signed-in brand's own record; `public/hub/hub.js` draws the sections from it. The heading and link colours are derived in `theme.js`, never stored. `hub` is a reserved address.
 
 ### Open questions and things not yet checked
 
@@ -69,12 +70,14 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 - **Not yet tried on the live site:** the full break-it checklist. `northlight` is a test brand: remove it before real clients are added.
 - **Draft versus live:** both can sign in for now. Decide what a draft brand means to clients when the admin is built.
 - **Never tested:** the studio in Safari and on iPhone (only sign-in has been tried there), Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message.
-- **Not built:** carousel layout, logo files in the studio's wordmark layout, real logo colourways, the hub pages, the admin.
+- **Hub sections not built yet:** Logos, Please don't and Supporting marks (they need logo files, which nothing can upload yet). The Artwork studio button is greyed out with "Coming soon" until slice 3.
+- `look.hero` in brand records is no longer used (the hub is white for every brand); `look.corners` is used by the artwork only. The admin's Type and look step can drop the hero choice.
+- **Not built:** carousel layout, logo files in the studio's wordmark layout, real logo colourways, the admin.
 - The STMS palette and the FORMA assets in `design/` are placeholders. The three test brands in `tests/studio/fixtures/` are not real clients.
 
 ### Next step
 
-Slice 2: the hub pages, built from `design/Main.dc.html` against the test brands. Start with the sections that need no logo files (Start here, Colours, Pairings, Typography), reusing the studio's colour and theme modules so derived values have one source. Then slice 3: serve the studio from `/<slug>/studio/` using the signed-in brand's record and report exports to `/<slug>/api/log`. Stop after each slice and wait for Steve's go-ahead.
+Steve reviews slice 2. Once agreed: commit, upload with the routine (`public/hub/`, `public/studio/js/colour.js` and `theme.js`, which the hub imports, plus `app/`), then check the live hub signed in to `northlight`. Then slice 3: serve the studio from `/<slug>/studio/` using the signed-in brand's record and report exports to `/<slug>/api/log`. Stop after each slice and wait for Steve's go-ahead.
 
 ## Build order
 

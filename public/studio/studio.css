@@ -15,7 +15,7 @@ h2 { margin: 0; }
 .top { border-bottom: 1px solid var(--line); }
 .top-in { max-width: 1200px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; }
 .top-id { display: flex; align-items: baseline; gap: 12px; }
-.brand-name { font-family: var(--head); font-weight: var(--headW); letter-spacing: var(--headTrack); text-transform: var(--headCase); font-size: 19px; }
+.brand-name { color: var(--accentText, var(--ink)); font-family: var(--head); font-weight: var(--headW); letter-spacing: var(--headTrack); text-transform: var(--headCase); font-size: 19px; }
 .sub { color: var(--muted); font-size: 14px; }
 .small-note { display: none; margin: 0; padding: 12px 16px; background: var(--surface2); font-size: 14px; }
 

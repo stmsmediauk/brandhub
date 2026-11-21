@@ -9,14 +9,14 @@ Every address that is not a real file goes to `public/index.php` (one rewrite ru
 | Address | What it does |
 |---|---|
 | `/` | A plain STMS Media page. No list of brands. |
-| `/<slug>/` | The sign-in page, or the hub page when signed in to that brand. |
+| `/<slug>/` | The sign-in page, or the hub page when signed in to that brand. The hub page carries that brand's record (as `/api/brand.json` gives it) and runs `/hub/hub.js`, with its own security policy allowing only the site's own script and the brand's fonts. |
 | `POST /<slug>/login` | Checks the password. |
 | `POST /<slug>/logout` | Signs out. |
 | `/<slug>/api/brand.json` | The signed-in brand's record. |
 | `POST /<slug>/api/log` | The studio reporting `export` or `blocked_export`. |
 | `/<slug>/files/<path>` | The brand's own logos and fonts, from `storage/brands/<slug>/`. |
 
-Static files under `public/` (the studio's scripts and the layouts) are served directly and are the same for every brand. Because of that, a brand cannot use `studio`, `layouts`, `api`, `files` and similar words as its address (`RESERVED_SLUGS` in `app/security.php`).
+Static files under `public/` (the studio's and the hub's scripts, and the layouts) are served directly and are the same for every brand. Because of that, a brand cannot use `studio`, `hub`, `layouts`, `api`, `files` and similar words as its address (`RESERVED_SLUGS` in `app/security.php`).
 
 ## How isolation works
 
@@ -77,4 +77,4 @@ Confirmed there: `.htaccess` rewriting works, `storage/` is writable by PHP, the
 
 ## Not covered yet
 
-The hub pages, the studio served from the signed-in brand (the studio page still loads its brand from a path that does not exist yet), brand file uploads, and the admin screen. Draft versus live is not enforced.
+The hub sections that need logo files (Logos, Please don't, Supporting marks), the studio served from the signed-in brand (the studio page still loads its brand from a path that does not exist yet), brand file uploads, and the admin screen. Draft versus live is not enforced.
