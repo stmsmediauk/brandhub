@@ -5,7 +5,7 @@ A white-label brand hub and artwork studio for STMS Media clients. Read `README.
 
 ## How to work with Steve
 - Steve prefers to discuss and agree an idea before anything is built. Propose first, build once he agrees.
-- Steve builds in VS Code and deploys with FileZilla. He does not write CSS. Keep instructions plain and give exact file lists for uploads.
+- Steve builds in VS Code. Deploys go over SSH (`stms20i`) using the upload routine in `README.md`, and only after Steve approves the file list. FileZilla is the fallback. He does not write CSS. Keep instructions plain and give exact file lists for uploads.
 - Say plainly when something has not been tested. Never claim it works unless it was run.
 
 ## Stack and limits

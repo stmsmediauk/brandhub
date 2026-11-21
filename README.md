@@ -62,7 +62,7 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 ### Open questions and things not yet checked
 
-- **On StackCP (Steve is testing):** does the `.htaccess` rewrite work, which PHP version is it, is `storage/` writable. The code is written for PHP 7.4+ but has only been run on PHP 8.5.
+- **On StackCP (Steve is testing):** does the `.htaccess` rewrite work, is `storage/` writable. The host's command line runs PHP 8.0.30 (the website's PHP version is not yet confirmed). The code is written for PHP 7.4+ but has only been run on PHP 8.5.
 - **Draft versus live:** both can sign in for now. Decide what a draft brand means to clients when the admin is built.
 - **Never tested:** Safari, iPhone and Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message, https and the Secure cookie on the real host.
 - **Not built:** carousel layout, logo files in the studio's wordmark layout, real logo colourways, the hub pages, the admin.
@@ -82,4 +82,16 @@ Slice 2: the hub pages, built from `design/Main.dc.html` against the test brands
 
 ## Deploy
 
-Hosting is Steve's StackCP plan (PHP and MySQL). Deploy by FileZilla straight to brands.stmsmedia.co.uk. Nobody uses the old hub, so there is no staging site. Git keeps every earlier version. Before an upload, list the changed files (`git status` or `git diff --name-only`) so exactly those are sent.
+Hosting is Steve's 20i (StackCP) plan, PHP and MySQL. The site is served from `public_html/brands` on that host. `public_html` also holds the rest of stmsmedia.co.uk (portfolio, briefs, planner and more), so **nothing is ever uploaded outside the brands folder**. Nobody uses the old hub (Steve has a backup), so there is no staging site. Git keeps every earlier version.
+
+Uploads go over SSH with rsync. The Mac has an SSH shortcut called `stms20i` (key `~/.ssh/stms_20i`, passphrase in the macOS keychain). FileZilla still works as a fallback.
+
+The agreed upload routine:
+
+1. **Folder lock.** Only the brands folder (and, once agreed, a private folder beside `public_html` for `app/` and `storage/`) is ever written to.
+2. **Practice run.** An rsync dry run shows exactly which files would be sent. Steve approves the list.
+3. **Backup.** The live copies of those files are copied to a dated folder on the Mac first.
+4. **Upload, then check.** Only the approved files go up, then the live page is opened to confirm it works.
+5. **Never uploaded:** `config.php`, `config.test.php`, `.git`, `design/`, `tests/`, `docs/`.
+
+Not yet decided: the exact server layout. `app/` and `storage/` should sit outside `public_html` so they cannot be opened in a browser. Propose it before the first deploy.
