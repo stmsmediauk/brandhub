@@ -196,6 +196,11 @@ test('logos: the logo list keeps good entries, drops path tricks, and finds the 
   eq(list.map(l => l.id).join(','), 'a,d'); eq(L.mainLogo(list).id, 'd'); eq(L.logoList({}).length, 0);
   eq(L.logoList(BRANDS['dark-sans']).length, 4, 'FORMA test brand has four logos');
 });
+test('logos: the header uses the widest logo the brand has; a logo that failed to load is skipped', () => {
+  const mk = vb => L.cleanSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + vb + '"><path d="M0 0h1v1z"/></svg>');
+  const items = [{ logo: { id: 'primary' }, svg: mk('0 0 708 433') }, { logo: { id: 'landscape' }, svg: mk('0 0 1588 98') }, { logo: { id: 'broken' }, svg: null }, { logo: { id: 'mark' }, svg: mk('0 0 214 186') }];
+  eq(H.headerLogoPick(items).logo.id, 'landscape'); eq(H.headerLogoPick([{ logo: { id: 'x' }, svg: null }]), null);
+});
 test('logos: file names are safe and readable', () => {
   eq(L.fileName('forma', 'wordmark-stacked', 'Carbon', 'png'), 'forma_wordmark-stacked_carbon.png');
   eq(L.fileName('café', 'primary', 'Deep Blue / 2', 'svg'), 'cafe_primary_deep-blue-2.svg');

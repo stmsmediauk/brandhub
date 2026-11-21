@@ -94,6 +94,16 @@ function validate_brand_config($b): array
         $f = $b['fonts'][$w] ?? null;
         if (!is_array($f) || empty($f['family']) || !is_string($f['family'])) $e[] = 'the ' . $w . ' font needs a family.';
         elseif (!in_array($f['source'] ?? null, ['google', 'uploaded'], true)) $e[] = 'the ' . $w . ' font source must be google or uploaded.';
+        elseif ($f['source'] === 'uploaded') {
+            $files = $f['files'] ?? null;
+            if (!is_array($files) || !$files || $files !== array_values($files)) $e[] = 'the ' . $w . ' font is uploaded, so it needs a list of files.';
+            else foreach ($files as $i => $file) {
+                $n = 'the ' . $w . ' font file ' . ($i + 1);
+                if (!is_array($file) || !isset($file['url']) || !is_string($file['url']) || !preg_match('#^[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*\.(woff2?|otf|ttf)$#i', $file['url']) || strpos($file['url'], '..') !== false) $e[] = $n . ' needs a url: a plain path to a .woff2, .woff, .otf or .ttf in the brand\'s folder, for example fonts/Brand-Regular.otf.';
+                if (is_array($file) && isset($file['weight']) && (!is_int($file['weight']) || $file['weight'] < 100 || $file['weight'] > 900)) $e[] = $n . ' weight must be a number from 100 to 900.';
+                if (is_array($file) && isset($file['style']) && !in_array($file['style'], ['normal', 'italic'], true)) $e[] = $n . ' style must be normal or italic.';
+            }
+        }
     }
 
     $s = $b['studio'] ?? [];

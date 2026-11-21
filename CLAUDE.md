@@ -28,6 +28,7 @@ A white-label brand hub and artwork studio for STMS Media clients. Read `README.
 ## Decisions already made
 - One domain, a path per brand: `brands.stmsmedia.co.uk/<brand>`. The login page is always STMS Media branded.
 - One fixed, well-designed hub layout on a clean white page, the same for every brand (decided 21 November 2026). The brand shows through its fonts and two text colours from its palette (headings and links), plus its own colours, logos and fonts as content. The studio page around the artwork is the same white. The artwork itself keeps the brand's full look, including its corner style. Palette is 2 to 12 colours.
+- The hub's header is sticky and shows the brand's widest logo, in the brand's heading colour; the logo appears only there (not in the intro). Buttons are plain and crisp (liquid glass was tried and dropped: on a white page it reads as a blurred outline). The hub is compact and minimal: a slim intro row, not a big hero, and Start here as four short rules side by side. (Decided 21 November 2026.)
 - Admin is five steps: Basics, Colours, Type and look, Logos, Studio and publish. A live preview appears only on Type and look. There is no pairing matrix screen.
 - CMYK is calculated from RGB, with optional CMYK and Pantone overrides per colour.
 - Photo library is a Dropbox folder link per brand, shown as an Open photo library button in the studio. No Dropbox API for now.

@@ -425,6 +425,11 @@ test('add-brand checks: logo lists, Start here wording, sections, CMYK and Panto
     $bad['logos'][0]['file'] = '../../config.php'; $bad['logos'][1]['id'] = 'primary'; $bad['logos'][2]['kind'] = 'hero'; $bad['logos'][3]['name'] = '';
     $e = implode(' | ', validate_brand_config($bad));
     has($e, 'logo 1 needs a file'); has($e, 'repeats the id "primary"'); has($e, 'logo 3 kind'); has($e, 'logo 4 needs a name');
+    $up = $good; $up['fonts']['body'] = ['family' => 'Brand', 'source' => 'uploaded', 'files' => [['url' => 'fonts/Brand-Regular.otf', 'weight' => 400]]];
+    eq(validate_brand_config($up), [], 'an uploaded font with its file');
+    $up['fonts']['body']['files'] = [['url' => '../secret.otf', 'weight' => 950, 'style' => 'wonky']];
+    $e2 = implode(' | ', validate_brand_config($up)); has($e2, 'needs a url'); has($e2, 'weight must be'); has($e2, 'style must be');
+    $up['fonts']['body']['files'] = []; has(implode(' ', validate_brand_config($up)), 'needs a list of files');
     $bad2 = $good; $bad2['logos'] = ['primary' => 'logos/primary.svg'];
     has(implode(' ', validate_brand_config($bad2)), 'logos must be a list');
 });

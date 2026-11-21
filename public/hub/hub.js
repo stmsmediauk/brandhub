@@ -4,7 +4,7 @@
 // and the studio can never disagree. Nothing worked out here is stored.
 import { contrast, classify, bestOn, lightest, darkest, normaliseHex, rgbString, cmykFor } from '../studio/js/colour.js';
 import { derive } from '../studio/js/theme.js';
-import { logoList, mainLogo, colourways, recolour, svgText, pngBlob, fileName, download, loadLogo } from './logos.js';
+import { logoList, mainLogo, colourways, recolour, svgText, pngBlob, fileName, download, loadLogo, aspect } from './logos.js';
 
 // ---------------------------------------------------------------- pure helpers (tested)
 
@@ -114,25 +114,42 @@ function studioButton(cls) {
     'Artwork studio', el('span', { class: 'soon' }, 'Coming soon'));
 }
 
+// The logo for the slim header bar: the widest one the brand has (a landscape
+// wordmark if there is one), so it reads at a small height.
+export function headerLogoPick(items) {
+  const ok = items.filter(i => i.svg);
+  if (!ok.length) return null;
+  return ok.reduce((best, i) => (aspect(i.svg) > aspect(best.svg) ? i : best), ok[0]);
+}
+
+function placeLogo(holder, svg, hex, label, cls) {
+  const art = document.importNode(recolour(svg, hex), true);
+  art.setAttribute('class', cls); art.setAttribute('role', 'img'); art.setAttribute('aria-label', label);
+  art.style.aspectRatio = String(aspect(svg));   // keeps its shape when only the height is set
+  holder.replaceChildren(art);
+}
+
 // ---------------------------------------------------------------- sections
 
 function heroSection(brand, model) {
   const btns = [];
-  if (sectionOn(brand, 'studio')) btns.push(studioButton('btn hero-btn'));
-  if (sectionOn(brand, 'start')) btns.push(el('a', { class: 'btn hero-ghost', href: '#start' }, (model.rules.length === 1 ? 'Read the rule' : 'Read the ' + numberWord(model.rules.length) + ' rules')));
+  if (sectionOn(brand, 'studio')) btns.push(studioButton('btn btn-outline'));
+  if (sectionOn(brand, 'start')) btns.push(el('a', { class: 'btn btn-dark', href: '#start' }, model.rules.length === 1 ? 'Read the rule' : 'Read the ' + numberWord(model.rules.length) + ' rules'));
   return el('section', { class: 'hero', 'aria-label': 'Welcome' },
-    el('span', { class: 'eyebrow hero-eyebrow' }, 'Brand hub'),
-    el('h1', { class: 'hero-title' }, 'Everything ' + brand.name + ', in one place.'),
-    el('p', { class: 'hero-text' }, 'Logos, colours, fonts and the rules that keep it all consistent. Download what you need, or make new artwork that is always on brand.'),
+    el('div', { class: 'hero-copy' },
+      el('span', { class: 'eyebrow hero-eyebrow' }, 'Brand hub'),
+      el('h1', { class: 'hero-title' }, 'Everything ' + brand.name + ', in one place.'),
+      el('p', { class: 'hero-text' }, 'Logos, colours, fonts and the rules that keep it all consistent.')),
     btns.length ? el('div', { class: 'hero-btns' }, btns) : null);
 }
 
 function startSection(brand, model) {
   const n = model.rules.length;
   return section('start', 'Start here', cap(numberWord(n)) + (n === 1 ? ' rule covers almost everything. Follow it' : ' rules cover almost everything. Follow them') + ' and your work will look like ' + brand.name + '.',
-    el('div', { class: 'rules' }, model.rules.map((r, i) =>
-      el('div', { class: 'rule' },
-        el('div', { class: 'rule-head' }, el('span', { class: 'rule-n' }, String(i + 1)), el('span', { class: 'rule-title head' }, r.title)),
+    el('ol', { class: 'rules' }, model.rules.map((r, i) =>
+      el('li', { class: 'rule' },
+        el('span', { class: 'rule-n' }, String(i + 1)),
+        el('span', { class: 'rule-title head' }, r.title),
         el('span', { class: 'rule-text' }, r.text)))));
 }
 
@@ -158,7 +175,7 @@ function coloursSection(brand, model) {
   });
   const n = model.palette.length;
   return section('colours', 'Colours', cap(numberWord(n)) + ' colours. Nothing outside this palette. Click any value to copy it.',
-    el('div', { class: 'grid grid-250' }, cards));
+    el('div', { class: 'grid grid-4' }, cards));
 }
 
 function pairingsSection(brand, model) {
@@ -272,13 +289,13 @@ function logoCard(brand, logo, svgPromise) {
 
     const ready = state.svg && cw;
     const getSvg = () => recolour(state.svg, cw.hex);
-    const png = el('button', { type: 'button', class: 'btn btn-dark btn-small', disabled: ready ? null : true }, 'Download PNG');
-    const svgBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-small', disabled: ready ? null : true }, 'Download SVG');
+    const png = el('button', { type: 'button', class: 'btn btn-dark btn-small', disabled: ready ? null : true, 'aria-label': 'Download ' + logo.name + ' as PNG' }, '↓ PNG');
+    const svgBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-small', disabled: ready ? null : true, 'aria-label': 'Download ' + logo.name + ' as SVG' }, '↓ SVG');
     if (ready) {
       png.addEventListener('click', async () => {
-        png.textContent = 'Making PNG…';
-        try { download(await pngBlob(getSvg()), fileName(brand.slug || brand.name, logo.id, cw.name, 'png')); png.textContent = 'Download PNG'; }
-        catch (e) { png.textContent = 'Couldn’t make the PNG'; }
+        png.textContent = 'Making…';
+        try { download(await pngBlob(getSvg()), fileName(brand.slug || brand.name, logo.id, cw.name, 'png')); png.textContent = '↓ PNG'; }
+        catch (e) { png.textContent = 'PNG failed'; }
       });
       svgBtn.addEventListener('click', () => download(new Blob([svgText(getSvg())], { type: 'image/svg+xml' }), fileName(brand.slug || brand.name, logo.id, cw.name, 'svg')));
     }
@@ -297,7 +314,7 @@ function logoCard(brand, logo, svgPromise) {
 
 function logosSection(brand, logos, loaded) {
   return section('logos', 'Logos', 'Choose what it’s going on and see the logo in each approved colourway. Only combinations that pass the pairing rules are offered.',
-    el('div', { class: 'grid grid-340' }, logos.map(l => logoCard(brand, l, loaded.get(l.id)))));
+    el('div', { class: 'grid grid-logos' }, logos.map(l => logoCard(brand, l, loaded.get(l.id)))));
 }
 
 // A colour that is clearly not in the palette: the accent turned to the opposite hue.
@@ -338,7 +355,7 @@ function dontSection(brand, logo, svgPromise) {
     for (const t of tiles) if (!t.d.retype) { const art = document.importNode(recolour(svg, t.d.colour), true); art.setAttribute('class', 'logo-art'); art.setAttribute('aria-hidden', 'true'); t.holder.append(art); }
   });
   return section('dont', 'Please don’t', 'The mistakes we see most. Every one of these is easy to avoid.',
-    el('div', { class: 'grid grid-250' }, tiles.map(t => t.tile)));
+    el('div', { class: 'grid grid-6' }, tiles.map(t => t.tile)));
 }
 
 // ---------------------------------------------------------------- fonts
@@ -389,8 +406,19 @@ export function renderHub({ root, nav, actions, brand, filesBase }) {
   if (main) add('dont', 'dont', 'Don’ts', () => dontSection(brand, main, loaded.get(main.id)));
 
   if (nav) nav.replaceChildren(...links.map(([id, label]) => el('a', { class: 'nl', href: '#' + id }, label)));
-  if (actions && sectionOn(brand, 'studio')) actions.prepend(studioButton('btn btn-accent'));
+  if (actions && sectionOn(brand, 'studio')) actions.prepend(studioButton('btn btn-outline btn-sm header-studio'));
   root.replaceChildren(heroSection(brand, model), ...parts);
+
+  // The brand's own logo in the header bar, in place of the typed name, in the
+  // brand's heading colour (a palette colour that reads at 3:1 or better on white).
+  const ink = model.theme.vars.headInk;
+  if (logos.length) Promise.all(logos.map(l => loaded.get(l.id).then(svg => ({ logo: l, svg })))).then(items => {
+    const pick = headerLogoPick(items);
+    const slot = document.querySelector('.brand-name');
+    if (!pick || !slot) return;
+    placeLogo(slot, pick.svg, ink, brand.name, 'header-logo-art');
+    slot.closest('.brand').classList.add('has-logo');
+  });
   return model;
 }
 

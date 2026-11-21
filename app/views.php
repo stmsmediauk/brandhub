@@ -82,7 +82,7 @@ function view_hub(array $brand, string $csrf): string
 
     $test = !empty($brand['via_test_mode']);
     $signOut = $test ? '' : '<form method="post" action="' . h($base) . 'logout"><input type="hidden" name="csrf" value="' . h($csrf) . '">'
-        . '<button class="btn btn-ghost" type="submit">Sign out</button></form>';
+        . '<button class="btn btn-outline btn-sm" type="submit">Sign out</button></form>';
     $banner = $test ? '<div class="test-banner" role="status"><b>Test mode</b> · This draft brand opens without a password. Switch test mode off before clients use the site.</div>' : '';
 
     $header = $banner . '<header class="top">'

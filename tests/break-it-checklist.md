@@ -50,7 +50,9 @@ Run by script: `php tests/server/run.php` (see docs/server.md). It covers every 
 - [ ] Logos: every background offers only colourways at 3:1 or better; a background where nothing stands out says so instead of showing a bad logo
 - [ ] Logos: SVG and PNG downloads open correctly in Illustrator / Preview, in the chosen colour, PNG transparent
 - [ ] Logos: a logo file containing a script, a style or an outside link shows the shape only, never runs anything
-- [ ] A brand with no logos shows no Logos or Please don't section
+- [ ] A brand with no logos shows no Logos or Please don't section, and its name (not a logo) in the header and hero
+- [ ] The header stays at the top while scrolling, on desktop and iPhone; header links land with the section title visible below it
+- [ ] Buttons look right in Safari and Chrome, and the greyed Artwork studio button does nothing
 
 ## Devices
 - [ ] Current Chrome and Safari on desktop

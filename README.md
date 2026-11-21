@@ -31,7 +31,7 @@ Last updated at the end of build step 2, slice 2 (committed and uploaded on 21 N
 | Build step | State |
 |---|---|
 | 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** header, hero, Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 41 server checks, 95 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 41 server checks, 96 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -40,7 +40,7 @@ Last updated at the end of build step 2, slice 2 (committed and uploaded on 21 N
 
 1. Read `CLAUDE.md`, then this README, `docs/server.md` and `docs/studio-engine.md`.
 2. Everything is committed in git. `git log --oneline` is the history; each change is its own commit so any can be rolled back.
-3. Step 2 slices 1 and 2 are live at brands.stmsmedia.co.uk (sign-in and the hub pages). The only brand in the live database is the test brand `northlight`. The studio is not deployed, because it needs the server to supply its brand.
+3. Step 2 slices 1 and 2 are live at brands.stmsmedia.co.uk (sign-in and the hub pages). Live brands: `northlight` (test) and `forma` (draft: real logos, palette and fonts, Quablo SemiBold and Regular uploaded as files; its record and files are kept in `storage/brands/forma/`, not in git). The only brand in the live database is the test brand `northlight`. The studio is not deployed, because it needs the server to supply its brand.
 
 ### Run it
 
