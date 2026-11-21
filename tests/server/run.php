@@ -109,9 +109,10 @@ class Browser
 {
     public $jar = [];
     public $rawCookies = [];
+    public $base = BASE;
     public function req(string $method, string $path, array $o = []): array
     {
-        $ch = curl_init(BASE . $path);
+        $ch = curl_init($this->base . $path);
         $headers = $o['headers'] ?? [];
         if ($this->jar) $headers[] = 'Cookie: ' . implode('; ', array_map(function ($k, $v) { return "$k=$v"; }, array_keys($this->jar), $this->jar));
         curl_setopt_array($ch, [
@@ -383,6 +384,27 @@ test('hub page: a hostile value in the record cannot end the script block', func
     $b = new Browser; $b->login('xss', 'xss-password-1234'); $page = $b->get('/xss/')['body'];
     preg_match('#<script type="application/json" id="brand-data">(.*?)</script>#s', $page, $m);
     lacks($m[1], '<'); lacks($m[1], '>'); eq(json_decode($m[1], true)['name'], '<img src=x onerror=alert(1)> & "quotes"');
+});
+test('test mode is off unless config.php switches it on: a draft brand still needs its password', function () {
+    $b = new Browser; has($b->get('/sandstone/')['body'], 'Sign in'); eq($b->get('/sandstone/api/brand.json')['status'], 403);
+    lacks($b->get('/sandstone/')['body'], 'Test mode');
+});
+test('test mode on: a DRAFT brand opens without a password and says so; live and unknown brands are unchanged', function () {
+    global $tmp, $d, $storage, $secret;
+    $cfg = $tmp . '/config-test-mode.php';
+    file_put_contents($cfg, '<?php return ' . var_export(['db' => $d, 'secret' => $secret, 'storage_path' => $storage, 'test_mode' => true], true) . ';');
+    $port = free_port(); $srv = start_server($port, $cfg);
+    try {
+        $b = new Browser; $b->base = 'http://127.0.0.1:' . $port;
+        $p = $b->get('/sandstone/'); eq($p['status'], 200); has($p['body'], 'Test mode'); has($p['body'], 'id="brand-data"'); lacks($p['body'], 'Sign out');
+        eq($b->get('/sandstone/api/brand.json')['status'], 200, 'draft record');
+        $f = $b->get('/forma/'); has($f['body'], 'Sign in'); lacks($f['body'], 'brand-data'); lacks($f['body'], 'Test mode');
+        eq($b->get('/forma/api/brand.json')['status'], 403, 'a live brand still needs its password');
+        eq($b->get('/forma/files/logos/primary.svg')['status'], 403, 'and so do its files');
+        $g = $b->get('/ghostbrand/'); has($g['body'], 'Sign in'); eq($b->get('/ghostbrand/api/brand.json')['status'], 403);
+        $s = new Browser; $s->base = $b->base; $s->login('forma', $GLOBALS['PW']['forma']);
+        $sp = $s->get('/forma/')['body']; has($sp, 'Sign out'); lacks($sp, 'Test mode');
+    } finally { proc_terminate($srv); }
 });
 test('"hub" is reserved: no brand can take the address the hub’s own files use', function () {
     ok(reserved_slug('hub')); eq((new Browser)->get('/hub/')['status'], 404);

@@ -20,6 +20,8 @@ Static files under `public/` (the studio's and the hub's scripts, and the layout
 
 ## How isolation works
 
+**Test mode (agreed exception, 21 November 2026):** when `config.php` has `'test_mode' => true`, a **draft** brand opens without its password (hub, record and files), with a yellow Test mode banner and no Sign out button. Live brands, unknown brands and everything below are unchanged. It is off unless switched on, and must be switched off before real clients use the site. While it is on, a draft brand's address shows whether that brand exists.
+
 - The session remembers one brand. Every request for a brand's page, record, files or log checks that the brand in the address is that brand, against the database, every time.
 - For a brand you are not signed in to, the answer is identical whether that brand exists or not: the same sign-in page, the same `403` for the record and files.
 - Files are only served from `storage/brands/<slug>/`, by plain names with a known image or font extension. `..`, encoded dots, backslashes, hidden files, symbolic links that leave the folder, and everything else are refused.

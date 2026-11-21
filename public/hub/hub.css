@@ -25,6 +25,9 @@ button { font: inherit; }
 .muted { color: var(--muted); }
 .small { font-size: 14px; }
 
+/* ---------------------------------------------------------------- test mode */
+.test-banner { background: #FFE58A; color: #141414; padding: 10px var(--gutter); font-size: 14px; text-align: center; }
+
 /* ---------------------------------------------------------------- header */
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; padding: 22px var(--gutter); border-bottom: 1px solid var(--line); background: var(--bg); }
 .brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }

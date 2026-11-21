@@ -26,12 +26,12 @@ This replaces the old brands.stmsmedia.co.uk hub. FORMA Padel is the pilot, but 
 
 ## Where we are (update this at the end of every session)
 
-Last updated at the end of build step 2, slice 2 (built and tested locally, not yet committed or uploaded).
+Last updated at the end of build step 2, slice 2 (committed and uploaded on 21 November 2026).
 
 | Build step | State |
 |---|---|
 | 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and tested locally:** header, hero, Start here, Colours, Pairings and Typography, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 38 server checks, 89 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** header, hero, Start here, Colours, Pairings and Typography, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 38 server checks, 89 browser checks. **Slice 3 (the studio served from the signed-in brand) is not started.** |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -40,7 +40,7 @@ Last updated at the end of build step 2, slice 2 (built and tested locally, not 
 
 1. Read `CLAUDE.md`, then this README, `docs/server.md` and `docs/studio-engine.md`.
 2. Everything is committed in git. `git log --oneline` is the history; each change is its own commit so any can be rolled back.
-3. The secure core of step 2 is live at brands.stmsmedia.co.uk (STMS home page and sign-in). The only brand in the live database is the test brand `northlight`. The studio is not deployed, because it needs the server to supply its brand.
+3. Step 2 slices 1 and 2 are live at brands.stmsmedia.co.uk (sign-in and the hub pages). The only brand in the live database is the test brand `northlight`. The studio is not deployed, because it needs the server to supply its brand.
 
 ### Run it
 
@@ -68,7 +68,7 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 - **Also checked live:** signing in to a test brand (`northlight`, draft, from `tests/studio/fixtures/light-serif.json`), the usage log records the sign-in, a wrong password is refused, the 6th wrong try in 15 minutes is slowed, a form without its token is refused, and another brand's record is forbidden.
 - **Checked by Steve on the live site:** signed-in isolation (signed in to `northlight`, another brand's address shows the sign-in page), and sign-in on iPhone Safari.
 - **Not yet tried on the live site:** the full break-it checklist. `northlight` is a test brand: remove it before real clients are added.
-- **Draft versus live:** both can sign in for now. Decide what a draft brand means to clients when the admin is built.
+- **Draft versus live:** both can sign in. With test mode on (`config.php`), draft brands open without a password, so test brands stay draft. **Switch test mode off before real clients use the site.** Decide what a draft brand means to clients when the admin is built.
 - **Never tested:** the studio in Safari and on iPhone (only sign-in has been tried there), Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message.
 - **Hub sections not built yet:** Logos, Please don't and Supporting marks (they need logo files, which nothing can upload yet). The Artwork studio button is greyed out with "Coming soon" until slice 3.
 - `look.hero` in brand records is no longer used (the hub is white for every brand); `look.corners` is used by the artwork only. The admin's Type and look step can drop the hero choice.
@@ -77,7 +77,7 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 ### Next step
 
-Steve reviews slice 2. Once agreed: commit, upload with the routine (`public/hub/`, `public/studio/js/colour.js` and `theme.js`, which the hub imports, plus `app/`), then check the live hub signed in to `northlight`. Then slice 3: serve the studio from `/<slug>/studio/` using the signed-in brand's record and report exports to `/<slug>/api/log`. Stop after each slice and wait for Steve's go-ahead.
+Slice 3: serve the studio from `/<slug>/studio/` using the signed-in brand's record and report exports to `/<slug>/api/log`. Stop after each slice and wait for Steve's go-ahead.
 
 ## Build order
 
@@ -98,14 +98,14 @@ The agreed upload routine:
 1. **Folder lock.** Only the brands folder (and, once agreed, a private folder beside `public_html` for `app/` and `storage/`) is ever written to.
 2. **Practice run.** An rsync dry run shows exactly which files would be sent. Steve approves the list.
 3. **Backup.** The live copies of those files are copied to a dated folder on the Mac first.
-4. **Upload, then check.** Use `rsync -a --chmod=D755,F644` for the web folder. Only the approved files go up, then the live page is opened to confirm it works.
+4. **Upload, then check.** Stage the committed files (`git archive HEAD app public`) in a scratch folder, set web files to 644 and folders to 755 and app files to 600 there, then send with `rsync -rlpc` (compares contents, keeps those permissions). The Mac's own rsync has no `--chmod` option. Only the approved files go up, then the live page is opened to confirm it works.
 5. **Never uploaded:** `config.php`, `config.test.php`, `.git`, `design/`, `tests/`, `docs/`.
 
 Server layout (first deployed 21 November 2026):
 
 ```
 /home/sites/5b/8/82a71f04d6/
-  public_html/brands/   contents of public/ (only index.php and .htaccess so far)
+  public_html/brands/   contents of public/ (index.php, .htaccess, hub/, and the studio's colour.js, theme.js and studio.css)
   brands-app/           private, not reachable from the web
     app/
     storage/            sessions and brand files (written by PHP)
@@ -114,4 +114,4 @@ Server layout (first deployed 21 November 2026):
 
 `public/index.php` finds `app/` next to the web folder (on a computer) or in `brands-app/` beside `public_html` (live).
 
-**Permissions:** files on the Mac are owner-only, and rsync copies that, which makes Apache answer 403. Always upload with `--chmod=D755,F644` for the web folder, and keep `brands-app/` at 700 and `config.php` at 600.
+**Permissions:** files on the Mac are owner-only, and rsync copies that, which makes Apache answer 403. Web files must be 644 (folders 755) before they are sent; keep `brands-app/` at 700 and `config.php` at 600.

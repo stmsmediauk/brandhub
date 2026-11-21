@@ -50,7 +50,32 @@ function try_login(string $slug, string $password): array
 // The brand this visitor is signed in to, but only if it is the brand in the address.
 // Checked against the database every time: a changed password or a removed brand
 // ends the session at once.
+// The brand this visitor may see at this address: the brand they signed in to, or,
+// in test mode only, a draft brand (see test_mode_brand).
 function signed_in_brand(string $slug): ?array
+{
+    return session_brand($slug) ?? test_mode_brand($slug);
+}
+
+// TEST MODE (Steve's decision, 21 November 2026, an agreed exception to the
+// password rule while testing). When config.php has 'test_mode' => true, a DRAFT
+// brand opens without its password. Live brands always need theirs, and test mode
+// is off unless config.php switches it on. Pages opened this way show a banner.
+function test_mode_on(): bool
+{
+    return (config()['test_mode'] ?? false) === true;
+}
+
+function test_mode_brand(string $slug): ?array
+{
+    if (!test_mode_on()) return null;
+    $row = find_brand($slug);
+    if (!$row || $row['status'] !== 'draft') return null;
+    $row['via_test_mode'] = true;
+    return $row;
+}
+
+function session_brand(string $slug): ?array
 {
     if (!start_session(false)) return null;
     if (empty($_SESSION['brand_id']) || ($_SESSION['slug'] ?? '') !== $slug) return null;

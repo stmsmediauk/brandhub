@@ -14,4 +14,8 @@ return [
     // Where per-brand files (logos, fonts) and PHP sessions are kept. Must be OUTSIDE
     // the web folder. Brand files go in <storage_path>/brands/<slug>/.
     'storage_path' => __DIR__ . '/storage',
+    // TEST MODE: true lets DRAFT brands open without their password, with a banner on
+    // every page. Live brands always need theirs. Leave false (or remove the line)
+    // once real clients use the site.
+    'test_mode' => false,
 ];

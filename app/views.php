@@ -80,13 +80,16 @@ function view_hub(array $brand, string $csrf): string
     $json = json_encode($record, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $base = '/' . rawurlencode($slug) . '/';
 
-    $header = '<header class="top">'
+    $test = !empty($brand['via_test_mode']);
+    $signOut = $test ? '' : '<form method="post" action="' . h($base) . 'logout"><input type="hidden" name="csrf" value="' . h($csrf) . '">'
+        . '<button class="btn btn-ghost" type="submit">Sign out</button></form>';
+    $banner = $test ? '<div class="test-banner" role="status"><b>Test mode</b> · This draft brand opens without a password. Switch test mode off before clients use the site.</div>' : '';
+
+    $header = $banner . '<header class="top">'
         . '<a class="brand" href="#top"><span class="brand-name head">' . h($name) . '</span>'
         . ($tag !== '' ? '<span class="brand-tag">' . h($tag) . '</span>' : '') . '</a>'
         . '<nav class="nav" id="hub-nav" aria-label="Brand hub"></nav>'
-        . '<div class="actions" id="hub-actions">'
-        . '<form method="post" action="' . h($base) . 'logout"><input type="hidden" name="csrf" value="' . h($csrf) . '">'
-        . '<button class="btn btn-ghost" type="submit">Sign out</button></form></div></header>';
+        . '<div class="actions" id="hub-actions">' . $signOut . '</div></header>';
 
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<meta name="robots" content="noindex, nofollow"><title>' . h($name) . ' brand hub</title>'

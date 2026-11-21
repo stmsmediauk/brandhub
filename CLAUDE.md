@@ -17,7 +17,7 @@ A white-label brand hub and artwork studio for STMS Media clients. Read `README.
 1. **Brand data is data.** Nothing about a specific client (colours, fonts, names, layouts) is written into code. A new client must never need a code change.
 2. **Derived values are never stored.** Pairings, logo colourways, the hub's heading and link colours, text-colour options and panel colours are always calculated from the palette. Store only what Steve decides in the admin.
 3. **Isolation.** A logged-in client can reach only their own brand's pages and files, enforced on the server. Never rely on the browser to hide another brand.
-4. **Passwords** are stored only as hashes (`password_hash`) and checked on the server. One shared password per brand. The platform sends no email.
+4. **Passwords** are stored only as hashes (`password_hash`) and checked on the server. One shared password per brand. The platform sends no email. *Agreed exception (Steve, 21 November 2026):* test mode, switched on only by `'test_mode' => true` in the server's `config.php`, opens **draft** brands without a password and shows a Test mode banner. Live brands always need their password. Test mode must be switched off before real clients use the site.
 5. **Contrast rules (WCAG ratios):** at least 4.5 is approved for text, 3 to 4.5 is headlines and graphics only, below 3 is never. The studio offers only options that pass.
 6. **The studio never lets a client break the brand:** fonts, colours, logo and safe areas are locked. No filters, no overlays or darkening, no gaps at photo edges.
 7. **Export is blocked** when text does not fit, the photo is enlarged beyond 133%, or fonts have not loaded.
