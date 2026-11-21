@@ -433,6 +433,15 @@ test('add-brand checks: logo lists, Start here wording, sections, CMYK and Panto
     $bad2 = $good; $bad2['logos'] = ['primary' => 'logos/primary.svg'];
     has(implode(' ', validate_brand_config($bad2)), 'logos must be a list');
 });
+test('studio: opens only for the signed-in brand, with its own record address and a strict policy; anyone else goes to sign-in', function () {
+    $r = (new Browser)->get('/forma/studio/'); eq($r['status'], 303); eq($r['headers']['location'][0], '/forma/');
+    eq((new Browser)->get('/forma/studio')['status'], 301, 'missing slash is fixed');
+    $b = signed_in('forma'); $p = $b->get('/forma/studio/'); eq($p['status'], 200);
+    has($p['body'], 'data-brand="/forma/api/brand.json"'); has($p['body'], 'data-files="/forma/files/"'); has($p['body'], 'data-log="/forma/api/log"'); has($p['body'], '/studio/js/boot.js');
+    $csp = $p['headers']['content-security-policy'][0]; has($csp, "script-src 'self'"); has($csp, 'blob:'); lacks($csp, 'unsafe-eval');
+    $n = $b->get('/northlight/studio/'); eq($n['status'], 303, 'another brand\'s studio sends you to its sign-in');
+    eq(signed_in('forma')->get('/ghostbrand/studio/')['status'], 303);
+});
 test('"hub" is reserved: no brand can take the address the hub’s own files use', function () {
     ok(reserved_slug('hub')); eq((new Browser)->get('/hub/')['status'], 404);
 });

@@ -10,6 +10,7 @@ Every address that is not a real file goes to `public/index.php` (one rewrite ru
 |---|---|
 | `/` | A plain STMS Media page. No list of brands. |
 | `/<slug>/` | The sign-in page, or the hub page when signed in to that brand. The hub page carries that brand's record (as `/api/brand.json` gives it) and runs `/hub/hub.js`, with its own security policy allowing only the site's own script and the brand's fonts. |
+| `/<slug>/studio/` | The artwork studio for the signed-in brand (sign-in page otherwise). Its own security policy also allows the photos the client picks (`blob:`/`data:` images). |
 | `POST /<slug>/login` | Checks the password. |
 | `POST /<slug>/logout` | Signs out. |
 | `/<slug>/api/brand.json` | The signed-in brand's record. |
@@ -79,4 +80,4 @@ Confirmed there: `.htaccess` rewriting works, `storage/` is writable by PHP, the
 
 ## Not covered yet
 
-The hub sections that need logo files (Logos, Please don't, Supporting marks), the studio served from the signed-in brand (the studio page still loads its brand from a path that does not exist yet), brand file uploads, and the admin screen. Draft versus live is not enforced.
+Supporting marks in the hub, brand file uploads through a screen (files go up over SSH for now), and the admin screen. Draft versus live is not enforced.

@@ -117,9 +117,8 @@ function section(id, title, head, ...body) {
     ...body);
 }
 
-function studioButton(cls) {
-  return el('span', { class: cls + ' is-off', role: 'link', 'aria-disabled': 'true', title: 'The artwork studio is coming soon' },
-    'Artwork studio', el('span', { class: 'soon' }, 'Coming soon'));
+function studioButton(cls, brand) {
+  return el('a', { class: cls, href: '/' + encodeURIComponent(brand.slug || '') + '/studio/' }, 'Open the artwork studio');
 }
 
 // The logo for the slim header bar: the widest one the brand has (a landscape
@@ -141,7 +140,7 @@ function placeLogo(holder, svg, hex, label, cls) {
 
 function heroSection(brand, model) {
   const btns = [];
-  if (sectionOn(brand, 'studio')) btns.push(studioButton('btn btn-outline'));
+  if (sectionOn(brand, 'studio')) btns.push(studioButton('btn btn-dark', brand));
   return el('section', { class: 'hero', 'aria-label': 'Welcome' },
     el('div', { class: 'hero-copy' },
       el('span', { class: 'eyebrow hero-eyebrow' }, 'Brand hub'),
@@ -401,7 +400,7 @@ export function renderHub({ root, nav, actions, brand, filesBase }) {
   if (main) add('dont', 'dont', 'Don’ts', () => dontSection(brand, main, loaded.get(main.id)));
 
   if (nav) nav.replaceChildren(...links.map(([id, label]) => el('a', { class: 'nl', href: '#' + id }, label)));
-  if (actions && sectionOn(brand, 'studio')) actions.prepend(studioButton('btn btn-outline btn-sm header-studio'));
+  if (actions && sectionOn(brand, 'studio')) actions.prepend(studioButton('btn btn-dark btn-sm header-studio', brand));
   root.replaceChildren(heroSection(brand, model), ...parts);
 
   // The brand's own logo in the header bar, in place of the typed name, in the

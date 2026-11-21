@@ -102,3 +102,25 @@ function view_hub(array $brand, string $csrf): string
         . '<noscript><style>body.hub-loading{visibility:visible}</style><p style="padding:24px">Your brand hub needs JavaScript switched on.</p></noscript>'
         . '</body></html>';
 }
+
+// The artwork studio. The engine in /studio/js draws everything; this page only
+// says where this brand's record, files and layouts are, and where to report exports.
+function view_studio(array $brand): string
+{
+    $record = brand_json_for_client($brand);
+    $slug = (string)$brand['slug'];
+    $name = (string)($record['name'] ?? $slug);
+    $base = '/' . rawurlencode($slug) . '/';
+    $test = !empty($brand['via_test_mode'])
+        ? '<div class="test-banner" role="status"><b>Test mode</b> · This draft brand opens without a password. Switch test mode off before clients use the site.</div>' : '';
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<meta name="robots" content="noindex, nofollow"><title>' . h($name) . ' artwork studio</title>'
+        . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        . '<link rel="stylesheet" href="/studio/studio.css">'
+        . '<script type="module" src="/studio/js/boot.js"></script>'
+        . '</head><body>' . $test
+        . '<div id="app" data-brand="' . h($base . 'api/brand.json') . '" data-layouts="/layouts/" data-files="' . h($base . 'files/') . '"'
+        . ' data-hub="' . h($base) . '" data-log="' . h($base . 'api/log') . '"></div>'
+        . '<noscript><p style="padding:24px">The artwork studio needs JavaScript switched on.</p></noscript>'
+        . '</body></html>';
+}

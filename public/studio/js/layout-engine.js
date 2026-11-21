@@ -47,12 +47,35 @@ export function zones(layout, W, H) {
   }
 }
 
+// The weight to draw with. An uploaded font only has the weights that were
+// uploaded, so a layout asking for another (Bold when only SemiBold exists) uses
+// the nearest real one instead of letting the browser fake it. Ties go heavier.
+export function nearestWeight(font, wanted) {
+  const files = font && font.source === 'uploaded' && Array.isArray(font.files) ? font.files : null;
+  const have = files ? [...new Set(files.filter(f => f && (f.style || 'normal') === 'normal').map(f => f.weight || 400))] : [];
+  if (!have.length) return wanted;
+  return have.reduce((best, w) => {
+    const d = Math.abs(w - wanted), bd = Math.abs(best - wanted);
+    return d < bd || (d === bd && w > best) ? w : best;
+  }, have[0]);
+}
+
+// Height of the brand's logo when it stands in for the brand name, as a share of
+// that line's font size.
+export const NAME_LOGO_HEIGHT = 0.9;
+
 function resolveLine(line, ctx) {
   const font = ctx.fonts[line.font === 'body' ? 'body' : 'heading'];
   const raw = line.source === 'brand_name' ? ctx.brandName : (ctx.values[line.field] || '');
   const caseMode = line.case === 'brand' ? (font.case || 'none') : (line.case || 'none');
   const text = applyCase(String(raw).trim(), caseMode);
-  const weight = line.weight === 'brand' ? (font.weight || 400) : (line.weight || 400);
+  const weight = nearestWeight(font, line.weight === 'brand' ? (font.weight || 400) : (line.weight || 400));
+  // The brand name is drawn as the brand's own logo when it has one.
+  if (line.source === 'brand_name' && ctx.nameLogo > 0) {
+    const h1 = line.size * ctx.W * NAME_LOGO_HEIGHT;
+    return { def: line, text: text || 'logo', isLogo: true, family: font.family, weight, size1: h1, trackPx1: 0, isPill: false, padX1: 0, padY1: 0,
+      w1: h1 * ctx.nameLogo, h1, textW1: h1 * ctx.nameLogo, fixed: true, pin: line.pin || null };
+  }
   const tracking = line.tracking === 'brand' ? (font.tracking || 0) : (line.tracking || 0);
   const size1 = line.size * ctx.W;
   const trackPx1 = tracking * size1;
@@ -74,7 +97,9 @@ function resolveLine(line, ctx) {
 //   layout, formatId, values {fieldId: text}, pos {fx, fy} or undefined,
 //   fonts {heading:{family,weight,case,tracking}, body:{...}}, brandName,
 //   measure(text, {family, weight, sizePx, trackPx}) -> width in px
-export function buildPlan({ layout: baseLayout, formatId, values, pos, fonts, brandName, measure }) {
+//   logos: { name: width/height of the logo that stands in for the brand name,
+//            mark: true when the brand's own mark replaces the dot mark } (optional)
+export function buildPlan({ layout: baseLayout, formatId, values, pos, fonts, brandName, measure, logos }) {
   const layout = forFormat(baseLayout, formatId);
   const f = FORMATS[formatId];
   const W = f.w, H = f.h;
@@ -83,7 +108,8 @@ export function buildPlan({ layout: baseLayout, formatId, values, pos, fonts, br
   const t = layout.text || {};
   const minScale = t.min_scale || MIN_SCALE_DEFAULT;
   const onPanel = t.on === 'panel' && z.panel;
-  const ctx = { W, H, fonts, values, brandName, measure };
+  const lg = logos || {};
+  const ctx = { W, H, fonts, values, brandName, measure, nameLogo: lg.name || 0 };
   const lines = (t.lines || []).map(l => resolveLine(l, ctx)).filter(l => l.text);
   const stack = lines.filter(l => !l.pin);
   const pinned = lines.filter(l => l.pin);
@@ -142,7 +168,9 @@ export function buildPlan({ layout: baseLayout, formatId, values, pos, fonts, br
     let lx = areaX;
     if (align === 'center') lx = areaX + (areaW - l.w) / 2;
     else if (align === 'right') lx = areaX + areaW - l.w;
-    if (l.isPill) {
+    if (l.isLogo) {
+      items.push({ type: 'logo', which: 'name', x: lx, y, w: l.w, h: l.h, color: textColour });
+    } else if (l.isPill) {
       items.push({ type: 'pill', x: lx, y, w: l.w, h: l.h, color: 'pillBg' });
       items.push({ type: 'text', text: l.text, x: lx + l.padX, y: y + l.padY, w: l.w - 2 * l.padX, h: l.size, size: l.size, family: l.family, weight: l.weight, trackPx: l.trackPx, color: 'pillText' });
     } else {
@@ -164,7 +192,7 @@ export function buildPlan({ layout: baseLayout, formatId, values, pos, fonts, br
     const start = pos || startPosition(layout, formatId);
     const placed = placeBlock(start.fx * W, start.fy * H, bw, bh, safe, W, H, false);
     const top = placed.cy - bh / 2;
-    if (showMark) items.push({ type: 'mark', cx: placed.left + markD / 2, cy: placed.cy, d: markD, color: 'text' });
+    if (showMark) items.push({ type: 'mark', cx: placed.left + markD / 2, cy: placed.cy, d: markD, color: 'text', brandMark: !!lg.mark });
     const textLeft = placed.left + (showMark ? markD + markGap : 0);
     let y = placed.cy - stackH / 2;
     stackS.forEach(l => { place(l, 0, y, textLeft, stackW, align); y += l.h + gap; });

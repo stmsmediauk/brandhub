@@ -28,7 +28,7 @@ One record per brand. Its values come from the five admin steps.
 | studio.layouts | Which layouts are offered, by layout id | Studio and publish |
 | studio.photo_text_colours | Palette colours allowed for text on photos, at least one light and one dark | Studio and publish |
 | studio.export | PNG and smaller JPG, file naming, carousel limit | Studio and publish |
-| library | A link to the Dropbox folder where the brand's photos live. The studio shows it as an Open photo library button; the client downloads a photo there and uploads it into the studio | Studio and publish |
+| library | A link (https) to the Dropbox folder where the brand's photos live. The studio shows it as an Open photo library button; the client downloads a photo there and uploads it into the studio | Studio and publish |
 | version | A number that goes up on every save | automatic |
 
 Example, shortened:
@@ -67,6 +67,7 @@ Example, shortened:
 
 - **Pairing rules:** from the palette. Contrast of at least 4.5:1 is approved for text, 3 to 4.5 is headlines and graphics only, below 3 is never.
 - **Logo colourways:** a logo in each palette colour that passes 3:1 on the chosen background (never the background colour itself), clearest first. The master SVG is cleaned in the browser (scripts, styles, event handlers, embedded pages and outside links removed) and every shape is set to the one colour. SVG and PNG downloads (transparent, 2000px on the long side) are made in the browser from it. Logos are recoloured as one colour; a multi-colour original is not offered as it is yet.
+- **Logos in the studio artwork:** the widest logo replaces the typed brand name, the first `mark` logo replaces the dot mark, each in the colour the text uses there.
 - **Please don't examples:** made from the first primary logo: stretched, tilted, in an off-palette colour (the accent turned to the opposite hue), with shadows, on a busy stripe of palette colours, and the brand name retyped in a guest font.
 - **CMYK:** calculated from the RGB value unless an override is set.
 - **Hub and studio page:** the same clean white page for every brand (white, near-black text, light grey cards and lines, neutral black buttons, fixed corners). These are platform values (`PAGE` in `public/studio/js/theme.js`), not brand data.

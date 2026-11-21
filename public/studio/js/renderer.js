@@ -72,6 +72,15 @@ function drawMark(ctx, m, colour) {
   }
 }
 
+// The brand's own logo (already recoloured), fitted inside a box without stretching.
+function drawLogo(ctx, img, x, y, w, h) {
+  const ar = (img.naturalWidth || img.width) / (img.naturalHeight || img.height || 1);
+  let dw = w, dh = w / ar;
+  if (dh > h) { dh = h; dw = h * ar; }
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+}
+
 // Photo only, clipped to its rectangle. Used by the frame and by the
 // brightness map that decides which text colours read clearly.
 export function drawPhoto(ctx, plan, view) {
@@ -90,14 +99,21 @@ export function drawPhoto(ctx, plan, view) {
 }
 
 // Whole frame: photo, panel, mark and text.
-//   view: { photo, zoom, pan, colours:{text, panelBg, panelText, pillBg, pillText, empty}, cornerRb, generics }
+//   view: { photo, zoom, pan, colours:{text, panelBg, panelText, pillBg, pillText, empty}, cornerRb, generics,
+//           logoImage(which, hex) -> a loaded image of the brand's logo in that colour, or null }
 export function drawFrame(ctx, plan, view) {
   ctx.clearRect(0, 0, plan.W, plan.H);
   drawPhoto(ctx, plan, view);
   if (plan.panelRect) { ctx.fillStyle = view.colours.panelBg; const p = plan.panelRect; ctx.fillRect(p.x, p.y, p.w, p.h); }
   const rb = (view.cornerRb || 0) * (plan.W / 540);
   for (const it of plan.items) {
-    if (it.type === 'mark') drawMark(ctx, it, view.colours[it.color]);
+    if (it.type === 'mark') {
+      if (!it.brandMark) drawMark(ctx, it, view.colours[it.color]);
+      else { const img = view.logoImage && view.logoImage('mark', view.colours[it.color]); if (img) drawLogo(ctx, img, it.cx - it.d / 2, it.cy - it.d / 2, it.d, it.d); }
+    } else if (it.type === 'logo') {
+      const img = view.logoImage && view.logoImage(it.which, view.colours[it.color]);
+      if (img) drawLogo(ctx, img, it.x, it.y, it.w, it.h);
+    }
     else if (it.type === 'pill') { ctx.fillStyle = view.colours[it.color]; roundRectPath(ctx, it.x, it.y, it.w, it.h, rb); ctx.fill(); }
     else drawText(ctx, it, view.colours[it.color], view.generics);
   }

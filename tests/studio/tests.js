@@ -6,7 +6,7 @@ import * as G from '../../public/studio/js/geometry.js';
 import { sanitise } from '../../public/studio/js/text-fit.js';
 import { createGlyphChecker, fontDraws } from '../../public/studio/js/glyphs.js';
 import { derive } from '../../public/studio/js/theme.js';
-import { buildPlan, zones } from '../../public/studio/js/layout-engine.js';
+import { buildPlan, zones, nearestWeight, NAME_LOGO_HEIGHT } from '../../public/studio/js/layout-engine.js';
 import { placement, resolutionLevel, LIMITS } from '../../public/studio/js/photo.js';
 import { assess, lumaMapFromImageData } from '../../public/studio/js/readability.js';
 import { buildChecks } from '../../public/studio/js/checks.js';
@@ -218,6 +218,23 @@ test('logos: PNG export is a real transparent PNG at 2000px on the long side, in
 });
 
 // ---------------------------------------------------------------- layout engine (stand-in measuring)
+test('engine: an uploaded font draws at the nearest weight it really has (Bold asked, only SemiBold uploaded gives SemiBold)', () => {
+  const q = { family: 'Quablo', source: 'uploaded', files: [{ url: 'a.otf', weight: 600 }, { url: 'b.otf', weight: 400 }, { url: 'c.otf', weight: 700, style: 'italic' }] };
+  eq(nearestWeight(q, 700), 600); eq(nearestWeight(q, 300), 400); eq(nearestWeight(q, 500), 600, 'a tie goes heavier'); eq(nearestWeight(q, 400), 400);
+  eq(nearestWeight({ family: 'Inter', source: 'google' }, 700), 700, 'Google fonts are left alone');
+});
+test('engine: with a logo, the brand name is drawn as the logo, sized by its shape and shrunk to fit; the mark becomes the brand mark', () => {
+  const b = BRANDS['dark-sans'];
+  const p = buildPlan({ layout: LAYOUTS.wordmark, formatId: '1:1', values: { headline: 'Hi' }, fonts: b.fonts, brandName: b.name, measure: fake, logos: { name: 16, mark: true } });
+  const logo = p.items.find(i => i.type === 'logo'); ok(logo, 'logo item'); eq(logo.which, 'name');
+  ok(!p.items.some(i => i.type === 'text' && i.text === 'FORMA'), 'the name is not typed as well');
+  near(logo.w / logo.h, 16, 0.01, 'keeps its shape'); ok(logo.w <= p.fit.maxW + 0.5, 'fits the width');
+  const full = buildPlan({ layout: LAYOUTS.full, formatId: '1:1', values: { headline: 'Hi' }, fonts: b.fonts, brandName: b.name, measure: fake, logos: { name: 16, mark: true } });
+  ok(full.items.find(i => i.type === 'mark').brandMark, 'mark item asks for the brand mark');
+  const none = buildPlan({ layout: LAYOUTS.wordmark, formatId: '1:1', values: { headline: 'Hi' }, fonts: b.fonts, brandName: b.name, measure: fake });
+  ok(none.items.some(i => i.type === 'text' && i.text === 'FORMA') && !none.items.some(i => i.type === 'logo'), 'no logo: the name is typed as before');
+  ok(NAME_LOGO_HEIGHT > 0 && NAME_LOGO_HEIGHT <= 1);
+});
 function plan(brand, layoutId, fmt, values, pos) {
   return buildPlan({ layout: LAYOUTS[layoutId], formatId: fmt, values, pos, fonts: brand.fonts, brandName: brand.name, measure: fake });
 }

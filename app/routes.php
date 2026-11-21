@@ -6,6 +6,7 @@ declare(strict_types=1);
 //
 //   /                          a plain page, no list of brands
 //   /<slug>/                   sign-in page, or the hub when signed in
+//   /<slug>/studio/            the artwork studio for the signed-in brand
 //   /<slug>/login   (POST)     check the password
 //   /<slug>/logout  (POST)     sign out
 //   /<slug>/api/brand.json     the signed-in brand's record
@@ -37,6 +38,8 @@ function route(): void
     // exact paths: [method => handler]
     $exact = [
         ''               => ['GET' => 'route_home'],
+        'studio'         => ['GET' => 'route_studio_slash'],
+        'studio/'        => ['GET' => 'route_studio'],
         'login'          => ['POST' => 'route_login'],
         'logout'         => ['POST' => 'route_logout'],
         'api/brand.json' => ['GET' => 'route_brand_json'],
@@ -65,6 +68,22 @@ function route_home(string $slug): void
     if ($brand) { send_page(200, view_hub($brand, csrf_token()), [], HUB_CSP); return; }
     start_session(true);
     send_page(200, view_login($slug, csrf_token()));
+}
+
+// The studio, for the brand this visitor may see. Anyone else is sent to the
+// sign-in page, exactly as for the hub.
+function route_studio(string $slug): void
+{
+    $brand = signed_in_brand($slug);
+    if (!$brand) { send_redirect('/' . $slug . '/', 303); return; }
+    $cfg = brand_json_for_client($brand);
+    if (isset($cfg['sections']['studio']) && $cfg['sections']['studio'] === false) { not_found(); return; }
+    send_page(200, view_studio($brand), [], STUDIO_CSP);
+}
+
+function route_studio_slash(string $slug): void
+{
+    send_redirect('/' . $slug . '/studio/', 301);
 }
 
 function route_login(string $slug): void
