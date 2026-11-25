@@ -16,6 +16,7 @@ import { createUI } from './controls.js';
 import { loadBrand } from './brand-loader.js';
 import { SAMPLES, makeSample } from './samples.js';
 import { createGlyphChecker } from './glyphs.js';
+import { logoList, loadLogo, recolour, svgText, aspect } from '../../hub/logos.js';
 
 const LUMA_SCALE = 0.25;
 
@@ -27,7 +28,7 @@ function showError(root, message) {
   root.append(p);
 }
 
-// opts: { root, brandUrl, layoutsBase, assetBase, hubUrl, samples, dev }
+// opts: { root, brandUrl, layoutsBase, assetBase, hubUrl, logUrl, samples, dev }
 // Test photos and the photo badge only show when the page allows samples AND the
 // address has ?dev=1 (or opts.dev is true). The client page never allows samples.
 export async function start(opts) {
@@ -59,7 +60,7 @@ export async function start(opts) {
   // ---------- state ----------
   const initial = {
     format: formatIds[0], layout: brand.studio.layouts[0], values: {}, pos: {}, zoom: 1, pan: {}, textColour: null, photoRef: null,
-    notes: {}, status: '', guide: null, fonts: 'loading', photoVersion: 0, dirty: false
+    notes: {}, status: '', guide: null, fonts: 'loading', logos: 'loading', photoVersion: 0, dirty: false
   };
   const store = createStore(initial);
   let photoData = null;
@@ -69,6 +70,57 @@ export async function start(opts) {
     photoData = data;
     store.set({ photoRef: ref, photoVersion: store.get().photoVersion + 1, zoom: 1, pan: {}, status: '', dirty: true });
     if (file) await savePhotoFile(storeKey + ':photo', file); else await clearPhotoFile(storeKey + ':photo');
+  }
+
+  // ---------- the brand's own logos in the artwork ----------
+  // The widest logo stands in for the brand name (wordmark layout), the first mark
+  // replaces the dot mark. Each is recoloured to whichever colour the text uses there.
+  const allLogos = logoList(brand);
+  const markEntry = allLogos.find(l => l.kind === 'mark') || null;
+  const logoSvg = { name: null, mark: null };
+  const logoImgs = new Map();            // 'which|hex' -> { img, ready, promise }
+  function logoImage(which, hex) {
+    const svg = logoSvg[which];
+    if (!svg || !hex) return null;
+    const key = which + '|' + hex;
+    let e = logoImgs.get(key);
+    if (!e) {
+      const s = recolour(svg, hex);
+      const ar = aspect(svg), long = 2400;
+      s.setAttribute('width', ar >= 1 ? long : Math.round(long * ar)); s.setAttribute('height', ar >= 1 ? Math.round(long / ar) : long);
+      const img = new Image();
+      e = { img, ready: false };
+      e.promise = new Promise(res => { img.onload = () => { e.ready = true; res(true); schedule(); }; img.onerror = () => res(false); });
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText(s).replace(/^<\?xml[^>]*>\n?/, ''));
+      logoImgs.set(key, e);
+    }
+    return e.ready ? e.img : null;
+  }
+  // Every logo image the current frame draws, ready before anything is exported.
+  async function logosReadyFor(plan, view) {
+    const want = [];
+    for (const it of plan.items) {
+      if (it.type === 'logo') want.push([it.which, view.colours[it.color]]);
+      if (it.type === 'mark' && it.brandMark) want.push(['mark', view.colours[it.color]]);
+    }
+    for (const [w, hex] of want) { logoImage(w, hex); const e = logoImgs.get(w + '|' + hex); if (e && !e.ready) await e.promise; }
+    return want.every(([w, hex]) => { const e = logoImgs.get(w + '|' + hex); return e && e.ready; });
+  }
+  (async () => {
+    if (!allLogos.length) { store.set({ logos: 'none' }); return; }
+    const base = opts.assetBase || '';
+    const loaded = await Promise.all(allLogos.map(async l => ({ l, svg: await loadLogo(base, l.file) })));
+    const ok = loaded.filter(x => x.svg);
+    const widest = ok.reduce((b, x) => (!b || aspect(x.svg) > aspect(b.svg) ? x : b), null);
+    logoSvg.name = widest ? widest.svg : null;
+    const m = markEntry && ok.find(x => x.l.id === markEntry.id);
+    logoSvg.mark = m ? m.svg : null;
+    store.set({ logos: ok.length ? 'ready' : 'failed' });
+  })();
+
+  function report(event) {
+    if (!opts.logUrl) return;
+    try { fetch(opts.logUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event }) }).catch(() => {}); } catch (e) { /* never block the client */ }
   }
 
   // ---------- one frame ----------
@@ -89,7 +141,8 @@ export async function start(opts) {
 
   function compute(S, values) {
     const layout = layoutById[S.layout];
-    const plan = buildPlan({ layout, formatId: S.format, values, pos: S.pos[S.format], fonts: brand.fonts, brandName: brand.name, measure });
+    const logos = { name: logoSvg.name ? aspect(logoSvg.name) : 0, mark: !!logoSvg.mark };
+    const plan = buildPlan({ layout, formatId: S.format, values, pos: S.pos[S.format], fonts: brand.fonts, brandName: brand.name, measure, logos });
     const pan = S.pan[S.format] || { x: 0, y: 0 };
     const pl = photoData ? placement(photoData, plan.photoRect, S.zoom, pan) : null;
     return { layout, plan, pan, pl };
@@ -98,7 +151,7 @@ export async function start(opts) {
   function frame() {
     const S = store.get();
     const { layout, plan, pan, pl } = compute(S, S.values);
-    const view = { photo: photoData, zoom: S.zoom, pan, cornerRb: theme.cornerPx.rb, generics, colours: null };
+    const view = { photo: photoData, zoom: S.zoom, pan, cornerRb: theme.cornerPx.rb, generics, colours: null, logoImage };
 
     // Which text colours read clearly on the pixels under the text.
     let read = { mode: plan.onPhoto ? 'photo' : 'panel', chosen: null, anyPass: true, closest: null, panel: theme.panel };
@@ -116,7 +169,8 @@ export async function start(opts) {
 
     const level = pl ? resolutionLevel(pl.scale) : null;
     const { checks, blocked } = buildChecks({
-      fonts: S.fonts, hasPhoto: !!photoData,
+      // The brand's logos count as part of the brand's look: export waits for them too.
+      fonts: S.fonts === 'ready' && S.logos === 'loading' ? 'loading' : S.fonts, hasPhoto: !!photoData,
       photo: pl ? { level, pct: Math.round(pl.scale * 100) } : null,
       text: { hasText: plan.hasText, over: plan.fit.over, kUse: plan.fit.kUse, minScale: plan.fit.minScale },
       readability: read
@@ -233,13 +287,15 @@ export async function start(opts) {
     onPanEnd: () => {},
 
     onExport: async type => {
-      if (!last || last.blocked) { store.set({ status: 'Not ready yet. Fix the problem shown above first.' }); return; }
+      if (!last || last.blocked) { report('blocked_export'); store.set({ status: 'Not ready yet. Fix the problem shown above first.' }); return; }
       try {
+        if (!(await logosReadyFor(last.plan, last.view))) throw new Error('The brand logo could not be drawn. Reload the page and try again.');
         const canvas = renderToCanvas(last.plan, last.view);
         const blob = await toBlob(canvas, type === 'png' ? 'image/png' : 'image/jpeg', brand.studio.export.jpg_quality);
         const S = last.S;
         const name = fileName(brand.studio.export.naming, { brand: brand.slug || brand.name, format: S.format, layout: S.layout }, type);
         download(blob, name);
+        report('export');
         store.set({ status: 'Saved ' + name + ' (' + formatBytes(blob.size) + ').', dirty: false });
       } catch (e) { store.set({ status: e.message || 'The file could not be made.' }); }
     }

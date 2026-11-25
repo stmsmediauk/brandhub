@@ -28,6 +28,10 @@ const PAGE_CSP = "default-src 'none'; style-src 'unsafe-inline' https://fonts.go
 // fonts: from Google Fonts, or the brand's uploaded files on this site.
 const HUB_CSP = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 
+// The studio also reads photos the client picks (blob: and data: images) and draws
+// the brand's logos from data: images.
+const STUDIO_CSP = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+
 function send_page(int $status, string $html, array $headers = [], string $csp = PAGE_CSP): void
 {
     http_response_code($status);

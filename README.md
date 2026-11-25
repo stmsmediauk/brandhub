@@ -26,12 +26,12 @@ This replaces the old brands.stmsmedia.co.uk hub. FORMA Padel is the pilot, but 
 
 ## Where we are (update this at the end of every session)
 
-Last updated at the end of build step 2, slice 2 (committed and uploaded on 21 November 2026).
+Last updated 25 November 2026: step 2 slices 1 and 2 live; slice 3 (the studio) merged into `main`, not yet uploaded.
 
 | Build step | State |
 |---|---|
 | 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, the four rules folded into their sections, logos two across and colours as rows on phones, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white. 41 server checks, 96 browser checks. **Slice 3 (the studio at `/<brand>/studio/`) is built and PARKED on the `studio` git branch (21 November 2026): not merged, not uploaded.** |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, the four rules folded into their sections, logos two across and colours as rows on phones, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white.  **Slice 3 (the studio at `/<brand>/studio/`) built, and merged into `main` on 25 November 2026 after both checks passed again (42 server, 98 browser). Not yet uploaded.** It has the signed-in brand's record, uploaded fonts at their real weights, the brand's own logos in the artwork, downloads logged, a live Artwork studio button in the hub. 42 server checks, 98 browser checks. |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -71,14 +71,14 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 - **Draft versus live:** both can sign in. With test mode on (`config.php`), draft brands open without a password, so test brands stay draft. **Switch test mode off before real clients use the site.** Decide what a draft brand means to clients when the admin is built.
 - **Never tested:** the studio in Safari and on iPhone (only sign-in has been tried there), Android, touch dragging in the studio, real HEIC photos (only a clear message is shown), the small-screen message.
 - **Logos:** real FORMA logos (from Steve's Dropbox) are kept in `storage/brands/forma/logos/` locally (not in git) and on the server in `brands-app/storage/brands/forma/logos/`. Until the admin exists, logo files are uploaded over SSH and listed in the brand record with the add-brand tool. `run.php --serve` copies `storage/brands/` in so they show locally.
-- **Hub sections not built yet:** Supporting marks, and the Download all (zip) link. The Artwork studio button is greyed out with "Coming soon" until slice 3.
+- **Hub sections not built yet:** Supporting marks, and the Download all (zip) link.
 - `look.hero` in brand records is no longer used (the hub is white for every brand); `look.corners` is used by the artwork only. The admin's Type and look step can drop the hero choice.
-- **Not built:** carousel layout, logo files in the studio's wordmark layout, real logo colourways, the admin.
+- **Not built:** carousel layout, the admin.
 - The STMS palette and the FORMA assets in `design/` are placeholders. The three test brands in `tests/studio/fixtures/` are not real clients.
 
 ### Next step
 
-Slice 3 is parked on the `studio` git branch; `main` matches the live site. To resume: `git checkout studio` and follow the Next step written in that branch's README.
+Upload slice 3 with the routine (all of `public/studio/` and `public/layouts/` for the first time, `public/hub/hub.js`, `app/routes.php`, `app/views.php`, `app/http.php`) once Steve approves the dry-run list, then add FORMA's record (real Dropbox library link, in `storage/brands/forma/brand.json`) with the add-brand tool. Then Steve tests the studio on his iPhone (touch dragging has never been tested). After that: the admin (build step 3), and Supporting marks in the hub.
 
 ## Build order
 

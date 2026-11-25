@@ -35,6 +35,14 @@ Run by script: `php tests/server/run.php` (see docs/server.md). It covers every 
 - [ ] The session cookie is HttpOnly and SameSite, and Secure everywhere except localhost
 - [ ] By hand on the real server: https works, the cookie shows Secure in the browser's developer tools, and a deliberately wrong database password shows only "Something went wrong"
 
+## Studio on its real page
+- [ ] `/<brand>/studio/` opens for the signed-in brand only; another brand's studio sends you to its sign-in
+- [ ] The Wordmark layout shows the brand's real logo, the Full image layout its real mark, each in the readable text colour
+- [ ] A brand without logos still works (typed name, dot mark)
+- [ ] Downloads appear in the usage log as export; pressing download while blocked logs blocked_export
+- [ ] Uploaded fonts draw at their real weights (no faked bold)
+- [ ] Touch: drag the text and the photo on iPhone
+
 ## Hub
 - [ ] Every brand gets the same clean white page; only the fonts and the heading and link colours change (Northlight: Forest; FORMA: Carbon, because its lime cannot be read on white)
 - [ ] A palette of 2 and of 12 colours: the Colours rule reads correctly ("two", "twelve"), and 12 dots still fit on a phone logo card

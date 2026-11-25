@@ -1,4 +1,5 @@
 // Loads the brand's fonts and says whether they are ready.
+import { nearestWeight } from './layout-engine.js';
 // Export is blocked until this says 'ready', so the preview and the exported
 // file always match.
 
@@ -9,7 +10,7 @@ export function weightsNeeded(brand, layouts) {
     for (const line of ((l.text && l.text.lines) || [])) {
       const which = line.font === 'body' ? 'body' : 'heading';
       const spec = brand.fonts[which];
-      w[which].add(line.weight === 'brand' || line.weight == null ? (spec.weight || 400) : line.weight);
+      w[which].add(nearestWeight(spec, line.weight === 'brand' || line.weight == null ? (spec.weight || 400) : line.weight));
     }
   }
   return w;

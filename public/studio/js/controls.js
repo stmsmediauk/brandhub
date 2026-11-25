@@ -149,7 +149,7 @@ export function createUI(root, cb, opts) {
   const optBtn = (label, on, fn) => h('button', { type: 'button', class: 'opt' + (on ? ' on' : ''), 'aria-pressed': String(on), text: label, on: { click: fn } });
 
   function update(m) {
-    brandName.textContent = m.brandName;
+    if (!brandName.querySelector('svg') && brandName.textContent !== m.brandName) brandName.textContent = m.brandName;   // a logo put in by the page stays
 
     once('formats', m.formats, () => { formatRow.textContent = ''; m.formats.forEach(f => formatRow.append(optBtn(f.label, f.on, () => cb.onFormat(f.id)))); });
 

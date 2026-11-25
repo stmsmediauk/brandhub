@@ -6,7 +6,7 @@ Plain HTML, CSS and JavaScript (ES modules, no build step). Nothing about a bran
 
 ```
 public/studio/
-  index.html           the page. Sets where the brand JSON comes from
+  js/boot.js           starts the studio on its real page (/<brand>/studio/, made by app/views.php)
   studio.css           layout of the page only. Colours and fonts come from the brand
   js/
     main.js            starts the studio and connects everything
@@ -36,7 +36,12 @@ tests/studio/
 
 ## How a brand gets into the page
 
-`index.html` calls `start({ brandUrl, layoutsBase, ... })`. `brand-loader.js` fetches the brand JSON, refuses it with a plain message if it is incomplete, then fetches each layout the brand opted into from `layoutsBase`. Until login exists, `brandUrl` points at a file that does not exist, so the page shows a message. When login is built (build step 2) `index.html` becomes `index.php` and the address becomes the logged-in brand's own record, read from the database on the server. Only `brand-loader.js` and that one address change.
+The studio lives at `/<brand>/studio/`, served by `app/routes.php` only to someone signed in to that brand (or, in test mode, for a draft brand); anyone else is sent to the sign-in page. The page (`view_studio` in `app/views.php`) carries only addresses: the brand's record (`/<brand>/api/brand.json`), its files (`/<brand>/files/`), the layouts (`/layouts/`), the hub and the usage log. `js/boot.js` reads them and calls `start()`. `brand-loader.js` fetches the record, refuses it with a plain message if it is incomplete, then fetches each layout the brand opted into.
+
+- **The brand's own logos in the artwork:** the widest logo stands in for the brand name (the Wordmark layout), sized from its shape and shrunk to fit like the typed name; the first `mark` logo replaces the generic dot mark. Both are recoloured to whatever colour the text uses there (the readable photo colour, or the panel text). Logos are cleaned with `public/hub/logos.js`. Without logos, the name is typed and the dot mark is drawn, as before. Export waits until the logo images are ready.
+- **Uploaded fonts:** a layout line asking for a weight the brand did not upload is drawn at the nearest weight it has (ties go heavier), so the browser never fakes a bolder weight (`nearestWeight` in `layout-engine.js`).
+- **Usage log:** each download reports `export`, and each attempt while export is blocked reports `blocked_export`, to `/<brand>/api/log` (brand, event and time only).
+- The header shows the brand's widest logo, as in the hub, with a Back to brand hub link.
 
 ## The page
 
