@@ -26,12 +26,12 @@ This replaces the old brands.stmsmedia.co.uk hub. FORMA Padel is the pilot, but 
 
 ## Where we are (update this at the end of every session)
 
-Last updated 25 November 2026: step 2 slices 1 and 2 live; slice 3 (the studio) merged into `main`, not yet uploaded.
+Last updated 25 November 2026: all of step 2 (sign-in, hub and studio) is live. FORMA's record is ready to add but not yet in the live database.
 
 | Build step | State |
 |---|---|
 | 1. Studio engine | **Done and committed.** Four layouts, three test brands, 83 browser checks. Accented letters allowed. Client page layout reworked (sticky preview, one status line, pinned download bar). Not tested in Safari or on a real phone. |
-| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, the four rules folded into their sections, logos two across and colours as rows on phones, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white.  **Slice 3 (the studio at `/<brand>/studio/`) built, and merged into `main` on 25 November 2026 after both checks passed again (42 server, 98 browser). Not yet uploaded.** It has the signed-in brand's record, uploaded fonts at their real weights, the brand's own logos in the artwork, downloads logged, a live Artwork studio button in the hub. 42 server checks, 98 browser checks. |
+| 2. Login and the hub | **Slice 1 (secure core) built and live.** Sign-in, per-brand isolation, brand record and file serving, usage log, and the add-brand tool. **Slice 2 (the hub pages) built and live:** sticky header with the brand's logo, a slim intro row, the four rules folded into their sections, logos two across and colours as rows on phones, plain buttons, a compact minimal layout (logos and colours in four columns), Start here, Logos, Colours, Pairings, Typography and Please don't, on a clean white page with the brand's fonts and heading and link colours, drawn by `public/hub/hub.js` with the studio's colour and theme modules. The studio page is the same white.  **Slice 3 (the studio at `/<brand>/studio/`) built and live (merged into `main` and uploaded 25 November 2026, after both checks passed again).** It has the signed-in brand's record, uploaded fonts at their real weights, the brand's own logos in the artwork, downloads logged, a live Artwork studio button in the hub. 42 server checks, 98 browser checks. |
 | 3. Admin that writes brand records | Not started. The add-brand tool is the stand-in until then. |
 | 4. Re-enter the old brands | Not started. |
 | 5. Layout import from an Illustrator SVG | Not started. |
@@ -40,7 +40,7 @@ Last updated 25 November 2026: step 2 slices 1 and 2 live; slice 3 (the studio) 
 
 1. Read `CLAUDE.md`, then this README, `docs/server.md` and `docs/studio-engine.md`.
 2. Everything is committed in git. `git log --oneline` is the history; each change is its own commit so any can be rolled back.
-3. Step 2 slices 1 and 2 are live at brands.stmsmedia.co.uk (sign-in and the hub pages). Live brands: `northlight` (test) and `forma` (draft: real logos, palette and fonts, Quablo SemiBold and Regular uploaded as files; its record and files are kept in `storage/brands/forma/`, not in git). The only brand in the live database is the test brand `northlight`. The studio is not deployed, because it needs the server to supply its brand.
+3. All of step 2 is live at brands.stmsmedia.co.uk: sign-in, the hub pages and the studio (`/<brand>/studio/`). The only brand in the live database is the test brand `northlight` (draft). FORMA's files (logos, Quablo SemiBold and Regular) are on the server in `brands-app/storage/brands/forma/`, but its record has not been added yet (see Next step). Its record and files are kept locally in `storage/brands/forma/`, not in git. The two Quablo italic files are local only; the record does not use them.
 
 ### Run it
 
@@ -66,6 +66,7 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 - **Checked on the real host (21 November 2026):** the `.htaccess` rewrite works, PHP can write to `storage/` (sessions are saved), https redirects work and the session cookie is Secure, HttpOnly and SameSite=Lax. The database is MariaDB 10.11.
 - **PHP:** the website was on 7.4.33. Steve switched it to PHP 8.0 in My20i on 21 November 2026 (now 8.0.30; the main stmsmedia.co.uk site still answers).
 - **Also checked live:** signing in to a test brand (`northlight`, draft, from `tests/studio/fixtures/light-serif.json`), the usage log records the sign-in, a wrong password is refused, the 6th wrong try in 15 minutes is slowed, a form without its token is refused, and another brand's record is forbidden.
+- **Checked live after the studio upload (25 November 2026):** every new file answers, and `northlight`'s hub and studio load and draw in desktop Chrome (screenshots only: no photo uploaded, no export, no dragging tried live).
 - **Checked by Steve on the live site:** signed-in isolation (signed in to `northlight`, another brand's address shows the sign-in page), and sign-in on iPhone Safari.
 - **Not yet tried on the live site:** the full break-it checklist. `northlight` is a test brand: remove it before real clients are added.
 - **Draft versus live:** both can sign in. With test mode on (`config.php`), draft brands open without a password, so test brands stay draft. **Switch test mode off before real clients use the site.** Decide what a draft brand means to clients when the admin is built.
@@ -78,7 +79,12 @@ Start MariaDB if it is not running (`brew services start mariadb`), then from th
 
 ### Next step
 
-Upload slice 3 with the routine (all of `public/studio/` and `public/layouts/` for the first time, `public/hub/hub.js`, `app/routes.php`, `app/views.php`, `app/http.php`) once Steve approves the dry-run list, then add FORMA's record (real Dropbox library link, in `storage/brands/forma/brand.json`) with the add-brand tool. Then Steve tests the studio on his iPhone (touch dragging has never been tested). After that: the admin (build step 3), and Supporting marks in the hub.
+1. **Add FORMA to the live database (Steve).** In the VS Code terminal, from the project folder:
+   `php tools/add-brand.php new storage/brands/forma/brand.json --status=draft > ~/Desktop/add-forma.sql`
+   Type a password twice at the hidden prompt (or add `--generate` and note the password it shows once). Paste the contents of `add-forma.sql` into phpMyAdmin, run it, then delete the file. FORMA stays draft, so with test mode on it opens without a password while testing. Then open brands.stmsmedia.co.uk/forma/ and /forma/studio/.
+2. **Test the studio on iPhone (Steve):** upload a photo, drag the text and the photo with a finger, zoom, try every layout and format, download a PNG. Touch dragging has never been tested. Note anything odd.
+3. **Then:** the admin (build step 3), and Supporting marks and the Download all link in the hub.
+4. **Before real clients:** switch test mode off in the live `config.php`, remove `northlight`, run the full break-it checklist live.
 
 ## Build order
 
@@ -100,13 +106,15 @@ The agreed upload routine:
 2. **Practice run.** An rsync dry run shows exactly which files would be sent. Steve approves the list.
 3. **Backup.** The live copies of those files are copied to a dated folder on the Mac first.
 4. **Upload, then check.** Stage the committed files (`git archive HEAD app public`) in a scratch folder, set web files to 644 and folders to 755 and app files to 600 there, then send with `rsync -rlpc` (compares contents, keeps those permissions). The Mac's own rsync has no `--chmod` option. Only the approved files go up, then the live page is opened to confirm it works.
-5. **Never uploaded:** `config.php`, `config.test.php`, `.git`, `design/`, `tests/`, `docs/`.
+5. **SSH refusals:** 20i sometimes refuses the key ("Permission denied (publickey)") after several logins in quick succession. Don't retry repeatedly: reuse one connection for the whole upload with `-e "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh-stms-%C -o ControlPersist=180"` on each rsync.
+6. **Backups** of live files go in `~/brands-deploy-backups/<date>/` on the Mac.
+7. **Never uploaded:** `config.php`, `config.test.php`, `.git`, `design/`, `tests/`, `docs/`.
 
 Server layout (first deployed 21 November 2026):
 
 ```
 /home/sites/5b/8/82a71f04d6/
-  public_html/brands/   contents of public/ (index.php, .htaccess, hub/, and the studio's colour.js, theme.js and studio.css)
+  public_html/brands/   contents of public/ (index.php, .htaccess, hub/, layouts/, studio/)
   brands-app/           private, not reachable from the web
     app/
     storage/            sessions and brand files (written by PHP)
